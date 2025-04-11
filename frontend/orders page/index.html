@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Orders Management</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <h2>Manage Orders</h2>
+
+        <!-- Order Status Filter -->
+        <div class="filter">
+            <label for="statusFilter">Filter by Status:</label>
+            <select id="statusFilter">
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="rejected">Rejected</option>
+                <option value="completed">Completed</option>
+            </select>
+        </div>
+
+        <!-- Orders Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Delivery Mode</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="orderTable">
+                <tr data-status="pending">
+                    <td>#001</td>
+                    <td>Rahul Kumar</td>
+                    <td>Organic Tomatoes</td>
+                    <td>10 Kg</td>
+                    <td>Home Delivery</td>
+                    <td class="status">Pending</td>
+                    <td>
+                        <button class="accept-btn">Accept</button>
+                        <button class="reject-btn">Reject</button>
+                    </td>
+                </tr>
+                <tr data-status="accepted">
+                    <td>#002</td>
+                    <td>Anita Singh</td>
+                    <td>Fresh Mangoes</td>
+                    <td>5 Kg</td>
+                    <td>Self-Pickup</td>
+                    <td class="status">Accepted</td>
+                    <td>
+                        <button class="completed-btn">Mark Completed</button>
+                    </td>
+                </tr>
+                <tr data-status="rejected">
+                    <td>#003</td>
+                    <td>Vikram Patel</td>
+                    <td>Desi Ghee</td>
+                    <td>2 L</td>
+                    <td>Home Delivery</td>
+                    <td class="status">Rejected</td>
+                    <td>—</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.querySelectorAll('.accept-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                let row = this.closest('tr');
+                row.querySelector('.status').innerText = 'Accepted';
+                row.dataset.status = 'accepted';
+                this.nextElementSibling.remove(); // Remove reject button
+                this.innerText = 'Mark Completed';
+                this.classList.replace('accept-btn', 'completed-btn');
+            });
+        });
+
+        document.querySelectorAll('.reject-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                let row = this.closest('tr');
+                row.querySelector('.status').innerText = 'Rejected';
+                row.dataset.status = 'rejected';
+                row.querySelector('.accept-btn').remove();
+                this.remove();
+            });
+        });
+
+        document.getElementById('statusFilter').addEventListener('change', function () {
+            let filter = this.value;
+            document.querySelectorAll('#orderTable tr').forEach(row => {
+                row.style.display = filter === 'all' || row.dataset.status === filter ? '' : 'none';
+            });
+        });
+    </script>
+
+</body>
+</html>

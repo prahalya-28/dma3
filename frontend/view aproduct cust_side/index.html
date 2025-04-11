@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="product-container">
+        <div class="product-image">
+            <img src="tomato.jpg" alt="Organic Tomatoes">
+        </div>
+        
+        <div class="product-details">
+            <h2>Organic Tomatoes</h2>
+            <p class="price">₹50/kg</p>
+            <p class="availability"><strong>Availability:</strong> In Stock (20 Kg)</p>
+            <p class="farmer"><strong>Sold by:</strong> Ramesh Farms</p>
+            <p class="location"><strong>Location:</strong> Coimbatore, Tamil Nadu</p>
+            <p class="description">Fresh and organic tomatoes grown without chemicals. Best for salads, curries, and sauces.</p>
+
+            <!-- Quantity Selection -->
+            <label for="quantity">Quantity (Kg):</label>
+            <input type="number" id="quantity" value="1" min="1" max="20">
+
+            <!-- Delivery Option -->
+            <label for="delivery">Delivery Mode:</label>
+            <select id="delivery">
+                <option value="pickup">Self-Pickup</option>
+                <option value="home">Home Delivery</option>
+            </select>
+
+            <!-- Buttons -->
+            <div class="buttons">
+                <button class="contact-btn">Contact Farmer</button>
+                <button class="cart-btn">Add to Cart</button>
+                <button class="buy-btn">Buy Now</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

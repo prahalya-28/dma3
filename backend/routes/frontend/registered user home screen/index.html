@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        function removeWishlistItem(button) {
+            let card = button.closest('.card');
+            card.remove();
+        }
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Dashboard</h2>
+        <a href="#">Browse Products</a>
+        <a href="#">About Us</a>
+        <a href="#">Contact Us</a>
+        <a href="#">Wishlist</a>
+        <a href="#">Favorites</a>
+        <a href="#">Orders</a>
+        <a href="#">Become a Seller</a>
+        <a href="#">Profile</a>
+        <a href="#">Settings</a>
+        <a href="#">Logout</a>
+    </div>
+    <div class="main-content">
+        
+        <div class="user-info" id="userInfo">
+            <img src="user-photo.jpg" alt="User Photo" class="user-photo">
+            <p><strong>Name:</strong> John Doe</p>
+            <p><strong>Email:</strong> johndoe@example.com</p>
+            <p><strong>Location:</strong> New York, USA</p>
+        </div>
+        <div class="filter">
+            <label for="filter">Filter by:</label>
+            <select id="filter">
+                <option value="location">Location</option>
+                <option value="product">Product Name</option>
+            </select>
+            <button>Apply</button>
+        </div>
+        <div class="cards">
+            <div class="card">
+                <img src="wishlist1.jpg" alt="Wishlist Product 1">
+                <p>Wishlist Item 1</p>
+                <p>Price:₹50</p>
+                <p>Status: In Stock</p>
+                <button class="add-to-cart">Add to Cart</button>
+                <button class="remove" onclick="removeWishlistItem(this)">Remove</button>
+            </div>
+            <div class="card">
+                <img src="wishlist2.jpg" alt="Wishlist Product 2">
+                <p>Wishlist Item 2</p>
+                <p>Price:₹30</p>
+                <p>Status: Out of Stock</p>
+                <button class="add-to-cart">Add to Cart</button>
+                <button class="remove" onclick="removeWishlistItem(this)">Remove</button>
+            </div>
+            <div class="card">
+                <img src="wishlist3.jpg" alt="Wishlist Product 3">
+                <p>Wishlist Item 3</p>
+                <p>Price:₹40</p>
+                <p>Status: In Stock</p>
+                <button class="add-to-cart">Add to Cart</button>
+                <button class="remove" onclick="removeWishlistItem(this)">Remove</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

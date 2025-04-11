@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders - Farmer Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Manage Orders</h2>
+
+        <!-- Product Management Section -->
+        <section class="product-management">
+            <h3>Product Management</h3>
+            <button class="add-product">+ Add New Product</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Fresh Tomatoes</td>
+                        <td>₹50/kg</td>
+                        <td>20 kg</td>
+                        <td>
+                            <button class="edit">Edit</button>
+                            <button class="delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Organic Carrots</td>
+                        <td>₹40/kg</td>
+                        <td>15 kg</td>
+                        <td>
+                            <button class="edit">Edit</button>
+                            <button class="delete">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Orders Management Section -->
+        <section class="orders-management">
+            <h3>Orders</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Product</th>
+                        <th>Customer</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#1023</td>
+                        <td>Fresh Tomatoes</td>
+                        <td>Rahul Sharma</td>
+                        <td>5 kg</td>
+                        <td><span class="status pending">Pending</span></td>
+                        <td>
+                            <button class="accept">Accept</button>
+                            <button class="reject">Reject</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#1024</td>
+                        <td>Organic Carrots</td>
+                        <td>Ananya Verma</td>
+                        <td>3 kg</td>
+                        <td><span class="status accepted">Accepted</span></td>
+                        <td>
+                            <button class="view">View</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign-Up Page</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Sign Up</h2>
+        <form id="signupForm">
+            <input type="text" id="firstName" placeholder="First Name" required>
+            <input type="text" id="lastName" placeholder="Last Name" required>
+            
+            <select id="country" required onchange="updateCountryCode()">
+                <option value="">Select Country</option>
+                <option value="US" data-code="+1">United States (+1)</option>
+                <option value="IN" data-code="+91">India (+91)</option>
+                <option value="UK" data-code="+44">United Kingdom (+44)</option>
+                <option value="CA" data-code="+1">Canada (+1)</option>
+            </select>
+            
+            <input type="tel" id="mobile" placeholder="Mobile Number" required>
+            
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="text" id="username" placeholder="Username" required>
+            
+            <input type="password" id="password" placeholder="Create Password" required>
+            <div id="passwordStrength"></div>
+            
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+            
+            <button type="submit">Sign Up</button>
+        </form>
+        
+        <p>Or sign up with:</p>
+        <button class="social-btn google">
+            <img src="google-logo.png" alt="Google Logo"> Continue with Google
+        </button>
+        <button class="social-btn facebook">
+            <img src="facebook-logo.jpg" alt="Facebook Logo"> Continue with Facebook
+        </button>
+        
+        <p><a href="#">Contact Us</a></p>
+    </div>
+    
+    <script src="script.js" defer></script> <!-- External JS file -->
+</body>
+</html>

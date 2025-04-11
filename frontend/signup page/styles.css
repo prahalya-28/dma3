@@ -1,0 +1,104 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+    margin: 0;
+}
+.container {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 380px;
+    text-align: center;
+    position: relative;
+}
+
+input, select {
+    width: calc(100% - 20px);
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: 0.3s ease-in-out;
+}
+
+input:focus, select:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+    outline: none;
+}
+
+button {
+    width: calc(100% - 20px);
+    padding: 12px;
+    background: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #218838;
+    transform: scale(1.02);
+}
+
+.social-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    cursor: pointer;
+    margin-top: 12px;
+    border-radius: 30px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+    font-weight: bold;
+}
+
+.google {
+    background: white;
+    color: #555;
+    border: 1px solid #ddd;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.google:hover {
+    background: #f8f8f8;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+.facebook {
+    background: #1877f2;
+    color: white;
+    border: none;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.facebook:hover {
+    background: #166fe5;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+.social-btn img {
+    width: 22px;
+    margin-right: 12px;
+}
