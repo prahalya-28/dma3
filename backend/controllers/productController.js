@@ -1,23 +1,30 @@
-import Product from "../models/Product.js";
-
-export const getAllProducts = async (req, res) => {
-    try {
-        const products = await Product.find();
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
+import Product from '../models/Product.js';
+export const createProduct = async (req, res) => {
+    const { name, price, category, description, image, quantity } = req.body;
+  
+    if (!name || !price || !image || !quantity) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
-};
-
-export const getProductById = async (req, res) => {
+  
     try {
-        const product = await Product.findById(req.params.id).populate("farmer","name email");
-        if (product) {
-            res.json(product);
-        } else {
-            res.status(404).json({ message: "Product not found" });
-        }
-    } catch (error) {
-        res.status(500).json({ message: "Invalid product ID", error: error.message });
+      const newProduct = await Product.create({
+        name,
+        price,
+        category,
+        description,
+        image,
+        quantity,  // Store the quantity field
+        farmer: req.user?.id || null  // Optional: from auth
+      });
+  
+      res.status(201).json(newProduct);
+    } catch (err) {
+      res.status(500).json({ message: "Server error", error: err.message });
     }
-};
+  };
+  
+  export const getAllProducts = async (req, res) => {
+    const products = await Product.find();
+    res.json(products);
+  }
+  

@@ -1,9 +1,11 @@
 import express from "express";
-import { getAllProducts, getProductById } from "../controllers/productController.js";
-
+import { createProduct, getAllProducts } from "../controllers/productController.js";
+import { protect } from "../middleware/authMiddleware.js"; // ✅ import protect
+// Protected routes
+//app.use("/api/products", protect, productRoutes);
 const router = express.Router();
 
 router.get("/", getAllProducts);
-router.get("/:id", getProductById);
+router.post("/", protect, createProduct); // ✅ Protect this route
 
 export default router;

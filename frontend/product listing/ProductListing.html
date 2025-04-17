@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Listings</title>
+  <link rel="stylesheet" href="ProductListing.css" />
+</head>
+<body>
+
+  <div class="navbar">Product Listing</div>
+
+  <div class="product-form-container">
+    <form id="productForm">
+      <input type="text" id="productName" placeholder="Enter product name" required />
+      <input type="text" id="productPrice" placeholder="Enter product price" required />
+      <input type="text" id="productCategory" placeholder="Enter category" required />
+      <textarea id="productDescription" placeholder="Enter description (optional)"></textarea>
+      <input type="file" id="productImage" accept="image/*" required />
+      <input type="number" id="productQuantity" placeholder="Enter product quantity" required min="1" />
+      <div id="imageUploadMessage"></div>
+      <button type="submit">Add Product</button>
+    </form>
+  </div>
+
+  <div id="successMessage" style="display: none;"></div>
+  <div id="imageInvalidMessage"></div>
+
+  <div class="container">
+    <h2>Existing Products</h2>
+    <div class="product-grid" id="productList">
+      <!-- Products will be displayed here -->
+    </div>
+  </div>
+
+  <script src="ProductListing.js"></script>
+</body>
+</html>
