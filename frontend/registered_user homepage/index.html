@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome | Farmers' Market</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="script.js"></script>
+</head>
+<body>
+
+  <header class="navbar">
+    <h1>Farmers' Online Market</h1>
+    <nav>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#search-section" onclick="focusSearch()">Browse</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><button onclick="logout()" class="btn btn-secondary">Logout</button></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1 id="greeting">Welcome back!</h1>
+      <p>Buy & Sell Farm Products with Transparency and Trust</p>
+    </div>
+  </section>
+
+  <section id="search-section">
+    <h2>Search Products</h2>
+    <div class="search-container">
+      <input type="text" id="search-bar" placeholder="Search for fresh produce...">
+      <button onclick="searchProducts()">Search</button>
+    </div>
+  </section>
+
+  <section class="products-section">
+    <h2>Available Products</h2>
+    <div class="products-grid" id="product-container">
+      <!-- Product cards will be dynamically added -->
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Farmers' Online Market | All Rights Reserved</p>
+  </footer>
+
+</body>
+</html>

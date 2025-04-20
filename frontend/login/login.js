@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Please enter both email and password.");
             return;
         }
-
+      
         try {
             const response = await fetch('http://localhost:5000/api/users/login', {
                 method: 'POST',
@@ -23,15 +23,27 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Response:', data);
 
             if (response.ok) {
+                console.log("🔁 Response data:", data);  // Add this line for debugging
+
                 alert("Login successful!");
-
-                // ✅ Save token & user data to localStorage
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
-
-                // ✅ Redirect
-                window.location.href = '../dashboard/dashboard.html';
-            } else {
+            
+                if (data.user && data.token) {
+                    const formattedUser = {
+                        name: data.user.name || data.user.username,  // fallback if name is missing
+                        email: data.user.email,
+                        username: data.user.username
+                    };
+            
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(formattedUser));
+                } else {
+                    console.warn("⚠️ Login succeeded but user or token is missing!");
+                }
+            
+                window.location.href = "../registered_user homepage/index.html";
+            }
+            
+             else {
                 alert(data.message || 'Login failed');
             }
         } catch (error) {
