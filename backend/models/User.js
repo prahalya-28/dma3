@@ -13,15 +13,10 @@ const userSchema = new mongoose.Schema(
       enum: ["customer", "farmer"],
       default: "customer", // Default is customer
     },
-    farmerDetails: {
-      governmentId: { type: String },
-      bankDetails: {
-        accountHolder: String,
-        accountNumber: String,
-        ifsc: String,
-        upi: String,
-      },
-    },
+    farmerProfile: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FarmerProfile"
+    }
   },
   { timestamps: true }
 );

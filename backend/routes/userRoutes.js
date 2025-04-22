@@ -9,9 +9,11 @@ router.get("/", (req, res) => {
     res.json({ message: "Users route is working!" });
   });
 router.post("/register", registerUser);
-router.patch("/become-farmer", becomeFarmer);
+router.post("/become-farmer", protect, becomeFarmer);
+
 router.patch("/toggle-role", toggleUserRole);
 router.get("/profile", protect, getUserProfile); // NEW ROUTE
 router.post("/login", loginUser); // Add this line
+
 
 export default router;

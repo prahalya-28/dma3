@@ -27,16 +27,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 alert("Login successful!");
             
-                if (data.user && data.token) {
+                
+                if (data.token) {
                     const formattedUser = {
-                        name: data.user.name || data.user.username,  // fallback if name is missing
-                        email: data.user.email,
-                        username: data.user.username
+                        name: data.name || data.username,
+                        email: data.email,
+                        username: data.username
                     };
-            
+                
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(formattedUser));
-                } else {
+                }
+                
+                else {
                     console.warn("⚠️ Login succeeded but user or token is missing!");
                 }
             
