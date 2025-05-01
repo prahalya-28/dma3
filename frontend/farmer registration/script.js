@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const result = await response.json();
       if (response.ok) {
         alert("Farmer registration successful!");
-        window.location.href = "../farmer dashboard/farmer_dashb.html";
+        window.location.href = "../farmer dashboard/index.html";
         
       } else {
         alert(result.message || 'Unknown error occurred');

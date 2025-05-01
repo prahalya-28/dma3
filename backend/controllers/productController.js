@@ -28,3 +28,66 @@ export const createProduct = async (req, res) => {
     res.json(products);
   }
   
+  export const getMyProducts = async (req, res) => {
+    try {
+      const products = await Product.find({ farmer: req.user._id });
+      res.json(products);
+    } catch (err) {
+      res.status(500).json({ message: "Server error", error: err.message });
+    }
+  }
+  
+  export const updateProduct = async (req, res) => {
+    try {
+      const product = await Product.findById(req.params.id);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      // Only allow the farmer who owns the product to edit
+      if (product.farmer.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: "Not authorized to edit this product" });
+      }
+      const { name, price, category, description, image, quantity } = req.body;
+      product.name = name || product.name;
+      product.price = price || product.price;
+      product.category = category || product.category;
+      product.description = description || product.description;
+      product.image = image || product.image;
+      product.quantity = quantity || product.quantity;
+      await product.save();
+      res.json(product);
+    } catch (err) {
+      res.status(500).json({ message: "Server error", error: err.message });
+    }
+  }
+  
+  // @desc    Get a single product by ID
+  // @route   GET /api/products/:id
+  // @access  Public
+  export const getProductById = async (req, res) => {
+    try {
+      const product = await Product.findById(req.params.id)
+        .populate('farmer', 'name location');
+  
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+  
+      res.json({
+        _id: product._id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        quantity: product.quantity,
+        image: product.image,
+        farmerName: product.farmer.name,
+        location: product.farmer.location,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt
+      });
+    } catch (error) {
+      console.error('Error in getProductById:', error);
+      res.status(500).json({ message: 'Server error while fetching product' });
+    }
+  };
+  

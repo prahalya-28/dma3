@@ -74,81 +74,109 @@
     }
   };
 
-  // ✅ Become a Farmer (Seller Registration) - SUGGESTED CHANGE
-export const becomeFarmer = async (req, res) => {
-  const {
-    location,
-    idProofUrl, // Image/PDF or cloud URL
-    accountHolder,
-    accountNumber,
-    ifsc,
-    upi,
-  } = req.body;
-
-  try {
-    // --- SUGGESTED CHANGE: Re-fetch the user explicitly here ---
-    const userToUpdate = await User.findById(req.user.id);
-    // --- END SUGGESTED CHANGE ---
-
-    // --- Use the newly fetched 'userToUpdate' object for checks ---
-    if (!userToUpdate) {
-       return res.status(404).json({ message: "User not found" });
-    }
-
-    if (userToUpdate.role === "farmer") {
-      return res
-        .status(400)
-        .json({ message: "You are already registered as a farmer" });
-    }
-    // --- End checks using 'userToUpdate' ---
-
-    const farmerProfile = await FarmerProfile.create({
-      user: userToUpdate._id, // Use ID from the freshly fetched user
+  // ✅ Become a Farmer (Seller Registration)
+  export const becomeFarmer = async (req, res) => {
+    const {
       location,
       idProofUrl,
-      accountDetails: {
-        accountHolder,
-        accountNumber,
-        ifsc,
-        upi,
-      },
-    });
+      accountHolder,
+      accountNumber,
+      ifsc,
+      upi,
+    } = req.body;
 
-    // --- SUGGESTED CHANGE: Modify and save the 'userToUpdate' object ---
-    userToUpdate.role = "farmer";
-    userToUpdate.farmerProfile = farmerProfile._id;
+    try {
+      const userToUpdate = await User.findById(req.user.id).populate('farmerProfile');
+      
+      if (!userToUpdate) {
+        return res.status(404).json({ message: "User not found" });
+      }
 
-    // Optional: Add logging to see the object state just before saving
-    console.log('Attempting to save user object:', JSON.stringify(userToUpdate, null, 2));
+      // Check if user is already a farmer or has a farmer profile
+      if (userToUpdate.role === "farmer") {
+        return res.status(400).json({ 
+          message: "You are already registered as a farmer. Use the 'Switch to Seller View' button to access your dashboard.",
+          role: "farmer"
+        });
+      }
 
-    await userToUpdate.save(); // Save the freshly fetched and modified object
-    // --- END SUGGESTED CHANGE ---
+      // Check if user already has a farmer profile
+      if (userToUpdate.farmerProfile) {
+        return res.status(400).json({ 
+          message: "You already have a farmer profile. Use the 'Switch to Seller View' button to access your dashboard.",
+          role: "farmer",
+          farmerProfile: userToUpdate.farmerProfile
+        });
+      }
 
-    res.json({
-      message: "Farmer registration successful",
-      role: userToUpdate.role, // Use role from the saved object
-      profileId: farmerProfile._id,
-    });
+      // Validate required fields
+      if (!location || !idProofUrl || !accountHolder || !accountNumber || !ifsc) {
+        return res.status(400).json({ 
+          message: "Please provide all required information for farmer registration"
+        });
+      }
 
-  } catch (error) {
-    console.error("Farmer registration error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
+      const farmerProfile = await FarmerProfile.create({
+        user: userToUpdate._id,
+        location,
+        idProofUrl,
+        accountDetails: {
+          accountHolder,
+          accountNumber,
+          ifsc,
+          upi,
+        },
+      });
+
+      // Update user role and save
+      userToUpdate.role = "farmer";
+      userToUpdate.farmerProfile = farmerProfile._id;
+      
+      // Save the updated user
+      const updatedUser = await userToUpdate.save();
+      console.log("Updated user role:", updatedUser.role);
+
+      res.json({
+        message: "Farmer registration successful! You can now switch to seller view.",
+        role: updatedUser.role,
+        profileId: farmerProfile._id
+      });
+
+    } catch (error) {
+      console.error("Farmer registration error:", error);
+      res.status(500).json({ message: "Server error during farmer registration" });
+    }
+  };
 
   // ✅ Toggle Role (customer <-> farmer)
   export const toggleUserRole = async (req, res) => {
-    const { userId } = req.body;
-
     try {
-      const user = await User.findById(userId);
+      const user = await User.findById(req.user.id).populate('farmerProfile');
       if (!user) return res.status(404).json({ message: "User not found" });
 
+      // If switching to farmer role, check if user has a farmer profile
+      if (user.role === "customer") {
+        if (!user.farmerProfile) {
+          return res.status(400).json({ 
+            message: "You need to complete farmer registration first",
+            requiresRegistration: true
+          });
+        }
+      }
+
+      // Toggle the role
       user.role = user.role === "customer" ? "farmer" : "customer";
       await user.save();
 
-      res.json({ message: `Role switched to ${user.role}` });
+      console.log(`User ${user.email} role switched to: ${user.role}`);
+
+      res.json({ 
+        message: `Role switched to ${user.role}`,
+        role: user.role,
+        farmerProfile: user.farmerProfile
+      });
     } catch (err) {
+      console.error("Toggle role error:", err);
       res.status(500).json({ message: "Server error" });
     }
   };
@@ -158,8 +186,28 @@ export const becomeFarmer = async (req, res) => {
     try {
       const user = await User.findById(req.user.id).select("-password");
       if (!user) return res.status(404).json({ message: "User not found" });
-      res.json(user);
+      
+      console.log("User role in profile:", user.role);
+      
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        mobile: user.mobile,
+        address: user.address,
+        username: user.username,
+        farmerProfile: user.farmerProfile
+      });
     } catch (error) {
+      console.error("Get profile error:", error);
       res.status(500).json({ message: "Server error" });
     }
   };
+
+  export const getMe = (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    res.json(req.user);
+  }

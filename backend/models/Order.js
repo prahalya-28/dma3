@@ -1,13 +1,53 @@
 import mongoose from "mongoose";
 
-const orderSchema = new mongoose.Schema({ 
-  product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
-  buyer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  seller: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  quantity: { type: Number, required: true },
-  totalPrice: { type: Number, required: true },
-  status: { type: String, enum: ["Pending", "Accepted", "Shipped", "Delivered", "Cancelled"], default: "Pending" },
-  paymentStatus: { type: String, enum: ["Pending", "Completed"], default: "Pending" },
+const orderSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "User"
+  },
+  product: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "Product"
+  },
+  farmer: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "User"
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  pricePerUnit: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  totalPrice: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  deliveryMethod: {
+    type: String,
+    required: true,
+    enum: ["pickup", "home"]
+  },
+  deliveryDetails: {
+    pickupTime: String,
+    address: String,
+    phone: String
+  },
+  specialInstructions: String,
+  status: {
+    type: String,
+    required: true,
+    enum: ["pending", "accepted", "rejected", "completed", "cancelled"],
+    default: "pending"
+  }
 }, { timestamps: true });
 
 const Order = mongoose.model("Order", orderSchema);
