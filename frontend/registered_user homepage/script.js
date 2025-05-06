@@ -2,7 +2,7 @@
 const API_BASE_URL = "http://localhost:5000";
 
 // Add placeholder image as base64 data URL at the top of the file
-const PLACEHOLDER_IMAGE = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2NjIpLCBxdWFsaXR5ID0gOTAK/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgAZABkAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A+t6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//2Q==';
+const PLACEHOLDER_IMAGE = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2NjIpLCBxdWFsaXR5ID0gOTAK/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgAZABkAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A+t6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA//2Q==';
 
 document.addEventListener("DOMContentLoaded", () => {
   const userString = localStorage.getItem("user");
@@ -1044,136 +1044,113 @@ async function loadUserOrders() {
 // Payment handling
 let currentPaymentOrder = null;
 
-function showPaymentModal(order) {
-  currentPaymentOrder = order;
-  const modal = document.getElementById('paymentModal');
-  const spinner = document.getElementById('paymentLoadingSpinner');
-  const errorMsg = document.getElementById('paymentErrorMessage');
-  
-  // Clear any previous messages
-  spinner.style.display = 'none';
-  errorMsg.style.display = 'none';
-  
-  // Update payment details
-  document.getElementById('paymentOrderId').textContent = order._id.slice(-6);
-  document.getElementById('paymentProductName').textContent = order.product.name;
-  document.getElementById('paymentQuantity').textContent = order.quantity;
-  document.getElementById('paymentAmount').textContent = order.totalPrice;
-  
-  // Show modal
-  modal.style.display = 'block';
+async function showPaymentModal(orderId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch order details');
+        }
+        
+        const order = await response.json();
+        
+        // Update modal content
+        document.getElementById('paymentOrderId').textContent = order._id;
+        document.getElementById('paymentAmount').textContent = `₹${order.totalPrice}`;
+        
+        // Show modal
+        document.getElementById('paymentModal').style.display = 'block';
+        
+        // Store order ID for payment
+        document.getElementById('paymentModal').dataset.orderId = order._id;
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Failed to load payment details. Please try again.');
+    }
 }
 
 function closePaymentModal() {
-  const modal = document.getElementById('paymentModal');
-  modal.style.display = 'none';
-  currentPaymentOrder = null;
+    document.getElementById('paymentModal').style.display = 'none';
 }
 
 async function initiatePayment() {
-  if (!currentPaymentOrder) return;
-  
-  const spinner = document.getElementById('paymentLoadingSpinner');
-  const errorMsg = document.getElementById('paymentErrorMessage');
-  const payNowBtn = document.getElementById('payNowBtn');
-  
-  try {
-    spinner.style.display = 'block';
-    errorMsg.style.display = 'none';
-    payNowBtn.disabled = true;
-    
-    // Get payment details from backend
-    const response = await fetch(`${API_BASE_URL}/api/payments/create-order`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getToken()}`
-      },
-      body: JSON.stringify({
-        orderId: currentPaymentOrder._id,
-        amount: currentPaymentOrder.totalPrice * 100 // Convert to paise
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to create payment order');
-    }
-    
-    const paymentData = await response.json();
-    
-    // Initialize Razorpay
-    const options = {
-      key: paymentData.key,
-      amount: paymentData.amount,
-      currency: 'INR',
-      name: 'Farmers Market',
-      description: `Payment for Order #${currentPaymentOrder._id.slice(-6)}`,
-      order_id: paymentData.orderId,
-      handler: async function(response) {
-        try {
-          // Verify payment on backend
-          const verifyResponse = await fetch(`${API_BASE_URL}/api/payments/verify`, {
+    try {
+        const orderId = document.getElementById('paymentModal').dataset.orderId;
+        
+        // Create payment order
+        const response = await fetch(`${API_BASE_URL}/api/payments/create-order`, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${getToken()}`
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            body: JSON.stringify({
-              orderId: currentPaymentOrder._id,
-              paymentId: response.razorpay_payment_id,
-              signature: response.razorpay_signature
-            })
-          });
-          
-          if (!verifyResponse.ok) {
-            throw new Error('Payment verification failed');
-          }
-          
-          // Update order status to paid
-          const updateResponse = await fetch(`${API_BASE_URL}/api/orders/${currentPaymentOrder._id}/status`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${getToken()}`
-            },
-            body: JSON.stringify({ status: 'paid' })
-          });
-          
-          if (!updateResponse.ok) {
-            throw new Error('Failed to update order status');
-          }
-          
-          // Show success message and close modal
-          showSuccess('paymentSuccessMessage', 'Payment successful! Your order is now confirmed.');
-          setTimeout(() => {
-            closePaymentModal();
-            loadUserOrders(); // Refresh orders list
-          }, 2000);
-          
-        } catch (error) {
-          console.error('Payment verification error:', error);
-          showError('paymentErrorMessage', 'Payment verification failed. Please contact support.');
+            body: JSON.stringify({ orderId })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to create payment order');
         }
-      },
-      prefill: {
-        name: currentPaymentOrder.user.name,
-        email: currentPaymentOrder.user.email
-      },
-      theme: {
-        color: '#28a745'
-      }
-    };
-    
-    const razorpay = new Razorpay(options);
-    razorpay.open();
-    
-  } catch (error) {
-    console.error('Payment initiation error:', error);
-    showError('paymentErrorMessage', 'Failed to initiate payment. Please try again.');
-  } finally {
-    spinner.style.display = 'none';
-    payNowBtn.disabled = false;
-  }
+
+        const data = await response.json();
+
+        // Initialize Razorpay
+        const options = {
+            key: data.key_id,
+            amount: data.amount,
+            currency: data.currency,
+            name: "Farm Fresh",
+            description: "Payment for your order",
+            order_id: data.order_id,
+            handler: async function (response) {
+                try {
+                    // Verify payment
+                    const verifyResponse = await fetch(`${API_BASE_URL}/api/payments/verify`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({
+                            orderId, // internal order id
+                            razorpayOrderId: response.razorpay_order_id, // Razorpay order id
+                            paymentId: response.razorpay_payment_id,
+                            signature: response.razorpay_signature
+                        })
+                    });
+
+                    if (!verifyResponse.ok) {
+                        throw new Error('Payment verification failed');
+                    }
+
+                    // No need to update order status to 'paid' here
+                    // Just close modal, show success, and refresh orders
+                    closePaymentModal();
+                    showSuccess('Payment successful! Your order has been confirmed.');
+                    fetchUserOrders();
+                } catch (error) {
+                    console.error('Error:', error);
+                    showError('Payment verification failed. Please contact support.');
+                }
+            },
+            prefill: {
+                name: "Customer Name",
+                email: "customer@example.com"
+            },
+            theme: {
+                color: "#4CAF50"
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Failed to initiate payment. Please try again.');
+    }
 }
 
 // Update displayUserOrders to show payment button for accepted orders
@@ -1195,8 +1172,17 @@ function displayUserOrders(orders) {
     let paymentButton = '';
     if (order.status === 'accepted') {
       paymentButton = `
-        <button class="primary-btn" onclick="showPaymentModal(${JSON.stringify(order)})">
+        <button class="primary-btn" onclick="showPaymentModal('${order._id}')">
           Pay Now
+        </button>
+      `;
+    }
+    // Add Chat with Farmer button
+    let chatButton = '';
+    if (order.farmer && order.farmer._id) {
+      chatButton = `
+        <button class="secondary-btn" onclick="startChatWithFarmer('${order.farmer._id}', '${order._id}')">
+          Chat with Farmer
         </button>
       `;
     }
@@ -1216,8 +1202,8 @@ function displayUserOrders(orders) {
           </div>
         </div>
         <div class="farmer-info">
-          <p><strong>Farmer:</strong> ${order.farmer.name}</p>
-          <p><strong>Location:</strong> ${order.farmer.location}</p>
+          <p><strong>Farmer:</strong> ${order.farmer && order.farmer.name ? order.farmer.name : 'Unknown Farmer'}</p>
+          <p><strong>Location:</strong> ${order.farmer && order.farmer.location ? order.farmer.location : 'Not specified'}</p>
           <p><strong>Delivery:</strong> ${order.deliveryMethod === 'pickup' ? 'Self Pickup' : 'Home Delivery'}</p>
           ${order.deliveryMethod === 'pickup' ? 
             `<p><strong>Pickup Time:</strong> ${order.deliveryDetails.pickupTime}</p>` :
@@ -1230,15 +1216,39 @@ function displayUserOrders(orders) {
             <p><strong>Special Instructions:</strong> ${order.specialInstructions}</p>
           </div>` : ''
         }
-        <div class="order-timeline">
-          <p><strong>Ordered on:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
-          ${order.updatedAt !== order.createdAt ? 
-            `<p><strong>Last updated:</strong> ${new Date(order.updatedAt).toLocaleString()}</p>` : ''
-          }
-        </div>
+      </div>
+      <div class="order-actions">
         ${paymentButton}
+        ${chatButton}
       </div>
     `;
     container.appendChild(card);
   });
 }
+
+// Add the chat function
+window.startChatWithFarmer = async function(farmerId, orderId) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please log in to start a chat.");
+    return;
+  }
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/chat/start`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ farmerId, orderId })
+    });
+    if (!response.ok) {
+      throw new Error("Failed to start chat");
+    }
+    const data = await response.json();
+    // Redirect to chat page (update path as needed)
+    window.location.href = `../chat/index.html?chatId=${data.chatId}`;
+  } catch (err) {
+    alert("Could not start chat with farmer. Please try again later.");
+  }
+};

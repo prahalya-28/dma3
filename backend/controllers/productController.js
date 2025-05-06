@@ -80,8 +80,7 @@ export const createProduct = async (req, res) => {
         price: product.price,
         quantity: product.quantity,
         image: product.image,
-        farmerName: product.farmer.name,
-        location: product.farmer.location,
+        farmer: product.farmer,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt
       });

@@ -143,3 +143,30 @@ export const updateOrderStatus = async (req, res) => {
         res.status(500).json({ message: "Failed to update order status" });
     }
 };
+
+// @desc    Get order by ID
+// @route   GET /api/orders/:id
+// @access  Private
+export const getOrderById = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id)
+            .populate('product', 'name image')
+            .populate('farmer', 'name location')
+            .populate('user', 'name email');
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        // Check if the user is either the buyer or the farmer
+        if (order.user._id.toString() !== req.user._id.toString() && 
+            order.farmer._id.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: "Not authorized to view this order" });
+        }
+
+        res.json(order);
+    } catch (error) {
+        console.error('Error in getOrderById:', error);
+        res.status(500).json({ message: "Failed to fetch order" });
+    }
+};

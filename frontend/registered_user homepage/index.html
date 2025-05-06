@@ -250,98 +250,50 @@
                           placeholder="Enter your complete delivery address"></textarea>
               </div>
               <div class="form-group">
-                <label for="deliveryPhone">Contact Number for Delivery:</label>
+                <label for="deliveryPhone">Phone Number:</label>
                 <input type="tel" id="deliveryPhone" required
-                       placeholder="Enter phone number for delivery updates">
+                       placeholder="Enter your contact number">
               </div>
             </div>
+          </div>
+
+          <div class="button-group">
+            <button type="button" class="secondary-btn" onclick="goToReviewStep()">Back</button>
+            <button type="button" class="primary-btn" onclick="goToConfirmationStep()">Continue to Confirmation</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Order Confirmation -->
+      <div class="step-content" id="step3-content" style="display:none;">
+        <h3>Confirm Your Order</h3>
+        
+        <div class="confirmation-details">
+          <div class="product-summary">
+            <img id="confirmProductImage" src="" alt="Product Image">
+            <div class="order-details">
+              <h4 id="confirmProductName"></h4>
+              <p><strong>Quantity:</strong> <span id="confirmQuantity"></span> Kg</p>
+              <p><strong>Price per Kg:</strong> ₹<span id="confirmPrice"></span></p>
+            </div>
+          </div>
+
+          <div class="delivery-summary">
+            <h4>Delivery Details</h4>
+            <p><strong>Method:</strong> <span id="confirmDeliveryMethod"></span></p>
+            <div id="confirmDeliveryAddress"></div>
+          </div>
+
+          <div class="order-total">
+            <h4>Order Total</h4>
+            <p><strong>Total Amount:</strong> ₹<span id="confirmTotalPrice"></span></p>
           </div>
         </div>
 
         <div class="button-group">
-          <button type="button" class="secondary-btn" onclick="goToReviewStep()">Back</button>
-          <button type="button" class="primary-btn" onclick="goToConfirmStep()">Continue to Confirmation</button>
+          <button type="button" class="secondary-btn" onclick="goToDeliveryStep()">Back</button>
+          <button type="button" class="primary-btn" onclick="placeOrder()">Place Order</button>
         </div>
-      </div>
-
-      <!-- Step 3: Confirmation -->
-      <div class="step-content" id="step3-content" style="display:none;">
-        <div class="order-confirmation">
-          <h3>Order Summary</h3>
-          <div class="summary-details">
-            <div class="summary-item">
-              <strong>Product:</strong>
-              <span id="confirmProductName"></span>
-            </div>
-            <div class="summary-item">
-              <strong>Quantity:</strong>
-              <span id="confirmQuantity"></span> Kg
-            </div>
-            <div class="summary-item">
-              <strong>Price per Kg:</strong>
-              ₹<span id="confirmPrice"></span>
-            </div>
-            <div class="summary-item">
-              <strong>Delivery Method:</strong>
-              <span id="confirmDeliveryMethod"></span>
-            </div>
-            <div class="summary-item" id="confirmAddressSection">
-              <strong>Delivery Address:</strong>
-              <span id="confirmAddress"></span>
-            </div>
-            <div class="summary-item">
-              <strong>Total Amount:</strong>
-              ₹<span id="confirmTotalPrice"></span>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="orderInstructions">Special Instructions (Optional):</label>
-            <textarea id="orderInstructions" rows="2" 
-                      placeholder="Any special instructions for the farmer?"></textarea>
-          </div>
-
-          <div class="button-group">
-            <button type="button" class="secondary-btn" onclick="goToDeliveryStep()">Back</button>
-            <button type="button" class="primary-btn" onclick="sendOrderRequest()">Send Order Request</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Order Confirmation Modal -->
-  <div id="orderConfirmationModal" class="modal" style="display:none;">
-    <div class="modal-content confirmation-container">
-      <span class="close">&times;</span>
-      <div class="success-icon">✓</div>
-      <h2>Order Request Sent!</h2>
-      <div id="confirmationMessage" class="success-message"></div>
-
-      <div class="order-details">
-        <h3>Order Details</h3>
-        <p><strong>Order ID:</strong> <span id="confirmOrderId"></span></p>
-        <p><strong>Product:</strong> <span id="confirmProductName"></span></p>
-        <p><strong>Quantity:</strong> <span id="confirmQuantity"></span> Kg</p>
-        <p><strong>Total Price:</strong> ₹<span id="confirmTotalPrice"></span></p>
-        <p><strong>Delivery Method:</strong> <span id="confirmDeliveryMethod"></span></p>
-        <p><strong>Status:</strong> <span id="confirmOrderStatus"></span></p>
-      </div>
-
-      <div class="next-steps">
-        <h3>Next Steps</h3>
-        <ol>
-          <li>Wait for farmer to review your order request</li>
-          <li>Once accepted, you'll receive a notification</li>
-          <li>You can chat with the farmer to discuss details</li>
-          <li>Track your order status in the Orders section</li>
-        </ol>
-      </div>
-
-      <div class="buttons">
-        <button onclick="chatWithFarmer()" class="chat-btn">💬 Chat with Farmer</button>
-        <button onclick="viewOrders()" class="view-orders-btn">📦 View Orders</button>
-        <button onclick="closeConfirmationModal()" class="back-btn">🏠 Back to Home</button>
       </div>
     </div>
   </div>
@@ -352,40 +304,29 @@
       <span class="close">&times;</span>
       <div id="paymentLoadingSpinner" class="loading-spinner"></div>
       <div id="paymentErrorMessage" class="error-message"></div>
+      <div id="paymentSuccessMessage" class="success-message"></div>
       
       <h2>Complete Payment</h2>
       <div class="payment-details">
-        <div class="order-summary">
-          <h3>Order Summary</h3>
-          <div class="summary-item">
-            <strong>Order ID:</strong>
-            <span id="paymentOrderId"></span>
-          </div>
-          <div class="summary-item">
-            <strong>Product:</strong>
-            <span id="paymentProductName"></span>
-          </div>
-          <div class="summary-item">
-            <strong>Quantity:</strong>
-            <span id="paymentQuantity"></span> Kg
-          </div>
-          <div class="summary-item">
-            <strong>Total Amount:</strong>
-            ₹<span id="paymentAmount"></span>
-          </div>
-        </div>
-
-        <div class="payment-options">
-          <button id="payNowBtn" class="primary-btn" onclick="initiatePayment()">
-            Pay Now
-          </button>
-          <button class="secondary-btn" onclick="closePaymentModal()">
-            Cancel Payment
-          </button>
-        </div>
+        <p><strong>Order Amount:</strong> ₹<span id="paymentAmount">0</span></p>
+        <p><strong>Order ID:</strong> <span id="paymentOrderId"></span></p>
       </div>
+      <button onclick="initiatePayment()" class="pay-now-btn">Pay Now</button>
     </div>
   </div>
 
+  <!-- Order Confirmation Modal -->
+  <div id="orderConfirmationModal" class="modal" style="display:none;">
+    <div class="modal-content confirmation-container">
+      <span class="close">&times;</span>
+      <div class="confirmation-message">
+        <h2>Order Placed Successfully!</h2>
+        <p>Your order has been placed and is being processed.</p>
+        <p>Order ID: <span id="confirmationOrderId"></span></p>
+        <button onclick="closeConfirmationModal()" class="primary-btn">Continue Shopping</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
+

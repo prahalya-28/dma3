@@ -4,10 +4,8 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Create Razorpay order
+// Payment routes
 router.post('/create-order', protect, createOrder);
-
-// Verify payment
 router.post('/verify', protect, verifyPayment);
 
 export default router; 
