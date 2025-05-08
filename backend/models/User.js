@@ -22,9 +22,15 @@ const userSchema = new mongoose.Schema(
     isLocked: { type: Boolean, default: false },
     lockUntil: { type: Date },
     resetPasswordToken: { type: String },
-    resetPasswordExpires: { type: Date }
+    resetPasswordExpires: { type: Date },
+    profilePicture: { type: String },
+    bio: { type: String },
+    facebook: { type: String },
+    instagram: { type: String },
+    twitter: { type: String },
   },
   { timestamps: true }
 );
 
-export default mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
+export default User;

@@ -33,16 +33,13 @@ document.addEventListener("DOMContentLoaded", () => {
   checkUserRole();
   viewProducts(); // Show products by default
 
-  // Product View Modal close (cross) button
-  const productViewModal = document.getElementById('productViewModal');
-  if (productViewModal) {
-    const closeBtn = productViewModal.querySelector('.close');
-    if (closeBtn) {
-      closeBtn.onclick = function() {
-        productViewModal.style.display = 'none';
-      };
-    }
-  }
+  // Modal close (cross) buttons for all modals
+  document.querySelectorAll('.modal .close').forEach(btn => {
+    btn.onclick = function() {
+      const modal = btn.closest('.modal');
+      if (modal) modal.style.display = 'none';
+    };
+  });
 });
 
 function fetchProducts() {
@@ -98,9 +95,36 @@ function logout() {
   window.location.href = "../login/index.html";
 }
 
-function placeOrder(productId) {
+function placeOrder() {
   const token = localStorage.getItem("token");
   if (!token) return alert("Please log in again");
+
+  // Role check: prevent farmers from placing orders
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  if (user.role === "farmer") {
+    alert("You are currently in seller mode. Please switch to customer view to place orders.");
+    return;
+  }
+
+  // Get productId from window.currentProduct
+  const productId = window.currentProduct?._id;
+  if (!productId) {
+    alert("Product information not found. Please try again.");
+    return;
+  }
+
+  // Get values from the order modal
+  const quantity = parseFloat(document.getElementById("orderQuantity").value);
+  const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked')?.value;
+  let deliveryDetails = {};
+  if (deliveryMethod === "pickup") {
+    deliveryDetails = { pickupTime: document.getElementById("pickupTime").value };
+  } else if (deliveryMethod === "home") {
+    deliveryDetails = {
+      address: document.getElementById("orderAddress").value,
+      phone: document.getElementById("deliveryPhone").value
+    };
+  }
 
   fetch("http://localhost:5000/api/orders", {
     method: "POST",
@@ -108,11 +132,11 @@ function placeOrder(productId) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ productId, quantity: 1 })
+    body: JSON.stringify({ productId, quantity, deliveryMethod, deliveryDetails })
   })
     .then(res => res.json())
     .then(data => {
-      if (data.message) {
+      if (data._id) {
         alert("Order placed successfully!");
       } else {
         alert("Something went wrong while ordering");
@@ -637,6 +661,8 @@ async function sendOrderRequest() {
     // Close order modal and show confirmation
     document.getElementById("orderRequestModal").style.display = "none";
     showOrderConfirmation(order);
+    // Refresh product list to show updated stock
+    fetchProducts();
     
   } catch (error) {
     console.error("Error sending order request:", error);
@@ -772,247 +798,6 @@ function handleApiError(error, userMessage = "An error occurred") {
     return;
   }
   alert(userMessage);
-}
-
-// Cart functionality
-function addToCart() {
-  const productId = productViewModal.dataset.productId;
-  const quantity = parseInt(document.getElementById('modalQuantity').value);
-  
-  if (!productId) {
-    showError('productErrorMessage', "Product not found!");
-    return;
-  }
-
-  const token = getToken();
-  if (!token) {
-    window.location.href = "../login/index.html";
-    return;
-  }
-
-  const spinner = document.getElementById('productLoadingSpinner');
-  const errorMsg = document.getElementById('productErrorMessage');
-  
-  spinner.style.display = "block";
-  errorMsg.style.display = "none";
-
-  fetch(`${API_BASE_URL}/api/cart/add`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ productId, quantity })
-  })
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.json();
-  })
-  .then(data => {
-    spinner.style.display = "none";
-    showSuccess('productSuccessMessage', "Product added to cart successfully!");
-    setTimeout(() => {
-      productViewModal.style.display = "none";
-    }, 1500);
-  })
-  .catch(err => {
-    spinner.style.display = "none";
-    showError('productErrorMessage', "Failed to add product to cart");
-    console.error("Cart error:", err);
-  });
-}
-
-function viewCart() {
-  const token = getToken();
-  if (!token) {
-    window.location.href = "../login/index.html";
-    return;
-  }
-
-  const modal = document.getElementById('cartModal');
-  const spinner = document.getElementById('cartLoadingSpinner');
-  const errorMsg = document.getElementById('cartErrorMessage');
-  const itemsContainer = document.getElementById('cartItems');
-  const summary = document.querySelector('.cart-summary');
-  const emptyMessage = document.getElementById('emptyCartMessage');
-  
-  modal.style.display = "block";
-  spinner.style.display = "block";
-  errorMsg.style.display = "none";
-  itemsContainer.innerHTML = "";
-  summary.style.display = "none";
-  emptyMessage.style.display = "none";
-
-  fetch(`${API_BASE_URL}/api/cart`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.json();
-  })
-  .then(cart => {
-    spinner.style.display = "none";
-    
-    if (!cart.items || cart.items.length === 0) {
-      emptyMessage.style.display = "block";
-      return;
-    }
-
-    let totalAmount = 0;
-    cart.items.forEach(item => {
-      const itemElement = document.createElement('div');
-      itemElement.className = 'cart-item';
-      totalAmount += item.price * item.quantity;
-      
-      itemElement.innerHTML = `
-        <img src="${item.product.image || PLACEHOLDER_IMAGE}" 
-             alt="${item.product.name}"
-             onerror="this.src='${PLACEHOLDER_IMAGE}'">
-        <div class="item-details">
-          <h3>${item.product.name}</h3>
-          <p>Price: ₹${item.price}/kg</p>
-          <p>Quantity: ${item.quantity} kg</p>
-          <p>Subtotal: ₹${item.price * item.quantity}</p>
-        </div>
-        <button onclick="removeFromCart('${item.product._id}')" class="remove-btn">
-          Remove
-        </button>
-      `;
-      itemsContainer.appendChild(itemElement);
-    });
-
-    document.getElementById('cartTotalItems').textContent = cart.items.length;
-    document.getElementById('cartTotalAmount').textContent = totalAmount;
-    summary.style.display = "block";
-  })
-  .catch(err => {
-    spinner.style.display = "none";
-    showError('cartErrorMessage', "Failed to load cart");
-    console.error("Cart error:", err);
-  });
-}
-
-function removeFromCart(productId) {
-  const token = getToken();
-  if (!token) {
-    window.location.href = "../login/index.html";
-    return;
-  }
-
-  const spinner = document.getElementById('cartLoadingSpinner');
-  const errorMsg = document.getElementById('cartErrorMessage');
-  
-  spinner.style.display = "block";
-  errorMsg.style.display = "none";
-
-  fetch(`${API_BASE_URL}/api/cart/remove`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ productId })
-  })
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.json();
-  })
-  .then(() => {
-    // Refresh cart view
-    viewCart();
-  })
-  .catch(err => {
-    spinner.style.display = "none";
-    showError('cartErrorMessage', "Failed to remove item from cart");
-    console.error("Cart error:", err);
-  });
-}
-
-function checkoutCart() {
-  const token = getToken();
-  if (!token) {
-    window.location.href = "../login/index.html";
-    return;
-  }
-
-  // Hide cart modal and show order request modal
-  document.getElementById('cartModal').style.display = "none";
-  const orderModal = document.getElementById('orderRequestModal');
-  orderModal.style.display = "block";
-  
-  // Load cart details into order form
-  fetch(`${API_BASE_URL}/api/cart`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.json();
-  })
-  .then(cart => {
-    if (!cart.items || cart.items.length === 0) {
-      showError('orderErrorMessage', "Your cart is empty");
-      return;
-    }
-
-    // For now, we'll handle single item checkout
-    // TODO: Implement multi-item checkout
-    const item = cart.items[0];
-    
-    document.getElementById('orderProductImage').src = item.product.image || PLACEHOLDER_IMAGE;
-    document.getElementById('orderProductName').textContent = item.product.name;
-    document.getElementById('orderFarmerName').textContent = item.product.farmer.name;
-    document.getElementById('orderProductPrice').textContent = item.price;
-    document.getElementById('orderFarmerLocation').textContent = item.product.farmer.location || 'Not specified';
-    
-    const quantityInput = document.getElementById('orderQuantity');
-    quantityInput.value = item.quantity;
-    quantityInput.max = item.product.quantity;
-    
-    updateOrderTotal();
-  })
-  .catch(err => {
-    showError('orderErrorMessage', "Failed to load cart details");
-    console.error("Checkout error:", err);
-  });
-}
-
-// Helper functions for showing messages
-function showError(elementId, message) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.textContent = message;
-    element.style.display = "block";
-    setTimeout(() => {
-      element.style.display = "none";
-    }, 5000);
-  }
-}
-
-function showSuccess(elementId, message) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.textContent = message;
-    element.style.display = "block";
-    setTimeout(() => {
-      element.style.display = "none";
-    }, 3000);
-  }
-}
-
-function clearCart() {
-  const token = getToken();
-  if (!token) return;
-
-  fetch(`${API_BASE_URL}/api/cart/clear`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).catch(err => console.error("Error clearing cart:", err));
 }
 
 // Function to view orders
@@ -1251,6 +1036,10 @@ function displayUserOrders(orders) {
 
 // Add the chat function
 window.startChatWithFarmer = async function(farmerId, orderId) {
+  if (!farmerId || !orderId) {
+    alert("Could not start chat: missing farmer or order information.");
+    return;
+  }
   const token = localStorage.getItem("token");
   if (!token) {
     alert("Please log in to start a chat.");
@@ -1266,12 +1055,13 @@ window.startChatWithFarmer = async function(farmerId, orderId) {
       body: JSON.stringify({ farmerId, orderId })
     });
     if (!response.ok) {
-      throw new Error("Failed to start chat");
+      const data = await response.json();
+      throw new Error(data.message || "Failed to start chat");
     }
     const data = await response.json();
     // Redirect to chat page (update path as needed)
     window.location.href = `../chat/index.html?chatId=${data.chatId}`;
   } catch (err) {
-    alert("Could not start chat with farmer. Please try again later.");
+    alert("Could not start chat with farmer. Please try again later.\n" + (err.message || ""));
   }
 };

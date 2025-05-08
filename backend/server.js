@@ -12,6 +12,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
+import * as chatController from "./controllers/chatController.js";
 
 // Get current file's directory
 const __filename = fileURLToPath(import.meta.url);
@@ -35,13 +36,25 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
-  },
+    origin: [
+      "http://localhost:3000",
+      "http://127.0.0.1:5501",
+      "http://localhost:5501"
+    ],
+    methods: ["GET", "POST"]
+  }
 });
+
+// Initialize Socket.IO
+chatController.initializeSocket(io);
 
 // Middleware
 app.use(cors({
-  origin: "*", // Allow all origins for development
+  origin: [
+    "http://localhost:3000",
+    "http://127.0.0.1:5501",
+    "http://localhost:5501"
+  ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"]

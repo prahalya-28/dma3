@@ -18,10 +18,20 @@
             <h2 id="productName"></h2>
             <p class="price" id="productPrice"></p>
             <p class="availability" id="productAvailability"></p>
-            <p class="farmer" id="farmerInfo"></p>
-            <p class="location" id="farmerLocation"></p>
             <p class="description" id="productDescription"></p>
-
+            <!-- Farmer Profile Section -->
+            <div class="farmer-profile-section" style="margin: 20px 0; padding: 12px; background: #f9f9f9; border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <img id="farmerProfilePic" src="../user-photo.jpg" alt="Farmer Profile Picture" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #eee;">
+                    <div>
+                        <div id="farmerFarmName" style="font-weight:bold;font-size:1.1em;"></div>
+                        <div id="farmerLocation" style="color:#666;"></div>
+                    </div>
+                </div>
+                <div id="farmerBio" style="margin-top:8px;font-style:italic;color:#444;"></div>
+                <div id="farmerSocials" style="margin-top:8px;"></div>
+            </div>
+            <!-- End Farmer Profile Section -->
             <!-- Quantity Selection -->
             <label for="quantity">Quantity:</label>
             <input type="number" id="quantity" value="1" min="1">
@@ -82,8 +92,19 @@
             document.getElementById('productPrice').textContent = `₹${product.price}/unit`;
             document.getElementById('productAvailability').textContent = `In Stock: ${product.quantity} units`;
             document.getElementById('productDescription').textContent = product.description || 'No description available';
-            document.getElementById('farmerInfo').textContent = `Sold by: ${product.farmer?.name || 'Unknown Farmer'}`;
-            document.getElementById('farmerLocation').textContent = `Location: ${product.farmer?.location || 'Location not specified'}`;
+            // Farmer profile section
+            const farmer = product.farmer || {};
+            const farmerProfile = farmer.farmerProfile || {};
+            document.getElementById('farmerProfilePic').src = farmer.profilePicture || '../user-photo.jpg';
+            document.getElementById('farmerFarmName').textContent = farmerProfile.farmName || 'Farm name not specified';
+            document.getElementById('farmerLocation').textContent = farmerProfile.location || 'Location not specified';
+            document.getElementById('farmerBio').textContent = farmerProfile.bio || '';
+            // Socials
+            let socialsHtml = '';
+            if (farmerProfile.facebook) socialsHtml += `<a href="${farmerProfile.facebook}" target="_blank">Facebook</a> `;
+            if (farmerProfile.instagram) socialsHtml += `<a href="${farmerProfile.instagram}" target="_blank">Instagram</a> `;
+            if (farmerProfile.twitter) socialsHtml += `<a href="${farmerProfile.twitter}" target="_blank">Twitter</a>`;
+            document.getElementById('farmerSocials').innerHTML = socialsHtml;
 
             // Set max quantity and ensure min is 1
             const quantityInput = document.getElementById('quantity');
@@ -170,10 +191,50 @@
             }
         }
 
-        function contactFarmer() {
-            const product = JSON.parse(localStorage.getItem('viewProduct'));
-            // Implement farmer contact functionality
-            alert(`Contact feature coming soon!\nFarmer: ${product.farmer?.name || 'Unknown'}`);
+        async function contactFarmer() {
+            let product = JSON.parse(localStorage.getItem('viewProduct'));
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '../login/index.html';
+                return;
+            }
+            // If farmerId is missing, fetch product from backend
+            let farmerId = product.farmer?._id;
+            if (!farmerId && product._id) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/products/${product._id}`);
+                    if (response.ok) {
+                        product = await response.json();
+                        farmerId = product.farmer?._id || product.farmer;
+                    }
+                } catch (e) { /* ignore */ }
+            }
+            if (!farmerId) {
+                alert('Could not find farmer for this product.');
+                return;
+            }
+            try {
+                const response = await fetch('http://localhost:5000/api/chat/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        productId: product._id,
+                        farmerId,
+                        message: "Hi, I'm interested in your product!"
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to start chat');
+                }
+                // Redirect to chat page with the chat ID
+                window.location.href = `../chat/index.html?chatId=${data.chatId}`;
+            } catch (error) {
+                alert(error.message || 'Failed to start chat. Please try again.');
+            }
         }
     </script>
 </body>

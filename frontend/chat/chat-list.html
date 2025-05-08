@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Chats</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="ChatList.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #fafafa; }
+        #chat-list-container { max-width: 600px; margin: 40px auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);}
+        .chat-list-item { padding: 16px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s; }
+        .chat-list-item:hover { background: #f0f0f0; }
+        .chat-list-item strong { font-size: 1.1em; }
+        .chat-list-item span { color: #4CAF50; margin-left: 10px; }
+        .chat-list-item div { color: #888; font-size: 0.95em; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div id="chatList">Loading...</div>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const from = urlParams.get('from');
+        const backBtn = document.getElementById('backToHomeBtn');
+        if (from === 'farmer') {
+            backBtn.href = '../farmer dashboard/index.html';
+        } else {
+            backBtn.href = '../registered_user homepage/index.html';
+        }
+    </script>
+</body>
+</html> 

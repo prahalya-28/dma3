@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, loginUser, becomeFarmer, toggleUserRole, getUserProfile, getMe, requestPasswordReset, resetPassword } 
+import { registerUser, loginUser, becomeFarmer, toggleUserRole, getUserProfile, getMe, requestPasswordReset, resetPassword, updateUserProfile } 
 from "../controllers/userController.js";
 import { protect } from "../middleware/authMiddleware.js"; // Ensure authentication
 //import { loginUser } from "../controllers/userController.js";
@@ -20,5 +20,7 @@ router.get("/me", protect, getMe);
 
 router.post("/request-password-reset", requestPasswordReset);
 router.post("/reset-password", resetPassword);
+
+router.put("/profile", protect, updateUserProfile);
 
 export default router;

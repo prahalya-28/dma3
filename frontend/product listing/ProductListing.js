@@ -31,31 +31,40 @@ document.addEventListener("DOMContentLoaded", () => {
           const card = document.createElement("div");
           card.classList.add("product-card");
 
-          // Format farmer details
-          const farmerName = product.farmer?.name || 'Unknown Farmer';
-          const farmerLocation = product.farmer?.location || 'Location not specified';
+          // Farmer profile details
+          const farmer = product.farmer || {};
+          const farmerProfile = farmer.farmerProfile || {};
+          const farmerProfilePic = farmer.profilePicture || '../user-photo.jpg';
+          const farmName = farmerProfile.farmName || 'Farm name not specified';
+          const farmLocation = farmerProfile.location || 'Location not specified';
+          const farmerBio = farmerProfile.bio || '';
+          let socialsHtml = '';
+          if (farmerProfile.facebook) socialsHtml += `<a href='${farmerProfile.facebook}' target='_blank'>Facebook</a> `;
+          if (farmerProfile.instagram) socialsHtml += `<a href='${farmerProfile.instagram}' target='_blank'>Instagram</a> `;
+          if (farmerProfile.twitter) socialsHtml += `<a href='${farmerProfile.twitter}' target='_blank'>Twitter</a>`;
 
           card.innerHTML = 
             `<h3 class="product-name">${product.name}</h3>
+            <img src="${product.image}" style="width: 100px;" alt="${product.name}" />
+            <div style="display:flex;align-items:center;gap:10px;margin:8px 0;">
+              <img src="${farmerProfilePic}" alt="Farmer Profile Picture" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid #eee;">
+              <div>
+                <div style="font-weight:bold;">${farmName}</div>
+                <div style="color:#666;">${farmLocation}</div>
+              </div>
+            </div>
+            <div style="font-size:13px;color:#444;font-style:italic;">${farmerBio}</div>
+            <div style="font-size:13px;margin-bottom:4px;">${socialsHtml}</div>
             <p class="product-price">₹${product.price}</p>
             <p class="product-category">${product.category || 'Uncategorized'}</p>
             <p class="product-description">${product.description || 'No description available'}</p>
             <p class="product-quantity">In Stock: ${product.quantity} units</p>
-            <p class="farmer-info">Sold by: ${farmerName}</p>
-            <p class="farmer-location">Location: ${farmerLocation}</p>
-            <img src="${product.image}" style="width: 100px;" alt="${product.name}" />
             <button class="view-details-btn">View Details</button>`;
 
           // Add click handler for the view details button
           card.querySelector('.view-details-btn').addEventListener('click', () => {
             // Store product details in localStorage for the view page
-            localStorage.setItem('viewProduct', JSON.stringify({
-              ...product,
-              farmer: {
-                name: farmerName,
-                location: farmerLocation
-              }
-            }));
+            localStorage.setItem('viewProduct', JSON.stringify(product));
             // Navigate to view product page
             window.location.href = '../view aproduct cust_side/index.html';
           });

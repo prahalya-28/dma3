@@ -54,12 +54,11 @@
   <div class="sidebar">
     <h2>Dashboard</h2>
     <a href="#" class="active">Browse Products</a>
-    <a href="#" onclick="viewCart()">Cart</a>
     <a href="#" onclick="viewOrders()">Orders</a>
     <a href="#" onclick="goToFarmerRegistration()" id="becomeSellerBtn" style="display: none;">Become a Seller</a>
     <a href="#" id="toggleRoleBtn" style="display: none;" onclick="toggleRole()">Switch to Seller View</a>
-    <a href="#">Profile</a>
-    <a href="#">Settings</a>
+    <a href="#" id="profileLink">Profile</a>
+    <a href="../chat/chat-list.html?from=customer" id="messagesLink">Messages</a>
     <a href="#" onclick="logout()">Logout</a>
   </div>
 
@@ -89,26 +88,6 @@
         <!-- Orders will be dynamically added here -->
       </div>
     </section>
-  </div>
-
-  <!-- Cart Modal -->
-  <div id="cartModal" class="modal" style="display:none;">
-    <div class="modal-content cart-container">
-      <span class="close">&times;</span>
-      <div id="cartLoadingSpinner" class="loading-spinner"></div>
-      <div id="cartErrorMessage" class="error-message"></div>
-      <h2>Shopping Cart</h2>
-      <div id="cartItems">
-        <!-- Cart items will be dynamically added here -->
-      </div>
-      <div class="cart-summary" style="display:none;">
-        <hr>
-        <p><strong>Total Items:</strong> <span id="cartTotalItems">0</span></p>
-        <p><strong>Total Amount:</strong> ₹<span id="cartTotalAmount">0</span></p>
-        <button onclick="checkoutCart()" class="checkout-btn">Proceed to Checkout</button>
-      </div>
-      <p id="emptyCartMessage" style="text-align: center; display: none;">Your cart is empty</p>
-    </div>
   </div>
 
   <!-- Product View Modal -->
@@ -327,6 +306,22 @@
       </div>
     </div>
   </div>
+
+  <script>
+  // Add this at the end of the body or after the sidebar
+  const profileLink = document.getElementById('profileLink');
+  if (profileLink) {
+    profileLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.role === 'farmer') {
+        window.location.href = '../profile/farmer_profile.html';
+      } else {
+        window.location.href = '../profile/customer_profile.html';
+      }
+    });
+  }
+  </script>
 </body>
 </html>
 

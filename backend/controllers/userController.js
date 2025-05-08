@@ -215,11 +215,11 @@
   // ✅ Get Profile
   export const getUserProfile = async (req, res) => {
     try {
-      const user = await User.findById(req.user.id).select("-password");
+      const user = await User.findById(req.user.id)
+        .select("-password")
+        .populate('farmerProfile');
       if (!user) return res.status(404).json({ message: "User not found" });
-      
       console.log("User role in profile:", user.role);
-      
       res.json({
         _id: user._id,
         name: user.name,
@@ -228,6 +228,7 @@
         mobile: user.mobile,
         address: user.address,
         username: user.username,
+        profilePicture: user.profilePicture,
         farmerProfile: user.farmerProfile
       });
     } catch (error) {
@@ -285,6 +286,92 @@
       await user.save();
       res.json({ message: "Password reset successful. You can now log in." });
     } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+
+  // ✅ Update Profile
+  export const updateUserProfile = async (req, res) => {
+    try {
+      console.log('--- Update Profile Request ---');
+      console.log('User ID:', req.user.id);
+      console.log('Incoming body:', req.body);
+      const user = await User.findById(req.user.id);
+      if (!user) {
+        console.log('User not found');
+        return res.status(404).json({ message: "User not found" });
+      }
+      console.log('User before update:', user);
+
+      // Email uniqueness validation
+      if (req.body.email && req.body.email !== user.email) {
+        const emailExists = await User.findOne({ email: req.body.email });
+        if (emailExists) {
+          console.log('Email already in use:', req.body.email);
+          return res.status(400).json({ message: "Email is already in use by another account." });
+        }
+        user.email = req.body.email;
+      }
+
+      // Update basic fields
+      if (req.body.name) user.name = req.body.name;
+      if (req.body.bio !== undefined) user.bio = req.body.bio;
+      if (req.body.facebook !== undefined) user.facebook = req.body.facebook;
+      if (req.body.instagram !== undefined) user.instagram = req.body.instagram;
+      if (req.body.twitter !== undefined) user.twitter = req.body.twitter;
+
+      // Profile picture upload
+      if (req.body.profilePicture) {
+        user.profilePicture = req.body.profilePicture;
+      }
+
+      // If farmerProfile update is present
+      if (req.body.farmerProfile) {
+        if (!user.farmerProfile) {
+          // Create new farmer profile if not exists
+          const newProfile = await FarmerProfile.create({
+            user: user._id,
+            farmName: req.body.farmerProfile.farmName,
+            location: req.body.farmerProfile.location,
+            bio: req.body.farmerProfile.bio,
+            facebook: req.body.farmerProfile.facebook,
+            instagram: req.body.farmerProfile.instagram,
+            twitter: req.body.farmerProfile.twitter
+          });
+          user.farmerProfile = newProfile._id;
+        } else {
+          // Update existing farmer profile
+          const profile = await FarmerProfile.findById(user.farmerProfile);
+          if (profile) {
+            if (req.body.farmerProfile.farmName !== undefined) profile.farmName = req.body.farmerProfile.farmName;
+            if (req.body.farmerProfile.location !== undefined) profile.location = req.body.farmerProfile.location;
+            if (req.body.farmerProfile.bio !== undefined) profile.bio = req.body.farmerProfile.bio;
+            if (req.body.farmerProfile.facebook !== undefined) profile.facebook = req.body.farmerProfile.facebook;
+            if (req.body.farmerProfile.instagram !== undefined) profile.instagram = req.body.farmerProfile.instagram;
+            if (req.body.farmerProfile.twitter !== undefined) profile.twitter = req.body.farmerProfile.twitter;
+            await profile.save();
+          }
+        }
+      }
+
+      await user.save();
+      console.log('User after update:', await User.findById(user._id));
+      // Return updated user (excluding password)
+      const updatedUser = await User.findById(user._id).select("-password").populate('farmerProfile');
+      res.json({
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        profilePicture: updatedUser.profilePicture,
+        bio: updatedUser.bio,
+        facebook: updatedUser.facebook,
+        instagram: updatedUser.instagram,
+        twitter: updatedUser.twitter,
+        farmerProfile: updatedUser.farmerProfile
+      });
+    } catch (error) {
+      console.error('Update profile error:', error);
       res.status(500).json({ message: "Server error" });
     }
   };

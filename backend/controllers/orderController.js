@@ -3,28 +3,30 @@ import Product from "../models/Product.js";
 
 export const createOrder = async (req, res) => {
     try {
+        // Only block if user is in farmer mode
+        if (req.user.role === 'farmer') {
+            return res.status(403).json({ message: "Only customers can place orders." });
+        }
         const { productId, quantity, deliveryMethod, deliveryDetails, specialInstructions } = req.body;
-
-        // Validate required fields
+        console.log('--- Creating Order ---');
+        console.log('User:', req.user?._id);
+        console.log('Product:', productId);
+        console.log('Quantity:', quantity);
+        console.log('Delivery Method:', deliveryMethod);
         if (!productId || !quantity || !deliveryMethod) {
+            console.error('Missing required fields:', { productId, quantity, deliveryMethod });
             return res.status(400).json({ message: "Missing required fields" });
         }
-
-        // Get product details and validate stock
         const product = await Product.findById(productId).populate('farmer', 'name location');
         if (!product) {
+            console.error('Product not found:', productId);
             return res.status(404).json({ message: "Product not found" });
         }
-
-        // Check if quantity is available
         if (product.quantity < quantity) {
+            console.error('Requested quantity not available:', { available: product.quantity, requested: quantity });
             return res.status(400).json({ message: "Requested quantity not available" });
         }
-
-        // Calculate total price
         const totalPrice = product.price * quantity;
-
-        // Create order
         const order = new Order({
             user: req.user._id,
             product: productId,
@@ -35,36 +37,25 @@ export const createOrder = async (req, res) => {
             deliveryMethod,
             deliveryDetails,
             specialInstructions,
-            status: 'pending' // Initial status
+            status: 'pending'
         });
-
-        // Save order
-        const createdOrder = await order.save();
-
-        // Update product quantity
-        product.quantity -= quantity;
-        await product.save();
-
-        // Return order with populated fields
-        const populatedOrder = await Order.findById(createdOrder._id)
-            .populate('product', 'name image')
-            .populate('farmer', 'name location');
-
-        res.status(201).json({
-            _id: populatedOrder._id,
-            product: {
-                name: populatedOrder.product.name,
-                image: populatedOrder.product.image
-            },
-            quantity: populatedOrder.quantity,
-            totalPrice: populatedOrder.totalPrice,
-            deliveryMethod: populatedOrder.deliveryMethod,
-            status: populatedOrder.status,
-            createdAt: populatedOrder.createdAt
-        });
+        try {
+            const createdOrder = await order.save();
+            console.log('Order saved:', createdOrder._id);
+            product.quantity -= quantity;
+            await product.save();
+            console.log('Product quantity after order:', product.quantity);
+            const populatedOrder = await Order.findById(createdOrder._id)
+                .populate('product', 'name image')
+                .populate('farmer', 'name location');
+            res.status(201).json(populatedOrder);
+        } catch (saveErr) {
+            console.error('Error saving order:', saveErr);
+            return res.status(500).json({ message: "Failed to save order", error: saveErr.message });
+        }
     } catch (error) {
-        console.error('Error in createOrder:', error);
-        res.status(500).json({ message: "Failed to create order" });
+        console.error('Error in createOrder (outer catch):', error);
+        res.status(500).json({ message: "Failed to create order", error: error.message });
     }
 };
 
@@ -86,10 +77,13 @@ export const getOrdersByUser = async (req, res) => {
 // @access  Private (Farmer)
 export const getFarmerOrders = async (req, res) => {
     try {
+        console.log('--- Fetching Farmer Orders ---');
+        console.log('Farmer:', req.user._id);
         const orders = await Order.find({ farmer: req.user._id })
             .populate('user', 'name email')
             .populate('product', 'name image')
             .sort('-createdAt');
+        console.log('Orders found:', orders.length);
         res.json(orders);
     } catch (error) {
         console.error('Error in getFarmerOrders:', error);
@@ -168,5 +162,20 @@ export const getOrderById = async (req, res) => {
     } catch (error) {
         console.error('Error in getOrderById:', error);
         res.status(500).json({ message: "Failed to fetch order" });
+    }
+};
+
+export const getMyOrders = async (req, res) => {
+    try {
+        console.log('--- Fetching My Orders ---');
+        console.log('User:', req.user._id);
+        const orders = await Order.find({ user: req.user._id })
+            .populate('farmer', 'name _id location profilePicture')
+            .populate('product', 'name image');
+        console.log('Orders found:', orders.length);
+        res.json(orders);
+    } catch (error) {
+        console.error('Error in getMyOrders:', error);
+        res.status(500).json({ message: 'Failed to fetch orders' });
     }
 };

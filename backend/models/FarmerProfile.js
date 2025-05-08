@@ -26,7 +26,13 @@ const farmerProfileSchema = new mongoose.Schema({
   products: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Product"
-  }]
+  }],
+  farmName: { type: String },
+  bio: { type: String },
+  facebook: { type: String },
+  instagram: { type: String },
+  twitter: { type: String }
 }, { timestamps: true });
 
-export default mongoose.model("FarmerProfile", farmerProfileSchema);
+const FarmerProfile = mongoose.model('FarmerProfile', farmerProfileSchema);
+export default FarmerProfile;

@@ -15,8 +15,9 @@
     <a href="#" onclick="goToProductListing()">Add New Product</a>
     <a href="#" onclick="showOrders()">Orders</a>
     <a href="#">Earnings</a>
-    <a href="#">Profile</a>
+    <a href="#" id="profileLink">Profile</a>
     <a href="#">Settings</a>
+    <a href="../chat/chat-list.html?from=farmer" id="messagesLink">Messages</a>
     <a href="#" onclick="logout()">Logout</a>
   </div>
 
@@ -79,6 +80,16 @@
       </div>
     </div>
   </div>
+
+  <script>
+  const profileLink = document.getElementById('profileLink');
+  if (profileLink) {
+    profileLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = '../profile/farmer_profile.html';
+    });
+  }
+  </script>
 
 </body>
 </html> 

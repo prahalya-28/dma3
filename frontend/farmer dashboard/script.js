@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   checkUserRole();
-  showProducts(); // Show products by default
+  showOrders(); // Show orders by default
   setupProductForm();
 });
 
@@ -190,7 +190,7 @@ function displayProducts(products) {
       <h3>${product.name}</h3>
       <p>${product.description}</p>
       <p>Price: ₹${product.price}</p>
-      <p>Stock: ${product.quantity || product.stock}</p>
+      <p>Stock: ${product.quantity !== undefined ? product.quantity : 0}</p>
       <button class="edit-btn">Edit</button>
       <button onclick="deleteProduct('${product._id}')">Delete</button>
     `;
@@ -455,6 +455,7 @@ function displayOrders(orders) {
         ` : order.status === 'accepted' ? `
           <button onclick="updateOrderStatus('${order._id}', 'completed')" class="complete-btn">Mark as Completed</button>
         ` : ''}
+        <button class="secondary-btn" onclick="startChatWithCustomer('${order.user._id}', '${order._id}')">Chat with Customer</button>
       </div>
     `;
     container.appendChild(card);
@@ -513,4 +514,31 @@ function showProducts() {
   
   // Load products
   loadFarmerProducts();
+}
+
+// Add chat with customer functionality
+window.startChatWithCustomer = async function(customerId, orderId) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please log in to start a chat.");
+    return;
+  }
+  try {
+    const response = await fetch("http://localhost:5000/api/chat/start", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ farmerId: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user"))._id : undefined, orderId })
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || "Failed to start chat");
+    }
+    const data = await response.json();
+    window.location.href = `../chat/index.html?chatId=${data.chatId}`;
+  } catch (err) {
+    alert("Could not start chat with customer. Please try again later.\n" + (err.message || ""));
+  }
 } 

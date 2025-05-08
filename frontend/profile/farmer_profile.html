@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Profile</title>
+    <link rel="stylesheet" href="../assets/styles.css">
+    <style>
+        .profile-container { max-width: 400px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 0 10px #ccc; padding: 32px; text-align: center; }
+        .profile-pic { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 16px; border: 2px solid #eee; }
+        .profile-info { margin: 16px 0; }
+        .profile-info label { font-weight: bold; display: block; margin-bottom: 4px; }
+        .profile-info span, .profile-info input { display: block; margin-bottom: 12px; width: 100%; }
+        .edit-btn, .save-btn, .cancel-btn { margin: 8px 4px; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        .edit-btn { background: #007bff; color: #fff; }
+        .save-btn { background: #28a745; color: #fff; }
+        .cancel-btn { background: #dc3545; color: #fff; }
+        .success-msg { color: #28a745; margin-top: 10px; }
+        .error-msg { color: #dc3545; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <button onclick="window.history.back()" style="position:absolute;left:20px;top:20px;padding:8px 16px;border-radius:5px;border:none;background:#eee;cursor:pointer;">← Back</button>
+    <div class="profile-container">
+        <img src="../user-photo.jpg" alt="Profile Picture" class="profile-pic" id="profilePic">
+        <input type="file" id="profilePicInput" accept="image/*" style="display:none; margin-bottom:12px;">
+        <button class="edit-btn" id="changePicBtn" style="display:none;">Change Picture</button>
+        <div class="profile-info">
+            <label>Name:</label>
+            <span id="farmerName"></span>
+            <input type="text" id="editFarmerName" style="display:none;">
+            <label>Email:</label>
+            <span id="farmerEmail"></span>
+            <input type="email" id="editFarmerEmail" style="display:none;">
+            <label>Farm Name:</label>
+            <span id="farmName"></span>
+            <input type="text" id="editFarmName" style="display:none;">
+            <label>Location:</label>
+            <span id="farmLocation"></span>
+            <input type="text" id="editFarmLocation" style="display:none;">
+            <label>Bio:</label>
+            <span id="farmerBio"></span>
+            <textarea id="editFarmerBio" style="display:none;"></textarea>
+            <label>Facebook:</label>
+            <span id="farmerFacebook"></span>
+            <input type="text" id="editFarmerFacebook" style="display:none;">
+            <label>Instagram:</label>
+            <span id="farmerInstagram"></span>
+            <input type="text" id="editFarmerInstagram" style="display:none;">
+            <label>Twitter:</label>
+            <span id="farmerTwitter"></span>
+            <input type="text" id="editFarmerTwitter" style="display:none;">
+        </div>
+        <button class="edit-btn" id="editBtn">Edit Profile</button>
+        <button class="save-btn" id="saveBtn" style="display:none;">Save</button>
+        <button class="cancel-btn" id="cancelBtn" style="display:none;">Cancel</button>
+        <div class="success-msg" id="successMsg"></div>
+        <div class="error-msg" id="errorMsg"></div>
+    </div>
+    <script>
+        let user = null;
+        const farmerName = document.getElementById('farmerName');
+        const farmerEmail = document.getElementById('farmerEmail');
+        const farmName = document.getElementById('farmName');
+        const farmLocation = document.getElementById('farmLocation');
+        const editFarmerName = document.getElementById('editFarmerName');
+        const editFarmerEmail = document.getElementById('editFarmerEmail');
+        const editFarmName = document.getElementById('editFarmName');
+        const editFarmLocation = document.getElementById('editFarmLocation');
+        const editBtn = document.getElementById('editBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const successMsg = document.getElementById('successMsg');
+        const errorMsg = document.getElementById('errorMsg');
+        const profilePic = document.getElementById('profilePic');
+        const profilePicInput = document.getElementById('profilePicInput');
+        const changePicBtn = document.getElementById('changePicBtn');
+        const farmerBio = document.getElementById('farmerBio');
+        const editFarmerBio = document.getElementById('editFarmerBio');
+        const farmerFacebook = document.getElementById('farmerFacebook');
+        const editFarmerFacebook = document.getElementById('editFarmerFacebook');
+        const farmerInstagram = document.getElementById('farmerInstagram');
+        const editFarmerInstagram = document.getElementById('editFarmerInstagram');
+        const farmerTwitter = document.getElementById('farmerTwitter');
+        const editFarmerTwitter = document.getElementById('editFarmerTwitter');
+        let newProfilePicBase64 = null;
+
+        async function fetchAndShowProfile() {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('http://localhost:5000/api/users/profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                user = await res.json();
+                localStorage.setItem('user', JSON.stringify(user));
+                showProfile();
+            } catch (err) {
+                errorMsg.textContent = 'Failed to load profile.';
+            }
+        }
+
+        function showProfile() {
+            farmerName.textContent = user?.name || 'Unknown';
+            farmerEmail.textContent = user?.email || 'Unknown';
+            farmName.textContent = user?.farmerProfile?.farmName || 'Not specified';
+            farmLocation.textContent = user?.farmerProfile?.location || 'Not specified';
+            editFarmerName.value = user?.name || '';
+            editFarmerEmail.value = user?.email || '';
+            editFarmName.value = user?.farmerProfile?.farmName || '';
+            editFarmLocation.value = user?.farmerProfile?.location || '';
+            profilePic.src = user?.profilePicture || '../user-photo.jpg';
+            farmerBio.textContent = user?.farmerProfile?.bio || '';
+            editFarmerBio.value = user?.farmerProfile?.bio || '';
+            farmerFacebook.textContent = user?.farmerProfile?.facebook || '';
+            editFarmerFacebook.value = user?.farmerProfile?.facebook || '';
+            farmerInstagram.textContent = user?.farmerProfile?.instagram || '';
+            editFarmerInstagram.value = user?.farmerProfile?.instagram || '';
+            farmerTwitter.textContent = user?.farmerProfile?.twitter || '';
+            editFarmerTwitter.value = user?.farmerProfile?.twitter || '';
+        }
+
+        // Initial load
+        fetchAndShowProfile();
+
+        editBtn.onclick = function() {
+            farmerName.style.display = 'none';
+            farmerEmail.style.display = 'none';
+            farmName.style.display = 'none';
+            farmLocation.style.display = 'none';
+            farmerBio.style.display = 'none';
+            farmerFacebook.style.display = 'none';
+            farmerInstagram.style.display = 'none';
+            farmerTwitter.style.display = 'none';
+            editFarmerName.style.display = 'block';
+            editFarmerEmail.style.display = 'block';
+            editFarmName.style.display = 'block';
+            editFarmLocation.style.display = 'block';
+            editFarmerBio.style.display = 'block';
+            editFarmerFacebook.style.display = 'block';
+            editFarmerInstagram.style.display = 'block';
+            editFarmerTwitter.style.display = 'block';
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'inline-block';
+            changePicBtn.style.display = 'inline-block';
+            successMsg.textContent = '';
+            errorMsg.textContent = '';
+        };
+        cancelBtn.onclick = function() {
+            farmerName.style.display = 'block';
+            farmerEmail.style.display = 'block';
+            farmName.style.display = 'block';
+            farmLocation.style.display = 'block';
+            farmerBio.style.display = 'block';
+            farmerFacebook.style.display = 'block';
+            farmerInstagram.style.display = 'block';
+            farmerTwitter.style.display = 'block';
+            editFarmerName.style.display = 'none';
+            editFarmerEmail.style.display = 'none';
+            editFarmName.style.display = 'none';
+            editFarmLocation.style.display = 'none';
+            editFarmerBio.style.display = 'none';
+            editFarmerFacebook.style.display = 'none';
+            editFarmerInstagram.style.display = 'none';
+            editFarmerTwitter.style.display = 'none';
+            editBtn.style.display = 'inline-block';
+            saveBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+            changePicBtn.style.display = 'none';
+            profilePic.src = user?.profilePicture || '../user-photo.jpg';
+            newProfilePicBase64 = null;
+            successMsg.textContent = '';
+            errorMsg.textContent = '';
+        };
+        changePicBtn.onclick = function() {
+            profilePicInput.click();
+        };
+        profilePicInput.onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    profilePic.src = evt.target.result;
+                    newProfilePicBase64 = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        saveBtn.onclick = async function() {
+            const newName = editFarmerName.value.trim();
+            const newEmail = editFarmerEmail.value.trim();
+            const newFarmName = editFarmName.value.trim();
+            const newFarmLocation = editFarmLocation.value.trim();
+            const newBio = editFarmerBio.value.trim();
+            const newFacebook = editFarmerFacebook.value.trim();
+            const newInstagram = editFarmerInstagram.value.trim();
+            const newTwitter = editFarmerTwitter.value.trim();
+            if (!newName || !newEmail || !newFarmName || !newFarmLocation) {
+                errorMsg.textContent = 'All fields are required.';
+                return;
+            }
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('http://localhost:5000/api/users/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        name: newName,
+                        email: newEmail,
+                        profilePicture: newProfilePicBase64,
+                        farmerProfile: {
+                            farmName: newFarmName,
+                            location: newFarmLocation,
+                            bio: newBio,
+                            facebook: newFacebook,
+                            instagram: newInstagram,
+                            twitter: newTwitter
+                        }
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    await fetchAndShowProfile();
+                    cancelBtn.onclick();
+                    successMsg.textContent = 'Profile updated successfully!';
+                } else {
+                    errorMsg.textContent = data.message || 'Failed to update profile.';
+                }
+            } catch (err) {
+                errorMsg.textContent = 'Server error.';
+            }
+        };
+    </script>
+</body>
+</html> 

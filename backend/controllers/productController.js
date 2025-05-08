@@ -74,7 +74,7 @@ export const createProduct = async (req, res) => {
   export const getProductById = async (req, res) => {
     try {
       const product = await Product.findById(req.params.id)
-        .populate('farmer', 'name location');
+        .populate('farmer', 'name _id location profilePicture');
   
       if (!product) {
         return res.status(404).json({ message: 'Product not found' });
