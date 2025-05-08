@@ -84,3 +84,40 @@ button {
 button:hover {
     opacity: 0.8;
 }
+
+.close-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 30px;
+    cursor: pointer;
+    background: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+.close-btn:hover {
+    background: #f0f0f0;
+}
+
+.farmer-info, .farmer-location {
+    margin: 5px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.farmer-info {
+    font-weight: bold;
+    color: #333;
+}
+
+.farmer-location {
+    color: #666;
+    font-style: italic;
+}

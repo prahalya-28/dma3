@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, loginUser, becomeFarmer, toggleUserRole, getUserProfile, getMe } 
+import { registerUser, loginUser, becomeFarmer, toggleUserRole, getUserProfile, getMe, requestPasswordReset, resetPassword } 
 from "../controllers/userController.js";
 import { protect } from "../middleware/authMiddleware.js"; // Ensure authentication
 //import { loginUser } from "../controllers/userController.js";
@@ -18,6 +18,7 @@ router.post("/toggle-role", protect, toggleUserRole);
 router.get("/profile", protect, getUserProfile); // NEW ROUTE
 router.get("/me", protect, getMe);
 
-
+router.post("/request-password-reset", requestPasswordReset);
+router.post("/reset-password", resetPassword);
 
 export default router;

@@ -16,22 +16,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
         productList.innerHTML = ""; // Clear existing
 
-        products.forEach(product => {
+        // Filter out products with zero or negative quantity
+        const availableProducts = products.filter(product => {
+          const quantity = parseInt(product.quantity);
+          return quantity && quantity > 0; // Ensures quantity is a positive number
+        });
+
+        if (availableProducts.length === 0) {
+          productList.innerHTML = '<p class="no-products">No products available at the moment.</p>';
+          return;
+        }
+
+        availableProducts.forEach(product => {
           const card = document.createElement("div");
           card.classList.add("product-card");
+
+          // Format farmer details
+          const farmerName = product.farmer?.name || 'Unknown Farmer';
+          const farmerLocation = product.farmer?.location || 'Location not specified';
 
           card.innerHTML = 
             `<h3 class="product-name">${product.name}</h3>
             <p class="product-price">₹${product.price}</p>
-            <p class="product-category">${product.category}</p>
-            <p class="product-description">${product.description}</p>
-            <p class="product-quantity">Quantity: ${product.quantity}</p>
-            <img src="${product.image}" style="width: 100px;" />`;
+            <p class="product-category">${product.category || 'Uncategorized'}</p>
+            <p class="product-description">${product.description || 'No description available'}</p>
+            <p class="product-quantity">In Stock: ${product.quantity} units</p>
+            <p class="farmer-info">Sold by: ${farmerName}</p>
+            <p class="farmer-location">Location: ${farmerLocation}</p>
+            <img src="${product.image}" style="width: 100px;" alt="${product.name}" />
+            <button class="view-details-btn">View Details</button>`;
+
+          // Add click handler for the view details button
+          card.querySelector('.view-details-btn').addEventListener('click', () => {
+            // Store product details in localStorage for the view page
+            localStorage.setItem('viewProduct', JSON.stringify({
+              ...product,
+              farmer: {
+                name: farmerName,
+                location: farmerLocation
+              }
+            }));
+            // Navigate to view product page
+            window.location.href = '../view aproduct cust_side/index.html';
+          });
 
           productList.appendChild(card);
         });
       } catch (err) {
         console.error("Failed to fetch products", err);
+        productList.innerHTML = '<p class="error">Failed to load products. Please try again later.</p>';
       }
     }
 

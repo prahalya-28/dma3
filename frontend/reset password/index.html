@@ -8,13 +8,23 @@
 
 </head>
 <body>
-    <div class="container" id="resetPasswordContainer">
+    <div class="container" id="requestResetContainer">
+        <h2>Request Password Reset</h2>
+        <input type="text" id="emailOrUsername" placeholder="Email or Username" required>
+        <button onclick="requestResetToken()">Request Reset Token</button>
+        <p class="error" id="requestResetError"></p>
+        <p class="success" id="requestResetSuccess"></p>
+    </div>
+    <div class="container" id="resetPasswordContainer" style="display:none;">
         <h2>Reset Password</h2>
+        <input type="text" id="resetToken" placeholder="Enter Reset Token" required>
         <input type="password" id="newPassword" placeholder="Create New Password" required>
         <p class="error" id="passwordError"></p>
         <input type="password" id="confirmNewPassword" placeholder="Confirm Password" required>
         <p class="error" id="confirmPasswordError"></p>
         <button onclick="resetPassword()">Reset Password</button>
+        <p class="error" id="resetPasswordError"></p>
+        <p class="success" id="resetPasswordSuccess"></p>
     </div>
 
     <script>

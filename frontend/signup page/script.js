@@ -10,6 +10,13 @@ function updateCountryCode() {
 document.getElementById("signupForm").addEventListener("submit", async function(event) {
     event.preventDefault(); // Prevent page refresh
 
+    // Check privacy policy
+    const privacyCheckbox = document.getElementById("privacyPolicy");
+    if (privacyCheckbox && !privacyCheckbox.checked) {
+        alert("You must agree to the Privacy Policy to sign up.");
+        return;
+    }
+
     let userData = {
          // Combine first & last name
          name: document.getElementById("firstName").value + " " + document.getElementById("lastName").value, // Combine first & last name
@@ -43,3 +50,16 @@ document.getElementById("signupForm").addEventListener("submit", async function(
         alert("Server error, try again later");
     }
 });
+
+// Social signup buttons
+const googleBtn = document.querySelector('.social-btn.google');
+if (googleBtn) googleBtn.onclick = () => alert('Google signup is not implemented in this demo.');
+const facebookBtn = document.querySelector('.social-btn.facebook');
+if (facebookBtn) facebookBtn.onclick = () => alert('Facebook signup is not implemented in this demo.');
+
+// Contact Us popup
+const contactLink = document.querySelector('a[href="#"]');
+if (contactLink) contactLink.onclick = function(e) {
+    e.preventDefault();
+    alert('Contact us at: support@farmfresh.com or call +91-1234567890');
+};

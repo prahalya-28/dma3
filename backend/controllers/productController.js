@@ -24,8 +24,15 @@ export const createProduct = async (req, res) => {
   };
   
   export const getAllProducts = async (req, res) => {
-    const products = await Product.find();
-    res.json(products);
+    try {
+      // Only return products with quantity > 0
+      const products = await Product.find({ quantity: { $gt: 0 } })
+        .populate('farmer', 'name location')
+        .sort('-createdAt');
+      res.json(products);
+    } catch (err) {
+      res.status(500).json({ message: "Server error", error: err.message });
+    }
   }
   
   export const getMyProducts = async (req, res) => {

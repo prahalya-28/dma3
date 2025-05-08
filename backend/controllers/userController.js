@@ -2,6 +2,7 @@
   import bcrypt from "bcryptjs";
   import generateToken from "../utils/generateToken.js";
   import FarmerProfile from "../models/FarmerProfile.js";
+  import crypto from "crypto";
 
   // ✅ Register New User
   export const registerUser = async (req, res) => {
@@ -55,9 +56,39 @@
       if (!user)
         return res.status(400).json({ message: "Invalid username or password" });
 
+      // Check if account is locked
+      if (user.isLocked) {
+        // If lockUntil is set and in the past, unlock the account
+        if (user.lockUntil && user.lockUntil < Date.now()) {
+          user.isLocked = false;
+          user.failedLoginAttempts = 0;
+          user.lockUntil = undefined;
+          await user.save();
+        } else {
+          return res.status(403).json({ message: "Too many failed attempts. Your account has been locked. Try again later or reset your password." });
+        }
+      }
+
       const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch)
-        return res.status(400).json({ message: "Invalid username or password" });
+      if (!isMatch) {
+        user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+        // Lock account after 3 failed attempts
+        if (user.failedLoginAttempts >= 3) {
+          user.isLocked = true;
+          user.lockUntil = Date.now() + 15 * 60 * 1000; // 15 minutes lock
+          await user.save();
+          return res.status(403).json({ message: "Too many failed attempts. Your account has been locked. Try again later or reset your password." });
+        } else {
+          await user.save();
+          return res.status(400).json({ message: "Invalid username or password" });
+        }
+      }
+
+      // Successful login: reset failed attempts
+      user.failedLoginAttempts = 0;
+      user.isLocked = false;
+      user.lockUntil = undefined;
+      await user.save();
 
       res.json({
         _id: user._id,
@@ -211,3 +242,49 @@
     }
     res.json(req.user);
   }
+
+  // Request Password Reset
+  export const requestPasswordReset = async (req, res) => {
+    const { emailOrUsername } = req.body;
+    try {
+      const user = await User.findOne({
+        $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+      });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      // Generate token
+      const token = crypto.randomBytes(20).toString("hex");
+      user.resetPasswordToken = token;
+      user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
+      await user.save();
+      // In production, send email/SMS here. For demo, return token in response.
+      res.json({ message: "Password reset token generated", token });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+
+  // Reset Password
+  export const resetPassword = async (req, res) => {
+    const { token, newPassword } = req.body;
+    try {
+      const user = await User.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() },
+      });
+      if (!user) {
+        return res.status(400).json({ message: "Invalid or expired reset token" });
+      }
+      user.password = await bcrypt.hash(newPassword, 10);
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      user.failedLoginAttempts = 0;
+      user.isLocked = false;
+      user.lockUntil = undefined;
+      await user.save();
+      res.json({ message: "Password reset successful. You can now log in." });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  };

@@ -7,23 +7,24 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
+    <div class="close-btn" id="closeBtn">&times;</div>
+    
     <div class="product-container">
         <div class="product-image">
-            <img src="tomato.jpg" alt="Organic Tomatoes">
+            <img id="productImage" alt="Product Image">
         </div>
         
         <div class="product-details">
-            <h2>Organic Tomatoes</h2>
-            <p class="price">₹50/kg</p>
-            <p class="availability"><strong>Availability:</strong> In Stock (20 Kg)</p>
-            <p class="farmer"><strong>Sold by:</strong> Ramesh Farms</p>
-            <p class="location"><strong>Location:</strong> Coimbatore, Tamil Nadu</p>
-            <p class="description">Fresh and organic tomatoes grown without chemicals. Best for salads, curries, and sauces.</p>
+            <h2 id="productName"></h2>
+            <p class="price" id="productPrice"></p>
+            <p class="availability" id="productAvailability"></p>
+            <p class="farmer" id="farmerInfo"></p>
+            <p class="location" id="farmerLocation"></p>
+            <p class="description" id="productDescription"></p>
 
             <!-- Quantity Selection -->
-            <label for="quantity">Quantity (Kg):</label>
-            <input type="number" id="quantity" value="1" min="1" max="20">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" value="1" min="1">
 
             <!-- Delivery Option -->
             <label for="delivery">Delivery Mode:</label>
@@ -32,14 +33,148 @@
                 <option value="home">Home Delivery</option>
             </select>
 
+            <div id="deliveryDetails" style="display: none;">
+                <label for="address">Delivery Address:</label>
+                <textarea id="address" required></textarea>
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" required>
+            </div>
+
+            <!-- Special Instructions -->
+            <label for="instructions">Special Instructions (Optional):</label>
+            <textarea id="instructions"></textarea>
+
             <!-- Buttons -->
             <div class="buttons">
-                <button class="contact-btn">Contact Farmer</button>
-                <button class="cart-btn">Add to Cart</button>
-                <button class="buy-btn">Buy Now</button>
+                <button class="contact-btn" onclick="contactFarmer()">Contact Farmer</button>
+                <button class="buy-btn" onclick="placeOrder()">Buy Now</button>
             </div>
+
+            <p class="error" id="orderError"></p>
+            <p class="success" id="orderSuccess"></p>
         </div>
     </div>
 
+    <script>
+        // Handle close button click
+        document.getElementById('closeBtn').addEventListener('click', () => {
+            window.location.href = '../product listing/ProductListing.html';
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load product details from localStorage
+            const product = JSON.parse(localStorage.getItem('viewProduct'));
+            if (!product) {
+                window.location.href = '../product listing/ProductListing.html';
+                return;
+            }
+
+            // Check if product has valid quantity
+            if (!product.quantity || product.quantity <= 0) {
+                alert('This product is out of stock');
+                window.location.href = '../product listing/ProductListing.html';
+                return;
+            }
+
+            // Populate product details
+            document.getElementById('productImage').src = product.image;
+            document.getElementById('productName').textContent = product.name;
+            document.getElementById('productPrice').textContent = `₹${product.price}/unit`;
+            document.getElementById('productAvailability').textContent = `In Stock: ${product.quantity} units`;
+            document.getElementById('productDescription').textContent = product.description || 'No description available';
+            document.getElementById('farmerInfo').textContent = `Sold by: ${product.farmer?.name || 'Unknown Farmer'}`;
+            document.getElementById('farmerLocation').textContent = `Location: ${product.farmer?.location || 'Location not specified'}`;
+
+            // Set max quantity and ensure min is 1
+            const quantityInput = document.getElementById('quantity');
+            quantityInput.max = product.quantity;
+            quantityInput.min = 1;
+            quantityInput.value = 1;
+
+            // Add quantity validation on input
+            quantityInput.addEventListener('input', () => {
+                const value = parseInt(quantityInput.value);
+                if (isNaN(value) || value < 1) {
+                    quantityInput.value = 1;
+                } else if (value > product.quantity) {
+                    quantityInput.value = product.quantity;
+                }
+            });
+
+            // Show/hide delivery details based on delivery mode
+            document.getElementById('delivery').addEventListener('change', (e) => {
+                document.getElementById('deliveryDetails').style.display = 
+                    e.target.value === 'home' ? 'block' : 'none';
+            });
+        });
+
+        async function placeOrder() {
+            const product = JSON.parse(localStorage.getItem('viewProduct'));
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const deliveryMethod = document.getElementById('delivery').value;
+            const instructions = document.getElementById('instructions').value;
+            const errorElem = document.getElementById('orderError');
+            const successElem = document.getElementById('orderSuccess');
+
+            // Validate quantity
+            if (quantity < 1 || quantity > product.quantity) {
+                errorElem.textContent = `Please enter a valid quantity (1-${product.quantity})`;
+                return;
+            }
+
+            // Prepare delivery details
+            let deliveryDetails = {};
+            if (deliveryMethod === 'home') {
+                const address = document.getElementById('address').value;
+                const phone = document.getElementById('phone').value;
+                if (!address || !phone) {
+                    errorElem.textContent = "Please fill in delivery details";
+                    return;
+                }
+                deliveryDetails = { address, phone };
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '../login/index.html';
+                    return;
+                }
+
+                const response = await fetch('http://localhost:5000/api/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        productId: product._id,
+                        quantity,
+                        deliveryMethod,
+                        deliveryDetails,
+                        specialInstructions: instructions
+                    })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to place order');
+                }
+
+                successElem.textContent = "Order placed successfully!";
+                setTimeout(() => {
+                    window.location.href = '../my orders/index.html';
+                }, 2000);
+            } catch (error) {
+                errorElem.textContent = error.message || "Failed to place order. Please try again.";
+            }
+        }
+
+        function contactFarmer() {
+            const product = JSON.parse(localStorage.getItem('viewProduct'));
+            // Implement farmer contact functionality
+            alert(`Contact feature coming soon!\nFarmer: ${product.farmer?.name || 'Unknown'}`);
+        }
+    </script>
 </body>
 </html>

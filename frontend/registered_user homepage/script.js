@@ -32,6 +32,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize role check
   checkUserRole();
   viewProducts(); // Show products by default
+
+  // Product View Modal close (cross) button
+  const productViewModal = document.getElementById('productViewModal');
+  if (productViewModal) {
+    const closeBtn = productViewModal.querySelector('.close');
+    if (closeBtn) {
+      closeBtn.onclick = function() {
+        productViewModal.style.display = 'none';
+      };
+    }
+  }
 });
 
 function fetchProducts() {
@@ -534,7 +545,8 @@ function validateDeliveryDetails() {
 // Update goToConfirmStep to use the validation
 function goToConfirmStep() {
   // Clear any previous error messages
-  document.getElementById('orderErrorMessage').style.display = 'none';
+  const errorMsg = document.getElementById('orderErrorMessage');
+  if (errorMsg && errorMsg.style) errorMsg.style.display = 'none';
   
   // Validate delivery details
   if (!validateDeliveryDetails()) {
@@ -545,29 +557,40 @@ function goToConfirmStep() {
   
   // Update confirmation details
   const product = window.currentProduct;
-  document.getElementById("confirmProductName").textContent = product.name;
-  document.getElementById("confirmQuantity").textContent = document.getElementById("orderQuantity").value;
-  document.getElementById("confirmPrice").textContent = product.price;
-  document.getElementById("confirmDeliveryMethod").textContent = 
-    deliveryMethod === 'pickup' ? 'Self Pickup' : 'Home Delivery';
+  const confirmProductName = document.getElementById("confirmProductName");
+  if (confirmProductName) confirmProductName.textContent = product.name;
+  const confirmQuantity = document.getElementById("confirmQuantity");
+  if (confirmQuantity) confirmQuantity.textContent = document.getElementById("orderQuantity").value;
+  const confirmPrice = document.getElementById("confirmPrice");
+  if (confirmPrice) confirmPrice.textContent = product.price;
+  const confirmDeliveryMethod = document.getElementById("confirmDeliveryMethod");
+  if (confirmDeliveryMethod) confirmDeliveryMethod.textContent = deliveryMethod === 'pickup' ? 'Self Pickup' : 'Home Delivery';
   
   if (deliveryMethod === 'home') {
-    document.getElementById("confirmAddressSection").style.display = 'block';
-    document.getElementById("confirmAddress").textContent = document.getElementById("orderAddress").value;
+    const confirmAddressSection = document.getElementById("confirmAddressSection");
+    if (confirmAddressSection && confirmAddressSection.style) confirmAddressSection.style.display = 'block';
+    const confirmAddress = document.getElementById("confirmAddress");
+    if (confirmAddress) confirmAddress.textContent = document.getElementById("orderAddress").value;
   } else {
     const pickupTime = document.getElementById("pickupTime").value;
-    document.getElementById("confirmAddressSection").style.display = 'block';
-    document.getElementById("confirmAddress").textContent = `Self pickup at: ${pickupTime}`;
+    const confirmAddressSection = document.getElementById("confirmAddressSection");
+    if (confirmAddressSection && confirmAddressSection.style) confirmAddressSection.style.display = 'block';
+    const confirmAddress = document.getElementById("confirmAddress");
+    if (confirmAddress) confirmAddress.textContent = `Self pickup at: ${pickupTime}`;
   }
   
   // Update step indicators
   document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-  document.getElementById('step3').classList.add('active');
+  const step3 = document.getElementById('step3');
+  if (step3) step3.classList.add('active');
   
   // Show confirmation step, hide others
-  document.getElementById('step1-content').style.display = 'none';
-  document.getElementById('step2-content').style.display = 'none';
-  document.getElementById('step3-content').style.display = 'block';
+  const step1Content = document.getElementById('step1-content');
+  if (step1Content && step1Content.style) step1Content.style.display = 'none';
+  const step2Content = document.getElementById('step2-content');
+  if (step2Content && step2Content.style) step2Content.style.display = 'none';
+  const step3Content = document.getElementById('step3-content');
+  if (step3Content && step3Content.style) step3Content.style.display = 'block';
 }
 
 async function sendOrderRequest() {
