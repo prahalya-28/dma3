@@ -3,51 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmer Registration</title>
+    <title>Farmer Registration | Farmers' Market</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <h2>Become a Seller - Farmer Registration</h2>
-        <form action="#" method="post" class="registration-form">
+        <div id="message" class="message"></div>
+        <form action="#" method="post" class="registration-form" onsubmit="return validateForm(event)">
             <h3>Personal Details</h3>
             <label for="fname">First Name</label>
-            <input type="text" id="fname" name="fname" required>
+            <input type="text" id="fname" name="fname" required data-error="First Name is required">
             
             <label for="lname">Last Name</label>
-            <input type="text" id="lname" name="lname" required>
+            <input type="text" id="lname" name="lname" required data-error="Last Name is required">
             
             <label for="mobile">Mobile Number</label>
-            <input type="tel" id="mobile" name="mobile" required>
+            <input type="tel" id="mobile" name="mobile" pattern="[0-9]{10}" required data-error="Valid 10-digit Mobile Number is required">
             
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
+            <input type="email" id="email" name="email" required data-error="Valid Email is required">
             
             <label for="location">Farm Location</label>
-            <input type="text" id="location" name="location" placeholder="Auto-detect enabled" required>
+            <input type="text" id="location" name="location" placeholder="Auto-detect enabled" required data-error="Farm location is required">
             <div class="map-placeholder">[Map Integration Here]</div>
             
             <h3>Government ID Proof</h3>
             <label for="id-proof">Upload ID (Aadhaar, PAN, etc.)</label>
-            <input type="file" id="id-proof" name="id-proof" accept="image/*,application/pdf" required>
+            <input type="file" id="id-proof" name="id-proof" accept="image/*,application/pdf" required data-error="Government ID Proof is required">
             
             <h3>Bank & Payment Details</h3>
             <label for="account-name">Bank Account Holder Name</label>
-            <input type="text" id="account-name" name="account-name" required>
+            <input type="text" id="account-name" name="account-name" required data-error="Bank Account Holder Name is required">
             
             <label for="account-number">Bank Account Number</label>
-            <input type="text" id="account-number" name="account-number" required>
+            <input type="text" id="account-number" name="account-number" pattern="[0-9]+" required data-error="Valid Bank Account Number is required">
             
             <label for="ifsc">IFSC Code</label>
-            <input type="text" id="ifsc" name="ifsc" required>
+            <input type="text" id="ifsc" name="ifsc" pattern="[A-Z]{4}0[A-Z0-9]{6}" required data-error="Valid IFSC Code is required (e.g., SBIN0001234)">
             
             <label for="upi">UPI ID (Optional)</label>
-            <input type="text" id="upi" name="upi">
+            <input type="text" id="upi" name="upi" data-error="Invalid UPI ID">
             
             <button type="submit" class="register-btn">Register as Seller</button>
         </form>
     </div>
-        <!-- ✅ Link JS file -->
-        <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

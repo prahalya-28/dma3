@@ -1,377 +1,289 @@
-  import User from "../models/User.js";
-  import bcrypt from "bcryptjs";
-  import generateToken from "../utils/generateToken.js";
-  import FarmerProfile from "../models/FarmerProfile.js";
-  import crypto from "crypto";
+import bcrypt from "bcryptjs";
+import User from "../models/User.js";
+import generateToken from "../utils/generateToken.js";
+import FarmerProfile from "../models/FarmerProfile.js";
 
-  // ✅ Register New User
-  export const registerUser = async (req, res) => {
-    const { name, email, username, password, mobile, address } = req.body;
+// Register New User (Signup TC1-TC6, TC9)
+export const registerUser = async (req, res) => {
+  const { role, name, email, username, password, mobile, address } = req.body;
 
-    try {
-      const userExists = await User.findOne({ email });
-      if (userExists)
-        return res.status(400).json({ message: "User already exists" });
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const user = await User.create({
-        name,
-        email,
-        username,
-        password: hashedPassword,
-        mobile,
-        address,
-        role: "customer", // default role
-      });
-
-      if (user) {
-        res.status(201).json({
-          _id: user._id,
-          name: user.name,
-          username: user.username,
-          email: user.email,
-          mobile: user.mobile,
-          address: user.address,
-          role: user.role,
-          token: generateToken(user._id),
-        });
-      } else {
-        res.status(400).json({ message: "Invalid user data" });
-      }
-    } catch (err) {
-      res.status(500).json({ message: "Server error" });
-    }
-  };
-
-  // ✅ Login User
-  export const loginUser = async (req, res) => {
-    const { username, password } = req.body;
-
-    try {
-      const user = await User.findOne({
-        $or: [{ email: username }, { username }],
-      });
-
-      if (!user)
-        return res.status(400).json({ message: "Invalid username or password" });
-
-      // Check if account is locked
-      if (user.isLocked) {
-        // If lockUntil is set and in the past, unlock the account
-        if (user.lockUntil && user.lockUntil < Date.now()) {
-          user.isLocked = false;
-          user.failedLoginAttempts = 0;
-          user.lockUntil = undefined;
-          await user.save();
-        } else {
-          return res.status(403).json({ message: "Too many failed attempts. Your account has been locked. Try again later or reset your password." });
-        }
-      }
-
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
-        // Lock account after 3 failed attempts
-        if (user.failedLoginAttempts >= 3) {
-          user.isLocked = true;
-          user.lockUntil = Date.now() + 15 * 60 * 1000; // 15 minutes lock
-          await user.save();
-          return res.status(403).json({ message: "Too many failed attempts. Your account has been locked. Try again later or reset your password." });
-        } else {
-          await user.save();
-          return res.status(400).json({ message: "Invalid username or password" });
-        }
-      }
-
-      // Successful login: reset failed attempts
-      user.failedLoginAttempts = 0;
-      user.isLocked = false;
-      user.lockUntil = undefined;
-      await user.save();
-
-      res.json({
-        _id: user._id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        mobile: user.mobile,
-        address: user.address,
-        role: user.role,
-        token: generateToken(user._id),
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
-  };
-
-  // ✅ Become a Farmer (Seller Registration)
-  export const becomeFarmer = async (req, res) => {
-    const {
-      location,
-      idProofUrl,
-      accountHolder,
-      accountNumber,
-      ifsc,
-      upi,
-    } = req.body;
-
-    try {
-      const userToUpdate = await User.findById(req.user.id).populate('farmerProfile');
-      
-      if (!userToUpdate) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      // Check if user is already a farmer or has a farmer profile
-      if (userToUpdate.role === "farmer") {
-        return res.status(400).json({ 
-          message: "You are already registered as a farmer. Use the 'Switch to Seller View' button to access your dashboard.",
-          role: "farmer"
-        });
-      }
-
-      // Check if user already has a farmer profile
-      if (userToUpdate.farmerProfile) {
-        return res.status(400).json({ 
-          message: "You already have a farmer profile. Use the 'Switch to Seller View' button to access your dashboard.",
-          role: "farmer",
-          farmerProfile: userToUpdate.farmerProfile
-        });
-      }
-
-      // Validate required fields
-      if (!location || !idProofUrl || !accountHolder || !accountNumber || !ifsc) {
-        return res.status(400).json({ 
-          message: "Please provide all required information for farmer registration"
-        });
-      }
-
-      const farmerProfile = await FarmerProfile.create({
-        user: userToUpdate._id,
-        location,
-        idProofUrl,
-        accountDetails: {
-          accountHolder,
-          accountNumber,
-          ifsc,
-          upi,
-        },
-      });
-
-      // Update user role and save
-      userToUpdate.role = "farmer";
-      userToUpdate.farmerProfile = farmerProfile._id;
-      
-      // Save the updated user
-      const updatedUser = await userToUpdate.save();
-      console.log("Updated user role:", updatedUser.role);
-
-      res.json({
-        message: "Farmer registration successful! You can now switch to seller view.",
-        role: updatedUser.role,
-        profileId: farmerProfile._id
-      });
-
-    } catch (error) {
-      console.error("Farmer registration error:", error);
-      res.status(500).json({ message: "Server error during farmer registration" });
-    }
-  };
-
-  // ✅ Toggle Role (customer <-> farmer)
-  export const toggleUserRole = async (req, res) => {
-    try {
-      const user = await User.findById(req.user.id).populate('farmerProfile');
-      if (!user) return res.status(404).json({ message: "User not found" });
-
-      // If switching to farmer role, check if user has a farmer profile
-      if (user.role === "customer") {
-        if (!user.farmerProfile) {
-          return res.status(400).json({ 
-            message: "You need to complete farmer registration first",
-            requiresRegistration: true
-          });
-        }
-      }
-
-      // Toggle the role
-      user.role = user.role === "customer" ? "farmer" : "customer";
-      await user.save();
-
-      console.log(`User ${user.email} role switched to: ${user.role}`);
-
-      res.json({ 
-        message: `Role switched to ${user.role}`,
-        role: user.role,
-        farmerProfile: user.farmerProfile
-      });
-    } catch (err) {
-      console.error("Toggle role error:", err);
-      res.status(500).json({ message: "Server error" });
-    }
-  };
-
-  // ✅ Get Profile
-  export const getUserProfile = async (req, res) => {
-    try {
-      const user = await User.findById(req.user.id)
-        .select("-password")
-        .populate('farmerProfile');
-      if (!user) return res.status(404).json({ message: "User not found" });
-      console.log("User role in profile:", user.role);
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        mobile: user.mobile,
-        address: user.address,
-        username: user.username,
-        profilePicture: user.profilePicture,
-        farmerProfile: user.farmerProfile
-      });
-    } catch (error) {
-      console.error("Get profile error:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  };
-
-  export const getMe = (req, res) => {
-    if (!req.user) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-    res.json(req.user);
+  // Validate required fields (TC9)
+  if (!role || !name || !email || !username || !password || !mobile || !address) {
+    return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Request Password Reset
-  export const requestPasswordReset = async (req, res) => {
-    const { emailOrUsername } = req.body;
-    try {
-      const user = await User.findOne({
-        $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
-      });
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      // Generate token
-      const token = crypto.randomBytes(20).toString("hex");
-      user.resetPasswordToken = token;
-      user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
-      await user.save();
-      // In production, send email/SMS here. For demo, return token in response.
-      res.json({ message: "Password reset token generated", token });
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
+  // Validate role (TC1)
+  if (!["buyer", "farmer"].includes(role)) {
+    return res.status(400).json({ message: "Invalid role" });
+  }
+
+  // Check for existing email or username (TC4)
+  if (await User.findOne({ email })) {
+    return res.status(400).json({ message: "Email is already registered" });
+  }
+  if (await User.findOne({ username })) {
+    return res.status(400).json({ message: "Username is already taken" });
+  }
+
+  // Validate username length (TC2)
+  if (username.length > 10) {
+    return res.status(400).json({ message: "Username must not exceed 10 characters" });
+  }
+
+  // Validate password (TC3)
+  if (!/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(password)) {
+    return res.status(400).json({ message: "Password must be alphanumeric and at least 8 characters" });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      role,
+      name,
+      email,
+      username,
+      password: hashedPassword,
+      mobile,
+      address,
+      isVerified: false
+    });
+
+    // Simulate OTP for verification (TC6)
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    await user.save();
+    console.log(`Simulated sending OTP ${otp} to ${email}`);
+
+    res.status(201).json({
+      message: "User registered successfully",
+      verified: false,
+      otp: otp // Return OTP for testing
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Login User (Login TC1-TC5, TC9)
+export const loginUser = async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid username or password" }); // TC2, TC4
     }
-  };
 
-  // Reset Password
-  export const resetPassword = async (req, res) => {
-    const { token, newPassword } = req.body;
-    try {
-      const user = await User.findOne({
-        resetPasswordToken: token,
-        resetPasswordExpires: { $gt: Date.now() },
-      });
-      if (!user) {
-        return res.status(400).json({ message: "Invalid or expired reset token" });
-      }
-      user.password = await bcrypt.hash(newPassword, 10);
-      user.resetPasswordToken = undefined;
-      user.resetPasswordExpires = undefined;
-      user.failedLoginAttempts = 0;
-      user.isLocked = false;
-      user.lockUntil = undefined;
-      await user.save();
-      res.json({ message: "Password reset successful. You can now log in." });
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
+    // Check if account is deactivated (TC9)
+    if (!user.isActive) {
+      return res.status(403).json({ message: "Your account has been deactivated. Contact support for assistance." });
     }
-  };
 
-  // ✅ Update Profile
-  export const updateUserProfile = async (req, res) => {
-    try {
-      console.log('--- Update Profile Request ---');
-      console.log('User ID:', req.user.id);
-      console.log('Incoming body:', req.body);
-      const user = await User.findById(req.user.id);
-      if (!user) {
-        console.log('User not found');
-        return res.status(404).json({ message: "User not found" });
-      }
-      console.log('User before update:', user);
-
-      // Email uniqueness validation
-      if (req.body.email && req.body.email !== user.email) {
-        const emailExists = await User.findOne({ email: req.body.email });
-        if (emailExists) {
-          console.log('Email already in use:', req.body.email);
-          return res.status(400).json({ message: "Email is already in use by another account." });
-        }
-        user.email = req.body.email;
-      }
-
-      // Update basic fields
-      if (req.body.name) user.name = req.body.name;
-      if (req.body.bio !== undefined) user.bio = req.body.bio;
-      if (req.body.facebook !== undefined) user.facebook = req.body.facebook;
-      if (req.body.instagram !== undefined) user.instagram = req.body.instagram;
-      if (req.body.twitter !== undefined) user.twitter = req.body.twitter;
-
-      // Profile picture upload
-      if (req.body.profilePicture) {
-        user.profilePicture = req.body.profilePicture;
-      }
-
-      // If farmerProfile update is present
-      if (req.body.farmerProfile) {
-        if (!user.farmerProfile) {
-          // Create new farmer profile if not exists
-          const newProfile = await FarmerProfile.create({
-            user: user._id,
-            farmName: req.body.farmerProfile.farmName,
-            location: req.body.farmerProfile.location,
-            bio: req.body.farmerProfile.bio,
-            facebook: req.body.farmerProfile.facebook,
-            instagram: req.body.farmerProfile.instagram,
-            twitter: req.body.farmerProfile.twitter
-          });
-          user.farmerProfile = newProfile._id;
-        } else {
-          // Update existing farmer profile
-          const profile = await FarmerProfile.findById(user.farmerProfile);
-          if (profile) {
-            if (req.body.farmerProfile.farmName !== undefined) profile.farmName = req.body.farmerProfile.farmName;
-            if (req.body.farmerProfile.location !== undefined) profile.location = req.body.farmerProfile.location;
-            if (req.body.farmerProfile.bio !== undefined) profile.bio = req.body.farmerProfile.bio;
-            if (req.body.farmerProfile.facebook !== undefined) profile.facebook = req.body.farmerProfile.facebook;
-            if (req.body.farmerProfile.instagram !== undefined) profile.instagram = req.body.farmerProfile.instagram;
-            if (req.body.farmerProfile.twitter !== undefined) profile.twitter = req.body.farmerProfile.twitter;
-            await profile.save();
-          }
-        }
-      }
-
-      await user.save();
-      console.log('User after update:', await User.findById(user._id));
-      // Return updated user (excluding password)
-      const updatedUser = await User.findById(user._id).select("-password").populate('farmerProfile');
-      res.json({
-        _id: updatedUser._id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        role: updatedUser.role,
-        profilePicture: updatedUser.profilePicture,
-        bio: updatedUser.bio,
-        facebook: updatedUser.facebook,
-        instagram: updatedUser.instagram,
-        twitter: updatedUser.twitter,
-        farmerProfile: updatedUser.farmerProfile
-      });
-    } catch (error) {
-      console.error('Update profile error:', error);
-      res.status(500).json({ message: "Server error" });
+    // Check if account is locked (TC5)
+    if (user.lockedUntil && new Date() < user.lockedUntil) {
+      return res.status(403).json({ message: "Account is locked. Try again later or reset your password." });
     }
-  };
+
+    // Check if user is verified (Signup TC7)
+    if (!user.isVerified) {
+      return res.status(403).json({ message: "Please verify your email/phone before logging in" });
+    }
+
+    // Verify password (TC3)
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      user.failedAttempts += 1;
+      if (user.failedAttempts >= 3) {
+        user.lockedUntil = new Date(Date.now() + 15 * 60 * 1000); // Lock for 15 minutes
+      }
+      await user.save();
+      return res.status(401).json({ message: "Invalid username or password" });
+    }
+
+    // Reset failed attempts (TC1)
+    user.failedAttempts = 0;
+    user.lockedUntil = null;
+    await user.save();
+
+    res.json({
+      token: generateToken(user._id),
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      role: user.role
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Verify User Email/Phone (Signup TC6, TC7)
+export const verifyUser = async (req, res) => {
+  const { identifier, otp } = req.body;
+
+  try {
+    const user = await User.findOne({ $or: [{ email: identifier }, { username: identifier }] });
+    if (!user || user.otp !== otp || !user.otpExpires || new Date() > user.otpExpires) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    user.otp = null;
+    user.otpExpires = null;
+    user.isVerified = true;
+    await user.save();
+
+    res.json({ message: "Verification successful" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Reset Password (Login TC6)
+export const resetPassword = async (req, res) => {
+  const { identifier } = req.body;
+
+  try {
+    const user = await User.findOne({ $or: [{ email: identifier }, { username: identifier }] });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    await user.save();
+    console.log(`Simulated sending OTP ${otp} to ${identifier}`);
+
+    res.json({ message: "OTP sent", otp: otp }); // Return OTP for testing
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Verify OTP and Update Password (Login TC6)
+export const verifyOtp = async (req, res) => {
+  const { identifier, otp, newPassword } = req.body;
+
+  try {
+    const user = await User.findOne({ $or: [{ email: identifier }, { username: identifier }] });
+    if (!user || user.otp !== otp || !user.otpExpires || new Date() > user.otpExpires) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    if (!/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(newPassword)) {
+      return res.status(400).json({ message: "Password must be alphanumeric and at least 8 characters" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.otp = null;
+    user.otpExpires = null;
+    user.failedAttempts = 0;
+    user.lockedUntil = null;
+    user.isVerified = true; // Assume verification completed
+    await user.save();
+
+    res.json({ message: "Password reset successful" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Become a Farmer (Optional)
+export const becomeFarmer = async (req, res) => {
+  const { location, idProofUrl, accountHolder, accountNumber, ifsc, upi } = req.body;
+
+  try {
+    const user = await User.findById(req.user.id).populate('farmerProfile');
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role === "farmer" || user.farmerProfile) {
+      return res.status(400).json({ 
+        message: "You are already registered as a farmer",
+        role: "farmer"
+      });
+    }
+
+    if (!location || !idProofUrl || !accountHolder || !accountNumber || !ifsc) {
+      return res.status(400).json({ 
+        message: "Please provide all required information for farmer registration"
+      });
+    }
+
+    const farmerProfile = await FarmerProfile.create({
+      user: user._id,
+      location,
+      idProofUrl,
+      accountDetails: { accountHolder, accountNumber, ifsc, upi },
+    });
+
+    user.role = "farmer";
+    user.farmerProfile = farmerProfile._id;
+    await user.save();
+
+    res.json({
+      message: "Farmer registration successful",
+      role: user.role,
+      profileId: farmerProfile._id
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error during farmer registration" });
+  }
+};
+
+// Toggle Role (Optional)
+export const toggleUserRole = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate('farmerProfile');
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.role === "buyer" && !user.farmerProfile) {
+      return res.status(400).json({ 
+        message: "You need to complete farmer registration first",
+        requiresRegistration: true
+      });
+    }
+
+    user.role = user.role === "buyer" ? "farmer" : "buyer";
+    await user.save();
+
+    res.json({ 
+      message: `Role switched to ${user.role}`,
+      role: user.role,
+      farmerProfile: user.farmerProfile
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get Profile (Optional)
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      mobile: user.mobile,
+      address: user.address,
+      username: user.username,
+      farmerProfile: user.farmerProfile
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get Current User (Optional)
+export const getMe = (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+  res.json(req.user);
+};
