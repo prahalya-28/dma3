@@ -42,9 +42,9 @@ async function checkUserRole() {
       
       // Update button text based on current view
       if (isOnFarmerDashboard) {
-        toggleRoleBtn.textContent = "Switch to Customer View";
-      } else {
         toggleRoleBtn.textContent = "Switch to Seller View";
+      } else {
+        toggleRoleBtn.textContent = "Switch to Customer View";
       }
 
       // Check if user should be on this page
