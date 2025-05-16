@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email/Phone</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Verify Your Email/Phone</h2>
+        <form id="verifyForm">
+            <input type="text" id="identifier" placeholder="Enter email or username" required>
+            <div id="identifierError" class="error"></div>
+            
+            <input type="text" id="otp" placeholder="Enter OTP" required>
+            <div id="otpError" class="error"></div>
+            
+            <button type="submit">Verify</button>
+        </form>
+        
+        <p><a href="index.html">Back to Signup</a></p>
+        <p><a href="../login/index.html">Go to Login</a></p>
+    </div>
+
+    <script src="verify.js"></script>
+</body>
+</html>
