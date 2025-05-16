@@ -7,9 +7,6 @@
   <link rel="stylesheet" href="ProductListing.css" />
 </head>
 <body>
-
-  <button onclick="window.history.back()" style="position:absolute;left:20px;top:20px;padding:8px 16px;border-radius:5px;border:none;background:#eee;cursor:pointer;z-index:1000;">← Back</button>
-
   <div class="navbar">Product Listing</div>
 
   <div class="product-form-container">
@@ -23,13 +20,14 @@
       <div id="imageUploadMessage"></div>
       <button type="submit">Add Product</button>
     </form>
+    <button onclick="window.location.href='../farmer dashboard/index.html'" class="back-btn">Back to Dashboard</button>
   </div>
 
   <div id="successMessage" style="display: none;"></div>
   <div id="imageInvalidMessage"></div>
 
   <div class="container">
-    <h2>Existing Products</h2>
+    <h2>Your Products</h2>
     <div class="product-grid" id="productList">
       <!-- Products will be displayed here -->
     </div>

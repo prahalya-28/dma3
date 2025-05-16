@@ -1,5 +1,7 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
+import User from '../models/User.js';
+import { sendOrderStatusEmail } from '../utils/emailService.js';
 
 export const createOrder = async (req, res) => {
     try {
@@ -113,6 +115,14 @@ export const updateOrderStatus = async (req, res) => {
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ message: "Invalid status" });
         }
+        // 🚫 TC9: Prevent rejecting an already accepted order
+        if (order.status === 'accepted' && status === 'rejected') {
+            return res.status(400).json({ message: "Accepted orders cannot be rejected." });
+        }
+          // 🚫 TC10: Prevent modifying an accepted order (to any other status)
+        if (order.status === 'accepted' && status !== 'accepted' && status !== 'completed') {
+            return res.status(400).json({ message: "Accepted orders cannot be modified except to completed." });
+        }
 
         // Update order status
         order.status = status;
@@ -125,6 +135,12 @@ export const updateOrderStatus = async (req, res) => {
                 product.quantity += order.quantity;
                 await product.save();
             }
+        }
+// ✅ TC8: Notify customer on status change
+        if (order.user?.email) {
+            const subject = 'Your order has been ${status}';
+            const message = 'Hi ${order.user.name},\n\nYour order (ID: ${order._id}) has been updated to status: ${status.toUpperCase()}.\n\nThank you for using our platform.';
+            await sendOrderStatusEmail(order.user.email, subject, message);
         }
 
         res.json({

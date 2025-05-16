@@ -72,8 +72,26 @@ textarea {
     margin: 5px 0;
 }
 
-.update-button {
-    background-color: #007bff;
+.product-category {
+    margin: 5px 0;
+}
+
+.product-description {
+    margin: 5px 0;
+}
+
+.product-quantity {
+    margin: 5px 0;
+}
+
+.product-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.delete-btn {
+    background-color: #dc3545;
     color: white;
     border: none;
     padding: 8px 12px;
@@ -81,6 +99,25 @@ textarea {
     cursor: pointer;
 }
 
-.update-button:hover {
-    background-color: #0056b3;
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+.no-products, .error {
+    color: #666;
+    font-style: italic;
+}
+
+.back-btn {
+    background: #007bff;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.back-btn:hover {
+    background: #0056b3;
 }
