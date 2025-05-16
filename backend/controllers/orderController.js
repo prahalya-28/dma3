@@ -181,6 +181,20 @@ export const getOrderById = async (req, res) => {
     }
 };
 
+/*export const getMyOrders = async (req, res) => {
+    try {
+        console.log('--- Fetching My Orders ---');
+        console.log('User:', req.user._id);
+        const orders = await Order.find({ user: req.user._id })
+            .populate('farmer', 'name _id location profilePicture')
+            .populate('product', 'name image');
+        console.log('Orders found:', orders.length);
+        res.json(orders);
+    } catch (error) {
+        console.error('Error in getMyOrders:', error);
+        res.status(500).json({ message: 'Failed to fetch orders' });
+    }
+};*/
 export const getMyOrders = async (req, res) => {
     try {
         console.log('--- Fetching My Orders ---');
@@ -189,6 +203,11 @@ export const getMyOrders = async (req, res) => {
             .populate('farmer', 'name _id location profilePicture')
             .populate('product', 'name image');
         console.log('Orders found:', orders.length);
+        // Log orders with missing products
+        const ordersWithMissingProducts = orders.filter(order => !order.product);
+        if (ordersWithMissingProducts.length > 0) {
+            console.log('Orders with missing products:', ordersWithMissingProducts.map(order => order._id));
+        }
         res.json(orders);
     } catch (error) {
         console.error('Error in getMyOrders:', error);
