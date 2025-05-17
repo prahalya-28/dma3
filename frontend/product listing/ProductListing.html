@@ -33,6 +33,44 @@
     </div>
   </div>
 
+  <!-- Edit Product Modal -->
+  <div id="editProductModal" class="modal">
+    <div class="modal-content">
+      <span id="closeEditModal" class="close">&times;</span>
+      <h2>Edit Product</h2>
+      <form id="editProductForm">
+        <input type="hidden" id="editProductId">
+        <div class="form-group">
+          <label for="editProductName">Product Name</label>
+          <input type="text" id="editProductName" required>
+        </div>
+        <div class="form-group">
+          <label for="editProductPrice">Price (₹)</label>
+          <input type="number" id="editProductPrice" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label for="editProductCategory">Category</label>
+          <input type="text" id="editProductCategory" required>
+        </div>
+        <div class="form-group">
+          <label for="editProductDescription">Description</label>
+          <textarea id="editProductDescription" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="editProductQuantity">Quantity</label>
+          <input type="number" id="editProductQuantity" required min="1">
+        </div>
+        <div class="form-group">
+          <label for="editProductImage">Product Image (leave blank to keep existing)</label>
+          <input type="file" id="editProductImage" accept="image/*">
+          <div id="editImageUploadMessage"></div>
+        </div>
+        <button type="submit">Save Changes</button>
+      </form>
+      <div id="editProductMessage"></div>
+    </div>
+  </div>
+
   <script src="ProductListing.js"></script>
 </body>
 </html>
