@@ -962,7 +962,7 @@ async function initiatePayment() {
 }
 
 // Update displayUserOrders to show payment button for accepted orders
-function displayUserOrders(orders) {
+/*function displayUserOrders(orders) {
   const container = document.getElementById("orders-container");
   if (!container) return;
   
@@ -1005,6 +1005,81 @@ function displayUserOrders(orders) {
           <img src="${order.product.image}" alt="${order.product.name}">
           <div>
             <h4>${order.product.name}</h4>
+            <p>Quantity: ${order.quantity}</p>
+            <p>Total: ₹${order.totalPrice}</p>
+          </div>
+        </div>
+        <div class="farmer-info">
+          <p><strong>Farmer:</strong> ${order.farmer && order.farmer.name ? order.farmer.name : 'Unknown Farmer'}</p>
+          <p><strong>Location:</strong> ${order.farmer && order.farmer.location ? order.farmer.location : 'Not specified'}</p>
+          <p><strong>Delivery:</strong> ${order.deliveryMethod === 'pickup' ? 'Self Pickup' : 'Home Delivery'}</p>
+          ${order.deliveryMethod === 'pickup' ? 
+            `<p><strong>Pickup Time:</strong> ${order.deliveryDetails.pickupTime}</p>` :
+            `<p><strong>Address:</strong> ${order.deliveryDetails.address}</p>
+             <p><strong>Phone:</strong> ${order.deliveryDetails.phone}</p>`
+          }
+        </div>
+        ${order.specialInstructions ? 
+          `<div class="special-instructions">
+            <p><strong>Special Instructions:</strong> ${order.specialInstructions}</p>
+          </div>` : ''
+        }
+      </div>
+      <div class="order-actions">
+        ${paymentButton}
+        ${chatButton}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}*/
+
+function displayUserOrders(orders) {
+  const container = document.getElementById("orders-container");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (!orders || orders.length === 0) {
+    container.innerHTML = "<p>No orders found.</p>";
+    return;
+  }
+
+  orders.forEach(order => {
+    const card = document.createElement("div");
+    card.className = "order-card";
+
+    let paymentButton = '';
+    if (order.status === 'accepted') {
+      paymentButton = `
+        <button class="primary-btn" onclick="showPaymentModal('${order._id}')">
+          Pay Now
+        </button>
+      `;
+    }
+    let chatButton = '';
+    if (order.farmer && order.farmer._id) {
+      chatButton = `
+        <button class="secondary-btn" onclick="startChatWithFarmer('${order.farmer._id}', '${order._id}')">
+          Chat with Farmer
+        </button>
+      `;
+    }
+
+    // Handle case where order.product is null (e.g., product was deleted)
+    const productImage = order.product && order.product.image ? order.product.image : PLACEHOLDER_IMAGE;
+    const productName = order.product && order.product.name ? order.product.name : 'Product Deleted';
+
+    card.innerHTML = `
+      <div class="order-header">
+        <h3>Order #${order._id.slice(-6)}</h3>
+        <span class="status-badge ${order.status}">${order.status}</span>
+      </div>
+      <div class="order-details">
+        <div class="product-info">
+          <img src="${productImage}" alt="${productName}">
+          <div>
+            <h4>${productName}</h4>
             <p>Quantity: ${order.quantity}</p>
             <p>Total: ₹${order.totalPrice}</p>
           </div>
