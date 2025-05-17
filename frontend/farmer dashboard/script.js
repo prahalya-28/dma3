@@ -182,6 +182,7 @@ function displayProducts(products) {
     return;
   }
 
+  //edit button modified
   products.forEach(product => {
     const card = document.createElement("div");
     card.className = "product-card";
@@ -191,10 +192,10 @@ function displayProducts(products) {
       <p>${product.description}</p>
       <p>Price: ₹${product.price}</p>
       <p>Stock: ${product.quantity !== undefined ? product.quantity : 0}</p>
-      <button class="edit-btn">Edit</button>
+      <button onclick="editProduct('${product._id}')">Edit</button>
       <button onclick="deleteProduct('${product._id}')">Delete</button>
     `;
-    card.querySelector('.edit-btn').onclick = () => openEditModal(product);
+    //card.querySelector('.edit-btn').onclick = () => openEditModal(product);
     container.appendChild(card);
   });
 }
@@ -266,10 +267,73 @@ function toBase64(file) {
   });
 }
 
-// Function to edit product
-function editProduct(productId) {
+// Function to edit product ADDED AT NIGHT
+async function editProduct(productId) {
   // Implement edit product functionality
-  window.location.href = `edit-product.html?id=${productId}`;
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please log in to edit products.");
+    window.location.href = "../login/index.html";
+    return;
+  }
+
+  try {
+    // Fetch product details to verify the product exists and belongs to the farmer
+    const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    /*if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const product = await response.json();
+
+    // Verify the product belongs to the logged-in farmer
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (product.farmer !== user._id) {
+      alert("You are not authorized to edit this product.");
+      return;
+    }*/
+
+      if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`Failed to fetch product details. Status: ${response.status}, Message: ${errorData.message}`);
+      if (response.status === 404) {
+        alert("This product no longer exists. Please refresh the page to update the product list.");
+      } else if (response.status === 401) {
+        alert("Your session has expired. Please log in again.");
+        window.location.href = "../login/index.html";
+      } else {
+        alert("Failed to load product details. Please try again.");
+      }
+      return;
+    }
+
+    const product = await response.json();
+    console.log("Product fetched:", product);
+
+    // Verify the product belongs to the logged-in farmer
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    console.log("Logged-in user:", user);
+    const farmerId = product.farmer?._id || product.farmer; // Handle both populated and non-populated farmer field
+    if (!farmerId) {
+      alert("Product data is incomplete. Please refresh the page and try again.");
+      return;
+    }
+    if (farmerId.toString() !== user._id?.toString()) {
+      alert("You are not authorized to edit this product.");
+      return;
+    }
+
+    // Open the edit modal with the product details
+    openEditModal(product);
+  } catch (error) {
+    console.error("Error fetching product for editing:", error);
+    alert("Failed to load product details. Please try again.");
+  }
 }
 
 // Function to delete product
@@ -335,7 +399,7 @@ window.onclick = function(event) {
 };
 
 // Handle edit form submission
-if (editProductForm) {
+/*if (editProductForm) {
   editProductForm.onsubmit = async function(e) {
     e.preventDefault();
     const id = document.getElementById('editProductId').value;
@@ -376,6 +440,63 @@ if (editProductForm) {
     } catch (error) {
       editProductMessage.style.color = 'red';
       editProductMessage.textContent = 'Server error.';
+    }
+  };
+}*/
+
+if (editProductForm) {
+  editProductForm.onsubmit = async function(e) {
+    e.preventDefault();
+    const id = document.getElementById('editProductId').value;
+    const name = document.getElementById('editProductName').value.trim();
+    const price = parseFloat(document.getElementById('editProductPrice').value.trim());
+    const category = document.getElementById('editProductCategory').value.trim();
+    const description = document.getElementById('editProductDescription').value.trim();
+    const quantity = parseInt(document.getElementById('editProductQuantity').value.trim());
+    const imageFile = document.getElementById('editProductImage').files[0];
+
+    // Validate required fields
+    if (!name || isNaN(price) || isNaN(quantity)) {
+      editProductMessage.style.color = 'red';
+      editProductMessage.textContent = 'Please fill in all required fields (Name, Price, Quantity).';
+      return;
+    }
+
+    let image;
+    if (imageFile) {
+      image = await toBase64(imageFile);
+    }
+
+    const token = localStorage.getItem('token');
+    const body = { name, price, category, description, quantity: quantity };
+    if (image) body.image = image;
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/products/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (response.ok) {
+        editProductMessage.style.color = 'green';
+        editProductMessage.textContent = 'Product updated!';
+        setTimeout(() => {
+          editProductModal.style.display = 'none';
+          loadFarmerProducts();
+        }, 800);
+      } else {
+        const err = await response.json();
+        editProductMessage.style.color = 'red';
+        editProductMessage.textContent = err.message || 'Failed to update product.';
+      }
+    } catch (error) {
+      console.error("Error updating product:", error);
+      editProductMessage.style.color = 'red';
+      editProductMessage.textContent = 'Server error. Please try again.';
     }
   };
 }
