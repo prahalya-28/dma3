@@ -13,6 +13,8 @@ import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
 import * as chatController from "./controllers/chatController.js";
+import { updateProduct } from "./controllers/productController.js";
+
 
 // Get current file's directory
 const __filename = fileURLToPath(import.meta.url);
@@ -104,3 +106,4 @@ process.on("SIGTERM", () => {
     process.exit(0);
   });
 });
+
