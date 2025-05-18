@@ -149,26 +149,48 @@ function goToProductListing() {
   window.location.href = "../product listing/ProductListing.html";
 }
 
-// Function to load farmer's products
-async function loadFarmerProducts() {
+// Function to load farmer's orders
+async function loadFarmerOrders() {
   const token = localStorage.getItem("token");
-  if (!token) return;
+  if (!token) {
+    return;
+  }
+
+  const container = document.getElementById("orders-container");
+  if (!container) {
+    console.error("Orders container not found in DOM");
+    return;
+  }
+
+  container.innerHTML = "<p>Loading orders...</p>";
 
   try {
-    const response = await fetch("http://localhost:5000/api/products/my-products", {
+    const response = await fetch("http://localhost:5000/api/orders/farmer-orders", {
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
 
-    if (response.ok) {
-      const products = await response.json();
-      displayProducts(products);
-    } else {
-      console.error("Failed to load products:", await response.text());
+    if (!response.ok) {
+      if (response.status === 401) {
+        alert("Session expired. Please log in again.");
+        localStorage.removeItem("token");
+        window.location.href = "../login/index.html";
+        return;
+      }
+      throw new Error(`Failed to fetch orders: ${response.status}`);
     }
+
+    const orders = await response.json();
+    console.log("Orders retrieved:", orders);
+    if (!Array.isArray(orders)) {
+      throw new Error("Invalid orders data received from server");
+    }
+
+    displayOrders(orders);
   } catch (error) {
-    console.error("Error loading products:", error);
+    console.error("Error loading farmer orders:", error);
+    container.innerHTML = `<p>Error: ${error.message}. Please try again or contact support.</p>`;
   }
 }
 
@@ -324,6 +346,15 @@ async function editProduct(productId) {
       return;
     }
     if (farmerId.toString() !== user._id?.toString()) {
+      /*console.error("Product data incomplete - missing farmer ID");
+      alert("You are not authorized to edit this product.");
+      return;
+    }
+
+    // Compare farmer IDs as strings to ensure proper comparison
+    if (user._id?.toString() !== farmerId.toString()) {
+      console.error("Authorization failed - user ID and farmer ID don't match");
+      console.log(`User ID: ${user._id}, Farmer ID: ${farmerId}`);*/
       alert("You are not authorized to edit this product.");
       return;
     }
@@ -454,6 +485,9 @@ if (editProductForm) {
     const description = document.getElementById('editProductDescription').value.trim();
     const quantity = parseInt(document.getElementById('editProductQuantity').value.trim());
     const imageFile = document.getElementById('editProductImage').files[0];
+  
+  // Reset error message
+  //   editProductMessage.textContent = '';
 
     // Validate required fields
     if (!name || isNaN(price) || isNaN(quantity)) {
@@ -462,49 +496,88 @@ if (editProductForm) {
       return;
     }
 
-    let image;
-    if (imageFile) {
-      image = await toBase64(imageFile);
-    }
-
-    const token = localStorage.getItem('token');
-    const body = { name, price, category, description, quantity: quantity };
-    if (image) body.image = image;
-
-    try {
-      const response = await fetch(`http://localhost:5000/api/products/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(body)
-      });
-
-      if (response.ok) {
-        editProductMessage.style.color = 'green';
-        editProductMessage.textContent = 'Product updated!';
-        setTimeout(() => {
-          editProductModal.style.display = 'none';
-          loadFarmerProducts();
-        }, 800);
-      } else {
-        const err = await response.json();
-        editProductMessage.style.color = 'red';
-        editProductMessage.textContent = err.message || 'Failed to update product.';
-      }
-    } catch (error) {
-      console.error("Error updating product:", error);
+    if (price <= 0 || quantity < 0) {
       editProductMessage.style.color = 'red';
-      editProductMessage.textContent = 'Server error. Please try again.';
+      editProductMessage.textContent = 'Price must be greater than zero, and quantity cannot be negative.';
+      return;
     }
-  };
-}
 
+    // Show loading state
+    const submitButton = editProductForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Updating...';
+    editProductMessage.style.color = 'blue';
+    editProductMessage.textContent = 'Updating product...';
+
+    let image;
+    try {
+      if (imageFile) {
+        image = await toBase64(imageFile);
+      }
+
+      const token = localStorage.getItem('token');
+      const body = { name, price, category, description, quantity: quantity, negotiationEnabled };
+      if (image) body.image = image;
+
+      console.log("Updating product with data:", {
+         id,
+         ...body,
+         image: image ? "[Image data present]" : "[No new image]"
+        });
+
+        const response = await fetch(`http://localhost:5000/api/products/${id}`, {
+          method: 'PUT',
+          headers: {
+           'Content-Type': 'application/json',
+           'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(body)
+       });
+
+       const responseData = await response.json();
+
+       if (response.ok) {
+         console.log("Product updated successfully:", responseData);
+         editProductMessage.style.color = 'green';
+         editProductMessage.textContent = 'Product updated successfully!';
+         setTimeout(() => {
+           editProductModal.style.display = 'none';
+           loadFarmerProducts();
+          }, 1000);
+        } else {
+         console.error("Failed to update product:", responseData);
+          editProductMessage.style.color = 'red';
+          editProductMessage.textContent = err.message || 'Failed to update product.';
+        }
+      } catch (error) {
+        console.error("Error updating product:", error);
+        editProductMessage.style.color = 'red';
+        editProductMessage.textContent = 'Server error. Please try again.';
+      } finally {
+         // Reset button state
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+      }
+    };
+  }
+
+
+  
 // Function to load farmer's orders
 async function loadFarmerOrders() {
   const token = localStorage.getItem("token");
-  if (!token) return;
+  if (!token) {
+    return;
+  }
+
+  const container = document.getElementById("orders-container");
+  if (!container) {
+    console.error("Orders container not found in DOM");
+    return;
+  }
+
+  container.innerHTML = "<p>Loading orders...</p>";
 
   try {
     const response = await fetch("http://localhost:5000/api/orders/farmer-orders", {
@@ -513,14 +586,26 @@ async function loadFarmerOrders() {
       }
     });
 
-    if (response.ok) {
-      const orders = await response.json();
-      displayOrders(orders);
-    } else {
-      console.error("Failed to load orders:", await response.text());
+    if (!response.ok) {
+      if (response.status === 401) {
+        alert("Session expired. Please log in again.");
+        localStorage.removeItem("token");
+        window.location.href = "../login/index.html";
+        return;
+      }
+      throw new Error(`Failed to fetch orders: ${response.status}`);
     }
+
+    const orders = await response.json();
+    console.log("Orders retrieved:", orders);
+    if (!Array.isArray(orders)) {
+      throw new Error("Invalid orders data received from server");
+    }
+
+    displayOrders(orders);
   } catch (error) {
-    console.error("Error loading orders:", error);
+    console.error("Error loading farmer orders:", error);
+    container.innerHTML = `<p>Error: ${error.message}. Please try again or contact support.</p>`;
   }
 }
 
@@ -536,9 +621,31 @@ function displayOrders(orders) {
     return;
   }
 
+  // Define a default placeholder image
+  const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f2f2f2'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='14' text-anchor='middle' dominant-baseline='middle' fill='%23888888'%3ENo Image%3C/text%3E%3C/svg%3E";
+
   orders.forEach(order => {
+    // Check if product exists
+    const isProductMissing = !order.product || !order.product.name;
+    const productName = isProductMissing ? 'Unknown Product' : order.product.name;
+    
+    // Create the card
     const card = document.createElement("div");
     card.className = "order-card";
+    
+    // Calculate image source carefully
+    let imgSrc;
+    if (isProductMissing || !order.product.image) {
+      imgSrc = placeholderImage;
+    } else {
+      imgSrc = order.product.image;
+    }
+
+    // Get customer info safely
+    const customerName = order.user?.name || 'Unknown Customer';
+    const customerEmail = order.user?.email || 'No email provided';
+    
+    // Build the card content
     card.innerHTML = `
       <div class="order-header">
         <h3>Order #${order._id.slice(-6)}</h3>
@@ -546,21 +653,22 @@ function displayOrders(orders) {
       </div>
       <div class="order-details">
         <div class="product-info">
-          <img src="${order.product.image}" alt="${order.product.name}">
+          <img src="${imgSrc}" alt="${productName}" onerror="this.onerror=null; this.src='${placeholderImage}';">
           <div>
-            <h4>${order.product.name}</h4>
+            <h4>${productName}</h4>
             <p>Quantity: ${order.quantity}</p>
             <p>Total: ₹${order.totalPrice}</p>
           </div>
         </div>
         <div class="customer-info">
-          <p><strong>Customer:</strong> ${order.user.name}</p>
-          <p><strong>Email:</strong> ${order.user.email}</p>
+          <p><strong>Customer:</strong> ${customerName}</p>
+          <p><strong>Email:</strong> ${customerEmail}</p>
           <p><strong>Delivery:</strong> ${order.deliveryMethod === 'pickup' ? 'Self Pickup' : 'Home Delivery'}</p>
-          ${order.deliveryMethod === 'pickup' ? 
+          ${order.deliveryMethod === 'pickup' && order.deliveryDetails?.pickupTime ? 
             `<p><strong>Pickup Time:</strong> ${order.deliveryDetails.pickupTime}</p>` :
-            `<p><strong>Address:</strong> ${order.deliveryDetails.address}</p>
-             <p><strong>Phone:</strong> ${order.deliveryDetails.phone}</p>`
+            order.deliveryMethod !== 'pickup' && order.deliveryDetails ? 
+            `<p><strong>Address:</strong> ${order.deliveryDetails.address || 'Not provided'}</p>
+             <p><strong>Phone:</strong> ${order.deliveryDetails.phone || 'Not provided'}</p>` : ''
           }
         </div>
         ${order.specialInstructions ? 
@@ -576,7 +684,7 @@ function displayOrders(orders) {
         ` : order.status === 'accepted' ? `
           <button onclick="updateOrderStatus('${order._id}', 'completed')" class="complete-btn">Mark as Completed</button>
         ` : ''}
-        <button class="secondary-btn" onclick="startChatWithCustomer('${order.user._id}', '${order._id}')">Chat with Customer</button>
+        <button class="secondary-btn" onclick="startChatWithCustomer('${order.user?._id || ''}', '${order._id}')">Chat with Customer</button>
       </div>
     `;
     container.appendChild(card);

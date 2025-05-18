@@ -343,6 +343,7 @@ const modalClose = document.querySelector('.close');
 if (modalClose) {
   modalClose.onclick = function() {
     productViewModal.style.display = "none";
+    //window.currentProduct = null;
   }
 }
 
