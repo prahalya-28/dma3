@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // First, test server connectivity
     async function testServerConnection() {
         try {
-            const response = await fetch('http://localhost:5000/test');
+            const response = await fetch('https://dma-qhwn.onrender.com/test');
             const data = await response.json();
             console.log('Server test response:', data);
             return true;
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
         try {
             console.log('Attempting login with:', { username });
-            const response = await fetch('http://localhost:5000/api/users/login', {
+            const response = await fetch('https://dma-qhwn.onrender.com/api/users/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

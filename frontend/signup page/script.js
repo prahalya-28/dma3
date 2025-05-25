@@ -26,7 +26,7 @@ document.getElementById("signupForm").addEventListener("submit", async function(
     }
 
     try {
-        let response = await fetch("http://localhost:5000/api/users/register", { // Correct API Route
+        let response = await fetch("https://dma-qhwn.onrender.com/api/users/register", { // Correct API Route
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(userData),

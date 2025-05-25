@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to send the form data to the server
   async function submitFormData(data, token) {
     try {
-      const response = await fetch("http://localhost:5000/api/users/become-farmer", {
+      const response = await fetch("https://dma-qhwn.onrender.com/api/users/become-farmer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
