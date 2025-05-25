@@ -41,9 +41,18 @@ class ChatList {
                 }
             });
             
+            if (response.status === 401) {
+                // Token is expired or invalid, redirect to login
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '../login/index.html'; // Or the correct path to your login page
+                return; // Stop further execution
+            }
+
             if (!response.ok) throw new Error('Failed to load chats');
             
             this.chats = await response.json();
+            console.log('loadChats: Chats data fetched from backend:', this.chats);
             // Sort chats by last message time
             this.chats.sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt));
         } catch (error) {
@@ -80,20 +89,23 @@ class ChatList {
         
         this.container.innerHTML = this.chats.map(chat => {
             const otherParticipant = chat.participants.find(p => p._id !== currentUser._id);
+            const otherParticipantName = otherParticipant?.name || 'Unknown User';
+            const otherParticipantPic = otherParticipant?.profilePicture || '';
+
             const lastMessage = chat.messages[chat.messages.length - 1];
             const unreadCount = chat.messages.filter(m => 
-                !m.read && m.sender._id !== currentUser._id
+                m && m.sender && m.sender._id && currentUser && currentUser._id && !m.read && m.sender._id.toString() !== currentUser._id.toString()
             ).length;
 
             return `
                 <div class="chat-item ${unreadCount > 0 ? 'unread' : ''}" 
                      onclick="window.location.href='index.html?chatId=${chat._id}'">
-                    <img src="${otherParticipant.profilePicture || '../assets/user-photo.jpg'}" 
-                         alt="${otherParticipant.name}" 
-                         class="chat-avatar">
+                    <div class="chat-avatar">
+                        ${otherParticipantPic ? `<img src="${otherParticipantPic}" alt="${otherParticipantName}">` : ''}
+                    </div>
                     <div class="chat-info">
                         <div class="chat-header">
-                            <span class="chat-name">${otherParticipant.name}</span>
+                            <span class="chat-name">${otherParticipantName}</span>
                             <span class="chat-time">
                                 ${new Date(chat.lastMessageAt).toLocaleDateString()}
                             </span>
@@ -116,5 +128,5 @@ class ChatList {
 
 // Initialize chat list when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    window.chatList = new ChatList('chatList');
+    window.chatList = new ChatList('chat-list-container');
 }); 

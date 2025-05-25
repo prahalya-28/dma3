@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Clear error messages
     function clearErrors() {
-        document.getElementById('roleError').textContent = '';
         document.getElementById('firstNameError').textContent = '';
         document.getElementById('lastNameError').textContent = '';
         document.getElementById('countryError').textContent = '';
@@ -50,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         clearErrors();
 
-        const role = document.getElementById('role').value;
+        const role = 'buyer';  // Always set role to buyer (which is the default customer role)
         const firstName = document.getElementById('firstName').value;
         const lastName = document.getElementById('lastName').value;
         const country = document.getElementById('country').value;
@@ -61,8 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmPassword = document.getElementById('confirmPassword').value;
 
         // Client-side validations
-        if (!role || !firstName || !lastName || !country || !mobile || !email || !username || !password || !confirmPassword) {
-            document.getElementById('roleError').textContent = 'All fields are required';
+        if (!firstName || !lastName || !country || !mobile || !email || !username || !password || !confirmPassword) {
+            alert('All fields are required');
             return;
         }
 

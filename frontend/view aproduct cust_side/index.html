@@ -162,6 +162,10 @@
                     return;
                 }
 
+                // Calculate estimated delivery date (3 days from now)
+                const estimatedDeliveryDate = new Date();
+                estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + 3);
+
                 const response = await fetch('http://localhost:5000/api/orders', {
                     method: 'POST',
                     headers: {
@@ -173,7 +177,8 @@
                         quantity,
                         deliveryMethod,
                         deliveryDetails,
-                        specialInstructions: instructions
+                        specialInstructions: instructions,
+                        estimatedDeliveryDate: estimatedDeliveryDate.toISOString()
                     })
                 });
 

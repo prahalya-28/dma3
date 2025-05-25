@@ -5,9 +5,10 @@ import { sendOrderStatusEmail } from '../utils/emailService.js';
 
 export const createOrder = async (req, res) => {
     try {
-        const { productId, quantity, deliveryMethod, deliveryDetails, specialInstructions } = req.body;
+        console.log('Order creation request body:', req.body); // Debug log
+        const { productId, quantity, deliveryMethod, deliveryDetails, specialInstructions, estimatedDeliveryDate } = req.body;
 
-        if (!productId || !quantity || !deliveryMethod) {
+        if (!productId || !quantity || !deliveryMethod || !estimatedDeliveryDate) {
             return res.status(400).json({ message: "Missing required fields" });
         }
         const product = await Product.findById(productId).populate('farmer', 'name location');
@@ -24,6 +25,7 @@ export const createOrder = async (req, res) => {
             return res.status(400).json({ message: "Requested quantity not available" });
         }
         const totalPrice = product.price * quantity;
+        // Use new Order() and save() to ensure pre-save hooks run
         const order = new Order({
             user: req.user._id,
             product: productId,
@@ -34,13 +36,11 @@ export const createOrder = async (req, res) => {
             deliveryMethod,
             deliveryDetails,
             specialInstructions,
+            estimatedDeliveryDate,
             status: 'pending'
         });
 
         const createdOrder = await order.save();
-
-        product.quantity -= quantity;
-        await product.save();
 
         const populatedOrder = await Order.findById(createdOrder._id)
             .populate('product', 'name image')
@@ -108,27 +108,40 @@ export const updateOrderStatus = async (req, res) => {
             return res.status(403).json({ message: "Not authorized to update this order" });
         }
 
-        // Validate status
-        const validStatuses = ['pending', 'accepted', 'rejected', 'completed', 'cancelled'];
+        // Validate status - ONLY allow farmer to set these delivery statuses
+        const validStatuses = ['shipped', 'out_for_delivery', 'delivered', 'delayed']; // Farmer can only set these
+        
         if (!validStatuses.includes(status)) {
-            return res.status(400).json({ message: "Invalid status" });
+            return res.status(400).json({ message: `Invalid status update for farmer. Allowed statuses are: ${validStatuses.join(', ')}` });
         }
 
-        if (order.status === 'accepted' && status === 'rejected') {
-            return res.status(400).json({ message: "Cannot reject an already accepted order" });
+        // Prevent changing away from 'delivered'
+        const finalStatuses = ['delivered', 'rejected', 'cancelled']; // Assuming rejected/cancelled are not set via this route anymore
+        if (finalStatuses.includes(order.status)) {
+             return res.status(400).json({ message: `Cannot change status from final state: ${order.status}` });
         }
 
-        // Update order status
-        order.status = status;
-        await order.save();
+        // Only update if status is changing
+        if (order.status !== status) {
+             // Add current status to history before updating
+            order.statusHistory.push({ status: order.status, timestamp: new Date() });
+             // Update main order status
+             order.status = status;
 
-        // If order is rejected, restore product quantity
-        if (status === 'rejected') {
-            const product = await Product.findById(order.product._id);
-            if (product) {
-                product.quantity += order.quantity;
-                await product.save();
+            // Handle quantity updates based on status change (assuming accepted/rejected are set elsewhere)
+            // If order is rejected or cancelled, restore product quantity (only if it was previously accepted)
+            // This logic might need adjustment if accepted/rejected/cancelled are handled differently now
+            /*
+            if ((status === 'rejected' || status === 'cancelled') && order.status === 'accepted') { // Check if new status is rejected/cancelled and old status was accepted
+                 const product = await Product.findById(order.product._id);
+                if (product) {
+                    product.quantity += order.quantity;
+                    await product.save();
+                }
             }
+            */
+
+             await order.save(); // Save the order with updated status and history
         }
 
         console.log(`Notification sent to customer ${order.user.email}: Order #${order._id} status updated to ${status}`);
@@ -198,5 +211,32 @@ export const getMyOrders = async (req, res) => {
     } catch (error) {
         console.error('Error in getMyOrders:', error);
         res.status(500).json({ message: 'Failed to fetch orders' });
+    }
+};
+
+export const updateDeliveryPartner = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+        // Only the farmer who owns the order can update
+        if (order.farmer.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: "Not authorized" });
+        }
+        // Update fields
+        if (req.body.deliveryPartnerType) {
+            order.deliveryPartnerType = req.body.deliveryPartnerType;
+        }
+        if (req.body.deliveryPartnerDetails) {
+            order.deliveryPartnerDetails = req.body.deliveryPartnerDetails;
+        } else if (req.body.deliveryPartnerType === 'farmer') {
+            order.deliveryPartnerDetails = undefined;
+        }
+        await order.save();
+        res.json(order);
+    } catch (error) {
+        console.error('Error in updateDeliveryPartner:', error);
+        res.status(500).json({ message: "Failed to update delivery partner" });
     }
 };

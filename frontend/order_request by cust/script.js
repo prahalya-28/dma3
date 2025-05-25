@@ -65,12 +65,18 @@ async function placeOrder() {
         return;
     }
     const deliveryDetails = deliveryMethod === 'pickup' ? { pickupTime } : { address, phone };
+
+    // Calculate estimated delivery date (3 days from now)
+    const estimatedDeliveryDate = new Date();
+    estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + 3);
+
     const orderData = {
         productId: 'mockProductId123', // Replace with actual product ID
         quantity,
         deliveryMethod,
         deliveryDetails,
-        specialInstructions: instructions
+        specialInstructions: instructions,
+        estimatedDeliveryDate: estimatedDeliveryDate.toISOString()
     };
     try {
         const response = await fetch('http://localhost:5000/api/orders', {

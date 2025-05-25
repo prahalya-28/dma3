@@ -45,6 +45,17 @@
             <span id="userTwitter"></span>
             <input type="text" id="editUserTwitter" style="display:none;">
         </div>
+        <!-- Farmer Specific Fields -->
+        <div id="farmerProfileFields" style="display: none;">
+            <div class="profile-info">
+                <label>Farm Name:</label>
+                <span id="userFarmName"></span>
+                <input type="text" id="editUserFarmName">
+                <label>Location:</label>
+                <span id="userLocation"></span>
+                <input type="text" id="editUserLocation">
+            </div>
+        </div>
         <button class="edit-btn" id="editBtn">Edit Profile</button>
         <button class="save-btn" id="saveBtn" style="display:none;">Save</button>
         <button class="cancel-btn" id="cancelBtn" style="display:none;">Cancel</button>
@@ -52,138 +63,173 @@
         <div class="error-msg" id="errorMsg"></div>
     </div>
     <script>
-        let user = null;
-        const userName = document.getElementById('userName');
-        const userEmail = document.getElementById('userEmail');
-        const editUserName = document.getElementById('editUserName');
-        const editUserEmail = document.getElementById('editUserEmail');
-        const editBtn = document.getElementById('editBtn');
-        const saveBtn = document.getElementById('saveBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const successMsg = document.getElementById('successMsg');
-        const errorMsg = document.getElementById('errorMsg');
-        const profilePic = document.getElementById('profilePic');
-        const profilePicInput = document.getElementById('profilePicInput');
-        const changePicBtn = document.getElementById('changePicBtn');
-        const userBio = document.getElementById('userBio');
-        const editUserBio = document.getElementById('editUserBio');
-        const userFacebook = document.getElementById('userFacebook');
-        const editUserFacebook = document.getElementById('editUserFacebook');
-        const userInstagram = document.getElementById('userInstagram');
-        const editUserInstagram = document.getElementById('editUserInstagram');
-        const userTwitter = document.getElementById('userTwitter');
-        const editUserTwitter = document.getElementById('editUserTwitter');
-        let newProfilePicBase64 = null;
+        (function() {
+            let user = null;
+            const userName = document.getElementById('userName');
+            const userEmail = document.getElementById('userEmail');
+            const editUserName = document.getElementById('editUserName');
+            const editUserEmail = document.getElementById('editUserEmail');
+            const editBtn = document.getElementById('editBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const successMsg = document.getElementById('successMsg');
+            const errorMsg = document.getElementById('errorMsg');
+            const profilePic = document.getElementById('profilePic');
+            const profilePicInput = document.getElementById('profilePicInput');
+            const changePicBtn = document.getElementById('changePicBtn');
+            const userBio = document.getElementById('userBio');
+            const editUserBio = document.getElementById('editUserBio');
+            const userFacebook = document.getElementById('userFacebook');
+            const editUserFacebook = document.getElementById('editUserFacebook');
+            const userInstagram = document.getElementById('userInstagram');
+            const editUserInstagram = document.getElementById('editUserInstagram');
+            const userTwitter = document.getElementById('userTwitter');
+            const editUserTwitter = document.getElementById('editUserTwitter');
+            const farmerProfileFields = document.getElementById('farmerProfileFields');
+            const userFarmName = document.getElementById('userFarmName');
+            const editUserFarmName = document.getElementById('editUserFarmName');
+            const userLocation = document.getElementById('userLocation');
+            const editUserLocation = document.getElementById('editUserLocation');
+            let newProfilePicBase64 = null;
 
-        async function fetchAndShowProfile() {
-            try {
-                const token = localStorage.getItem('token');
-                const res = await fetch('http://localhost:5000/api/users/profile', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                user = await res.json();
-                localStorage.setItem('user', JSON.stringify(user));
-                showProfile();
-            } catch (err) {
-                errorMsg.textContent = 'Failed to load profile.';
+            async function fetchAndShowProfile() {
+                try {
+                    const token = localStorage.getItem('token');
+                    const res = await fetch('http://localhost:5000/api/users/profile', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    user = await res.json();
+                    console.log('fetchAndShowProfile: User data fetched from backend:', user); // Debug log
+                    localStorage.setItem('user', JSON.stringify(user));
+                    showProfile();
+                } catch (err) {
+                    errorMsg.textContent = 'Failed to load profile.';
+                }
             }
-        }
 
-        function showProfile() {
-            userName.textContent = user?.name || 'Unknown';
-            userEmail.textContent = user?.email || 'Unknown';
-            editUserName.value = user?.name || '';
-            editUserEmail.value = user?.email || '';
-            profilePic.src = user?.profilePicture || '../user-photo.jpg';
-            userBio.textContent = user?.bio || '';
-            editUserBio.value = user?.bio || '';
-            userFacebook.textContent = user?.facebook || '';
-            editUserFacebook.value = user?.facebook || '';
-            userInstagram.textContent = user?.instagram || '';
-            editUserInstagram.value = user?.instagram || '';
-            userTwitter.textContent = user?.twitter || '';
-            editUserTwitter.value = user?.twitter || '';
-        }
-
-        // Initial load
-        fetchAndShowProfile();
-
-        editBtn.onclick = function() {
-            userName.style.display = 'none';
-            userEmail.style.display = 'none';
-            userBio.style.display = 'none';
-            userFacebook.style.display = 'none';
-            userInstagram.style.display = 'none';
-            userTwitter.style.display = 'none';
-            editUserName.style.display = 'block';
-            editUserEmail.style.display = 'block';
-            editUserBio.style.display = 'block';
-            editUserFacebook.style.display = 'block';
-            editUserInstagram.style.display = 'block';
-            editUserTwitter.style.display = 'block';
-            editBtn.style.display = 'none';
-            saveBtn.style.display = 'inline-block';
-            cancelBtn.style.display = 'inline-block';
-            changePicBtn.style.display = 'inline-block';
-            successMsg.textContent = '';
-            errorMsg.textContent = '';
-        };
-        cancelBtn.onclick = function() {
-            userName.style.display = 'block';
-            userEmail.style.display = 'block';
-            userBio.style.display = 'block';
-            userFacebook.style.display = 'block';
-            userInstagram.style.display = 'block';
-            userTwitter.style.display = 'block';
-            editUserName.style.display = 'none';
-            editUserEmail.style.display = 'none';
-            editUserBio.style.display = 'none';
-            editUserFacebook.style.display = 'none';
-            editUserInstagram.style.display = 'none';
-            editUserTwitter.style.display = 'none';
-            editBtn.style.display = 'inline-block';
-            saveBtn.style.display = 'none';
-            cancelBtn.style.display = 'none';
-            changePicBtn.style.display = 'none';
-            profilePic.src = user?.profilePicture || '../user-photo.jpg';
-            newProfilePicBase64 = null;
-            successMsg.textContent = '';
-            errorMsg.textContent = '';
-        };
-        changePicBtn.onclick = function() {
-            profilePicInput.click();
-        };
-        profilePicInput.onchange = function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    profilePic.src = evt.target.result;
-                    newProfilePicBase64 = evt.target.result;
-                };
-                reader.readAsDataURL(file);
+            function showProfile() {
+                console.log('showProfile: Using user data to display profile:', user); // Debug log
+                userName.textContent = user?.name || 'Unknown';
+                userEmail.textContent = user?.email || 'Unknown';
+                editUserName.value = user?.name || '';
+                editUserEmail.value = user?.email || '';
+                profilePic.src = user?.profilePicture || '../user-photo.jpg';
+                userBio.textContent = user?.bio || '';
+                editUserBio.value = user?.bio || '';
+                userFacebook.textContent = user?.facebook || '';
+                editUserFacebook.value = user?.facebook || '';
+                userInstagram.textContent = user?.instagram || '';
+                editUserInstagram.value = user?.instagram || '';
+                userTwitter.textContent = user?.twitter || '';
+                editUserTwitter.value = user?.twitter || '';
+                if (user?.role === 'farmer' && user?.farmerProfile) {
+                    farmerProfileFields.style.display = 'block';
+                    userFarmName.textContent = user.farmerProfile.farmName || 'Not specified';
+                    editUserFarmName.value = user.farmerProfile.farmName || '';
+                    userLocation.textContent = user.farmerProfile.location || 'Not specified';
+                    editUserLocation.value = user.farmerProfile.location || '';
+                } else {
+                    farmerProfileFields.style.display = 'none';
+                }
             }
-        };
-        saveBtn.onclick = async function() {
-            const newName = editUserName.value.trim();
-            const newEmail = editUserEmail.value.trim();
-            const newBio = editUserBio.value.trim();
-            const newFacebook = editUserFacebook.value.trim();
-            const newInstagram = editUserInstagram.value.trim();
-            const newTwitter = editUserTwitter.value.trim();
-            if (!newName || !newEmail) {
-                errorMsg.textContent = 'Name and Email cannot be empty.';
-                return;
-            }
-            try {
-                const token = localStorage.getItem('token');
-                const res = await fetch('http://localhost:5000/api/users/profile', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
+
+            // Initial load
+            fetchAndShowProfile();
+
+            editBtn.onclick = function() {
+                userName.style.display = 'none';
+                userEmail.style.display = 'none';
+                userBio.style.display = 'none';
+                userFacebook.style.display = 'none';
+                userInstagram.style.display = 'none';
+                userTwitter.style.display = 'none';
+                editUserName.style.display = 'block';
+                editUserEmail.style.display = 'block';
+                editUserBio.style.display = 'block';
+                editUserFacebook.style.display = 'block';
+                editUserInstagram.style.display = 'block';
+                editUserTwitter.style.display = 'block';
+                if (user?.role === 'farmer' && user?.farmerProfile) {
+                    userFarmName.style.display = 'none';
+                    userLocation.style.display = 'none';
+                    editUserFarmName.style.display = 'block';
+                    editUserLocation.style.display = 'block';
+                } else {
+                    userFarmName.style.display = 'none';
+                    userLocation.style.display = 'none';
+                    editUserFarmName.style.display = 'none';
+                    editUserLocation.style.display = 'none';
+                }
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-block';
+                cancelBtn.style.display = 'inline-block';
+                changePicBtn.style.display = 'inline-block';
+                successMsg.textContent = '';
+                errorMsg.textContent = '';
+            };
+            cancelBtn.onclick = function() {
+                userName.style.display = 'block';
+                userEmail.style.display = 'block';
+                userBio.style.display = 'block';
+                userFacebook.style.display = 'block';
+                userInstagram.style.display = 'block';
+                userTwitter.style.display = 'block';
+                editUserName.style.display = 'none';
+                editUserEmail.style.display = 'none';
+                editUserBio.style.display = 'none';
+                editUserFacebook.style.display = 'none';
+                editUserInstagram.style.display = 'none';
+                editUserTwitter.style.display = 'none';
+                if (user?.role === 'farmer' && user?.farmerProfile) {
+                    userFarmName.style.display = 'block';
+                    userLocation.style.display = 'block';
+                    editUserFarmName.style.display = 'none';
+                    editUserLocation.style.display = 'none';
+                } else {
+                    userFarmName.style.display = 'none';
+                    userLocation.style.display = 'none';
+                    editUserFarmName.style.display = 'none';
+                    editUserLocation.style.display = 'none';
+                }
+                editBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none';
+                cancelBtn.style.display = 'none';
+                changePicBtn.style.display = 'none';
+                profilePic.src = user?.profilePicture || '../user-photo.jpg';
+                newProfilePicBase64 = null;
+                successMsg.textContent = '';
+                errorMsg.textContent = '';
+            };
+            changePicBtn.onclick = function() {
+                profilePicInput.click();
+            };
+            profilePicInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        profilePic.src = evt.target.result;
+                        newProfilePicBase64 = evt.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            saveBtn.onclick = async function() {
+                const newName = editUserName.value.trim();
+                const newEmail = editUserEmail.value.trim();
+                const newBio = editUserBio.value.trim();
+                const newFacebook = editUserFacebook.value.trim();
+                const newInstagram = editUserInstagram.value.trim();
+                const newTwitter = editUserTwitter.value.trim();
+                const newFarmName = editUserFarmName.value.trim();
+                const newLocation = editUserLocation.value.trim();
+                if (!newName || !newEmail) {
+                    errorMsg.textContent = 'Name and Email cannot be empty.';
+                    return;
+                }
+                try {
+                    const token = localStorage.getItem('token');
+                    const updateData = {
                         name: newName,
                         email: newEmail,
                         bio: newBio,
@@ -191,20 +237,34 @@
                         instagram: newInstagram,
                         twitter: newTwitter,
                         profilePicture: newProfilePicBase64
-                    })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    await fetchAndShowProfile();
-                    cancelBtn.onclick();
-                    successMsg.textContent = 'Profile updated successfully!';
-                } else {
-                    errorMsg.textContent = data.message || 'Failed to update profile.';
+                    };
+                    if (farmerProfileFields.style.display !== 'none') {
+                        updateData.farmName = newFarmName;
+                        updateData.location = newLocation;
+                    }
+                    const res = await fetch('http://localhost:5000/api/users/profile', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(updateData)
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        user = data;
+                        localStorage.setItem('user', JSON.stringify(user));
+                        showProfile();
+                        cancelBtn.onclick();
+                        successMsg.textContent = 'Profile updated successfully!';
+                    } else {
+                        errorMsg.textContent = data.message || 'Failed to update profile.';
+                    }
+                } catch (err) {
+                    errorMsg.textContent = 'Server error.';
                 }
-            } catch (err) {
-                errorMsg.textContent = 'Server error.';
-            }
-        };
+            };
+        })(); // End of IIFE
     </script>
 </body>
 </html> 

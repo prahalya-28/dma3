@@ -43,9 +43,79 @@ function displayOrders(orders) {
         tableBody.innerHTML = '<tr><td colspan="7">No orders found.</td></tr>';
         return;
     }
+
+    // Define the valid statuses that farmers can set via this interface
+    const farmerEditableStatuses = ['shipped', 'out_for_delivery', 'delivered', 'delayed'];
+
     orders.forEach(order => {
         const row = document.createElement('tr');
         row.dataset.status = order.status;
+
+        // Generate status dropdown
+        let statusDropdown = '<select onchange="updateOrderStatus(\''+order._id+'\', this.value)">';
+        
+        // Add the current status as the first option if it's not farmer editable
+        if (!farmerEditableStatuses.includes(order.status)) {
+             statusDropdown += `<option value="${order.status}" selected disabled>${order.status.replace(/_/g, ' ').charAt(0).toUpperCase() + order.status.replace(/_/g, ' ').slice(1)} (Automatic)</option>`;
+        }
+
+        farmerEditableStatuses.forEach(status => {
+            // Only show and enable options if the current status allows transitioning to them
+            let disabled = false;
+            let hidden = false;
+
+            // Logic to determine if a status is selectable based on the current status
+            // This needs to match the backend's allowed transitions (though backend is the final authority)
+            switch (order.status) {
+                case 'pending': // Should be accepted automatically, not editable by farmer
+                case 'accepted': // Should transition to processing automatically, not editable by farmer
+                case 'processing': // Should transition to shipped by farmer
+                    if (status !== 'shipped' && status !== 'delayed') disabled = true; // Can only go to shipped or delayed from processing
+                     break;
+                case 'shipped': // Can go to out_for_delivery or delayed
+                    if (status !== 'out_for_delivery' && status !== 'delayed') disabled = true;
+                    break;
+                case 'out_for_delivery': // Can go to delivered or delayed
+                     if (status !== 'delivered' && status !== 'delayed') disabled = true;
+                     break;
+                case 'delivered': // Final state
+                case 'rejected': // Final state
+                case 'cancelled': // Final state
+                     disabled = true; // Cannot change from final states
+                     hidden = true; // Hide the dropdown for final states
+                    break;
+                 case 'delayed': // Can go to shipped, out_for_delivery, or delivered
+                      if (status !== 'shipped' && status !== 'out_for_delivery' && status !== 'delivered') disabled = true;
+                     break;
+                default:
+                    // If current status is unexpected, disable all editable statuses
+                    disabled = true;
+                    break;
+            }
+
+            // If the current status is one the farmer *can* edit, make sure that option is available and selected
+            if (farmerEditableStatuses.includes(order.status) && status === order.status) {
+                 disabled = false; // Ensure current editable status is selectable
+                 hidden = false; // Ensure current editable status is visible
+            }
+
+            if (!hidden) {
+                statusDropdown += `<option value="${status}" ${order.status === status ? 'selected' : ''} ${disabled ? 'disabled' : ''}>${status.replace(/_/g, ' ').charAt(0).toUpperCase() + status.replace(/_/g, ' ').slice(1)}</option>`;
+            }
+        });
+
+         // If the current status is one the farmer *cannot* edit and is a final state, just show the status text
+         const nonEditableFinalStates = ['delivered', 'rejected', 'cancelled'];
+         if (nonEditableFinalStates.includes(order.status)) {
+              statusDropdown = order.status.replace(/_/g, ' ').charAt(0).toUpperCase() + order.status.replace(/_/g, ' ').slice(1);
+         } else if (!farmerEditableStatuses.includes(order.status)) {
+             // For other non-editable states (pending, accepted, processing), show the dropdown with the current status pre-selected and disabled, plus allowed transitions
+              statusDropdown += '</select>';
+         } else {
+             // For farmer editable states, just close the select tag
+             statusDropdown += '</select>';
+         }
+
         row.innerHTML = `
             <td><a href="../order details/index.html?orderId=${order._id}">#${order._id.slice(-6)}</a></td>
             <td>${order.user.name}</td>
@@ -54,12 +124,7 @@ function displayOrders(orders) {
             <td>${order.deliveryMethod === 'pickup' ? 'Self-Pickup' : 'Home Delivery'}</td>
             <td class="status">${order.status}</td>
             <td>
-                ${order.status === 'pending' ? `
-                    <button onclick="updateOrderStatus('${order._id}', 'accepted')" class="accept-btn">Accept</button>
-                    <button onclick="updateOrderStatus('${order._id}', 'rejected')" class="reject-btn">Reject</button>
-                ` : order.status === 'accepted' ? `
-                    <button onclick="updateOrderStatus('${order._id}', 'completed')" class="completed-btn">Mark Completed</button>
-                ` : '—'}
+                ${statusDropdown}
             </td>
         `;
         tableBody.appendChild(row);

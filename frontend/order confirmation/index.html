@@ -7,20 +7,39 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
     <div class="confirmation-container">
         <h2>🎉 Order Confirmed!</h2>
         <p>Thank you for your purchase! Your order has been successfully placed.</p>
 
         <div class="order-details">
-            <p><strong>Order ID:</strong> #ORD67890</p>
+            <p><strong>Order ID:</strong> <span id="orderId"></span></p>
             <p><strong>Payment Status:</strong> ✅ Paid</p>
-            <p><strong>Delivery Date:</strong> Estimated by March 10, 2025</p>
+            <p><strong>Delivery Date:</strong> Estimated by <span id="deliveryDate"></span></p>
         </div>
 
-        <button onclick="location.href='track-order.html'" class="track-btn">📦 Track Order</button>
-        <button onclick="location.href='dashboard.html'" class="home-btn">🏡 Go to Dashboard</button>
+        <button onclick="trackOrder()" class="track-btn">📦 Track Order</button>
+        <button onclick="location.href='../registered_user homepage/index.html'" class="home-btn">🏡 Go to Dashboard</button>
     </div>
 
+    <script>
+        // Get order ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+        
+        if (orderId) {
+            document.getElementById('orderId').textContent = orderId;
+            
+            // Set estimated delivery date (3 days from now)
+            const deliveryDate = new Date();
+            deliveryDate.setDate(deliveryDate.getDate() + 3);
+            document.getElementById('deliveryDate').textContent = deliveryDate.toLocaleDateString();
+        }
+
+        function trackOrder() {
+            if (orderId) {
+                window.location.href = `../track-order/index.html?orderId=${orderId}`;
+            }
+        }
+    </script>
 </body>
 </html>

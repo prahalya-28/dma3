@@ -27,6 +27,7 @@ import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+
 import chatRoutes from "./routes/chatRoutes.js";
 import paymentRoutes from './routes/paymentRoutes.js';
 
@@ -50,13 +51,28 @@ const io = new Server(server, {
 // Initialize Socket.IO
 chatController.initializeSocket(io);
 
+// Add a logging middleware at the very beginning
+const requestLogger = (req, res, next) => {
+    console.log(`Incoming request: ${req.method} ${req.path}`);
+    next();
+};
+
 // Middleware
+app.use(requestLogger); // Use the logging middleware
 app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "http://127.0.0.1:5501",
-    "http://localhost:5501"
-  ],
+  origin: (origin, callback) => {
+    //nsole.log('cors middleware: Checking origin for request path:', req.path, 'Origin:', origin); // Debug log
+    const allowedOrigins = [
+      "http://localhost:3000",
+      "http://127.0.0.1:5501",
+      "http://localhost:5501"
+    ];
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"]
@@ -66,20 +82,27 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan("dev"));
 app.use(helmet());
 
-// Serve static files from the frontend directory
-app.use(express.static(path.join(__dirname, '../frontend')));
+
 
 // Test endpoint
 app.get("/test", (req, res) => {
   res.json({ message: "Server is running!" });
 });
-
+    // Use the chat routes function
+    chatRoutes(app);
 // Routes
+/*.use("/api/chat", (req, res, next) => {
+  console.log('server.js: Request reached /api/chat middleware.'); // Temporary log
+  // IMPORTANT: We are not calling chatRoutes here. We just log and pass it along for now.
+  next(); // Pass the request to the next middleware in line
+});*/
+//p.use("/api/chat", chatRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/chat", chatRoutes);
 app.use('/api/payments', paymentRoutes);
+// Serve static files from the frontend directory
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Error Handler
 app.use((err, req, res, next) => {

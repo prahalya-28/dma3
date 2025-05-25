@@ -5,7 +5,8 @@ import {
     getFarmerOrders,
     updateOrderStatus,
     getOrderById,
-    getMyOrders
+    getMyOrders,
+    updateDeliveryPartner
 } from "../controllers/orderController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -17,5 +18,6 @@ router.get("/myorders", protect, getMyOrders);
 router.get("/farmer-orders", protect, getFarmerOrders);
 router.get("/:id", protect, getOrderById);
 router.put("/:id/status", protect, updateOrderStatus);
+router.put("/:id/delivery-partner", protect, updateDeliveryPartner);
 
 export default router;

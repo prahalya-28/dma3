@@ -2,7 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('loginBtn');
     const googleLogin = document.getElementById('googleLogin');
     const facebookLogin = document.getElementById('facebookLogin');
-    let failedAttempts = localStorage.getItem('failedAttempts') ? parseInt(localStorage.getItem('failedAttempts')) : 0;
+    // Reset failed attempts on page load
+    let failedAttempts = 0;
+    localStorage.setItem('failedAttempts', failedAttempts);
 
     // Clear error messages
     function clearErrors() {
@@ -27,9 +29,16 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('http://localhost:5000/api/users/validate-token', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${token}` 
+                }
             });
-            return response.ok;
+            if (!response.ok) {
+                throw new Error('Token validation failed');
+            }
+            const data = await response.json();
+            return data.valid === true;
         } catch (error) {
             console.error('Token validation failed:', error);
             return false;
@@ -48,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Uncomment verification check
         if (!isUserVerified()) {
             alert('Please verify your email/phone before logging in');
             return;
@@ -62,45 +72,63 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('http://localhost:5000/api/users/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({ username, password })
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json();
                 failedAttempts++;
                 localStorage.setItem('failedAttempts', failedAttempts);
+                
                 if (failedAttempts >= 3) {
                     alert('Too many failed attempts. Your account has been locked. Try again later or reset your password.');
                     return;
                 }
-                if (errorData.message.includes('deactivated')) {
+
+                if (response.status === 403) {
+                    alert('Please verify your email/phone before logging in');
+                    return;
+                }
+
+                if (data.message && data.message.includes('deactivated')) {
                     alert('Your account has been deactivated. Contact support for assistance.');
                 } else {
                     document.getElementById('usernameError').textContent = 'Invalid username or password';
                 }
-                throw new Error(errorData.message || 'Login failed');
+                throw new Error(data.message || 'Login failed');
             }
 
-            const data = await response.json();
+            console.log('Login response:', data);
             failedAttempts = 0;
             localStorage.setItem('failedAttempts', failedAttempts);
 
             if (data.token) {
+                // Validate token before storing
+                const isValid = await validateToken(data.token);
+                if (!isValid) {
+                    throw new Error('Token validation failed');
+                }
+
                 const formattedUser = {
                     name: data.name || data.username,
                     email: data.email,
                     username: data.username,
                     role: data.role
                 };
+                
+                // Store token and user data
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(formattedUser));
-
-                if (data.role === 'farmer') {
-                    window.location.href = '../farmer dashboard/index.html';
-                } else {
+                
+                // Add a small delay before redirect to ensure storage is complete
+                setTimeout(() => {
                     window.location.href = '../registered_user homepage/index.html';
-                }
+                }, 100);
             } else {
                 throw new Error('No token received from server');
             }
@@ -113,10 +141,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle session timeout
     async function checkSession() {
         const token = localStorage.getItem('token');
+        console.log('Current path:', window.location.pathname); // Debug log
         if (token && !(await validateToken(token))) {
             alert('Session expired. Please log in again.');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            // More robust check for login page
+            const path = window.location.pathname;
+            if (!/login(\/index\.html|\/|\.html)?$/.test(path)) {
+                window.location.href = '../login/index.html';
+            }
         }
     }
 
@@ -131,7 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '../registered_user homepage/index.html';
     }
 
-    loginBtn.addEventListener('click', async () => {
+    loginBtn.addEventListener('click', async (event) => {
+        event.preventDefault();
         clearErrors();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
@@ -153,6 +188,5 @@ document.addEventListener('DOMContentLoaded', () => {
     googleLogin.addEventListener('click', () => handleSocialLogin('Google'));
     facebookLogin.addEventListener('click', () => handleSocialLogin('Facebook'));
 
-    // Check session on load
-    checkSession();
+    checkSession();  // Session check on load
 });

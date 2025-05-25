@@ -1,153 +1,162 @@
-document.addEventListener('DOMContentLoaded', () => {
-  checkUserRole();
-  showOrders(); // Show orders by default
-  setupProductForm();
+// Configuration
+const API_BASE_URL = "http://localhost:5000";
+
+// Add placeholder image as base64 data URL
+const PLACEHOLDER_IMAGE = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyA2VikpLCBxdWFsaXR5ID0gOTAK/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgAZABkAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1ldYWVpjZGVmZ2hpanNzdXZ3eHl6goSFhoeIiYqSk5SVl5iZmqKjpKWmp6ipqrKztLW2tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo0Njc4OTpDREVGRHSElKU1RVVldYWVpjZGVmZ2hpanNzdXZ3eHl6goSFhoeIiYqSk5SVl5iZmqKjpKWmp6ipqrKztLW2tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8vPz9PX29/j5+v/aAAwDAQACEAMBAD8A+r6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA//2Q==';
+
+document.addEventListener('DOMContentLoaded', async () => {
+  // Check session and user role on page load
+  const isAuthenticated = await checkSessionAndRole();
+  if (!isAuthenticated) {
+      // checkSessionAndRole will handle the redirect to login
+      return;
+  }
+  
+  // If authenticated as farmer, proceed to set up the page
+  // Initially show products section
+  showProductsSection();
+  loadFarmerOrders(); // Load orders data (but don't show the section by default)
+  loadFarmerProducts(); // Load farmer's products and display them
 });
 
-// Function to check if user is a farmer
-async function checkUserRole() {
+// Function to check session validity and user role
+async function checkSessionAndRole() {
   const token = localStorage.getItem("token");
-  if (!token) {
+  const userString = localStorage.getItem('user');
+  let user = null;
+
+  if (!token || !userString) {
+    console.log('checkSessionAndRole: No token or user data found, redirecting to login.');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     window.location.href = "../login/index.html";
-    return;
+    return false;
   }
 
   try {
-    const response = await fetch("http://localhost:5000/api/users/profile", {
+    user = JSON.parse(userString);
+    console.log('checkSessionAndRole: User data from localStorage parsed successfully:', user);
+  } catch (e) {
+    console.error('checkSessionAndRole: Invalid JSON in localStorage for \'user\'', e);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "../login/index.html";
+    return false;
+  }
+
+  // Validate token with backend
+  console.log('checkSessionAndRole: Validating token with backend...');
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/users/validate-token`, {
+      method: 'POST',
       headers: {
-        Authorization: `Bearer ${token}`
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       }
     });
 
-    if (response.ok) {
-      const userData = await response.json();
-      console.log("User data received:", userData);
+    console.log('checkSessionAndRole: Validate token API response status:', response.status);
 
-      // Update localStorage with complete user info
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      // Set user info in the UI
-      document.getElementById("farmerName").textContent = userData.name || '';
-      document.getElementById("farmerEmail").textContent = userData.email || '';
-
-      // Get toggle button reference
-      const toggleRoleBtn = document.getElementById("toggleRoleBtn");
-      if (!toggleRoleBtn) {
-        console.error("Toggle role button not found");
-        return;
-      }
-
-      // Determine which dashboard we're on
-      const isOnFarmerDashboard = window.location.pathname.includes('farmer dashboard');
-      
-      // Update button text based on current view
-      if (isOnFarmerDashboard) {
-        toggleRoleBtn.textContent = "Switch to Seller View";
-      } else {
-        toggleRoleBtn.textContent = "Switch to Customer View";
-      }
-
-      // Check if user should be on this page
-      if (userData.role !== "farmer" && !userData.farmerProfile) {
-        console.log("User is not a farmer, redirecting to customer dashboard...");
-        window.location.href = "../registered_user homepage/index.html";
-        return;
-      }
-
-      // If we're here, user is a farmer, update the greeting
-      document.getElementById("greeting").textContent = `Welcome, ${userData.name}!`;
-      
-    } else {
-      const errorData = await response.json();
-      console.error("Failed to fetch user data:", errorData);
-      alert("Failed to load user profile. Please refresh the page.");
+    if (!response.ok) {
+      console.log('checkSessionAndRole: Token validation failed (response not ok), redirecting to login.');
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "../login/index.html";
+      return false;
     }
-  } catch (error) {
-    console.error("Error checking user role:", error);
-    alert("An error occurred while checking user role. Please refresh the page.");
-  }
-}
-
-// Function to toggle between customer and farmer roles
-async function toggleRole() {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    window.location.href = "../login/index.html";
-    return;
-  }
-
-  // Get button reference
-  const toggleRoleBtn = document.getElementById("toggleRoleBtn");
-  if (!toggleRoleBtn) {
-    console.error("Toggle role button not found");
-    alert("An error occurred. Please refresh the page and try again.");
-    return;
-  }
-
-  // Store the original text and disable button
-  const originalButtonText = toggleRoleBtn.textContent;
-  toggleRoleBtn.disabled = true;
-  toggleRoleBtn.textContent = "Switching...";
-
-  try {
-    console.log("Attempting to toggle role...");
-    const response = await fetch("http://localhost:5000/api/users/toggle-role", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      }
-    });
 
     const data = await response.json();
-    console.log("Toggle role response:", data);
+    console.log('checkSessionAndRole: Validate token API success data:', data);
 
-    if (response.ok) {
-      // Update localStorage with new role
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      user.role = data.role;
-      if (data.farmerProfile) {
-        user.farmerProfile = data.farmerProfile;
-      }
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // Show success message
-      alert(`Successfully switched to ${data.role} role`);
-
-      // Redirect based on new role
-      if (data.role === "farmer") {
-        window.location.href = "../farmer dashboard/index.html";
-      } else {
-        window.location.href = "../registered_user homepage/index.html";
-      }
-    } else {
-      // Handle specific error cases
-      if (data.requiresRegistration) {
-        if (confirm("You need to complete farmer registration first. Would you like to register now?")) {
-          window.location.href = "../farmer registration/index.html";
-        }
-      } else {
-        alert(data.message || "Failed to switch roles. Please try again.");
-      }
-      
-      // Reset button state since we're staying on the page
-      toggleRoleBtn.disabled = false;
-      toggleRoleBtn.textContent = originalButtonText;
+    if (!data.valid) {
+      console.log('checkSessionAndRole: Backend reported token as invalid, redirecting to login.');
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "../login/index.html";
+      return false;
     }
-  } catch (error) {
-    console.error("Error toggling role:", error);
-    alert("An error occurred while switching roles. Please try again.");
     
-    // Reset button state
-    toggleRoleBtn.disabled = false;
-    toggleRoleBtn.textContent = originalButtonText;
+    console.log('checkSessionAndRole: Token validated successfully.');
+
+    // Check if user has farmer role or farmer profile
+    console.log('checkSessionAndRole: Fetching user profile for role check...');
+    const profileResponse = await fetch(`${API_BASE_URL}/api/users/profile`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    console.log("checkSessionAndRole: User profile API response status:", profileResponse.status);
+
+    if (!profileResponse.ok) {
+       console.error("checkSessionAndRole: Failed to fetch user profile for role check:", profileResponse.status);
+       // Depending on policy, could redirect here. For now, log and proceed with localStorage data.
+       // If strict role enforcement is needed, uncomment the redirect below:
+       // console.log('checkSessionAndRole: Profile fetch failed, redirecting to login (strict mode).');
+       // localStorage.removeItem("token");
+       // localStorage.removeItem("user");
+       // window.location.href = "../login/index.html";
+       // return false;
+    }
+
+    const profileData = profileResponse.ok ? await profileResponse.json() : null;
+    console.log("checkSessionAndRole: User profile data (from API or null):", profileData);
+
+    // Use the role and farmerProfile from the fetched profile data if available, otherwise fallback to local storage
+    const currentRole = profileData?.role || user.role;
+    const hasFarmerProfile = profileData?.farmerProfile || user.farmerProfile;
+
+    console.log("checkSessionAndRole: Determined current role:", currentRole);
+    console.log("checkSessionAndRole: Determined hasFarmerProfile:", hasFarmerProfile);
+
+    if (currentRole !== 'farmer' && !hasFarmerProfile) {
+        console.log('checkSessionAndRole: User is not a farmer and has no farmer profile, redirecting to customer view.');
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "../registered_user homepage/index.html";
+        return false;
+    }
+    
+    console.log('checkSessionAndRole: User is authenticated and is a farmer. Proceeding to load dashboard.');
+
+    // Display user info (using profileData if successful, else user from local storage)
+    const userToDisplay = profileData || user;
+    if (userToDisplay) {
+        const name = userToDisplay.name || userToDisplay.username || "User";
+        const email = userToDisplay.email || "";
+        const username = userToDisplay.username || "";
+        document.getElementById("greeting").innerText = `Welcome back, ${name}!`;
+        const userNameElement = document.getElementById("farmerName");
+        const userEmailElement = document.getElementById("farmerEmail");
+
+        if (userNameElement) {
+             userNameElement.innerHTML = `<strong>Username:</strong> ${username}`;
+        }
+        if (userEmailElement) {
+             userEmailElement.innerHTML = `<strong>Email:</strong> ${email}`;
+        }
+
+         // Always update local storage with the latest profile data if successfully fetched
+        if (profileData) {
+             localStorage.setItem("user", JSON.stringify(profileData));
+        }
+    }
+
+    // Session is valid and user is a farmer
+    console.log('checkSessionAndRole: Check completed successfully.');
+    return true;
+
+  } catch (error) {
+    console.error('checkSessionAndRole failed:', error);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "../login/index.html";
+    return false;
   }
 }
 
-// Function to navigate to product listing page
-function goToProductListing() {
-  window.location.href = "../product listing/ProductListing.html";
-}
+// Auto-refresh orders every 30 seconds - Start this only after successful auth
+// setInterval(loadFarmerOrders, 30000);
 
 // Function to load farmer's orders
 async function loadFarmerOrders() {
@@ -194,7 +203,79 @@ async function loadFarmerOrders() {
   }
 }
 
-// Function to display products
+// Function to toggle between customer and farmer roles
+async function toggleRole() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "../login/index.html";
+    return;
+  }
+
+  // Get button reference
+  const toggleRoleBtn = document.getElementById("toggleRoleBtn");
+  if (!toggleRoleBtn) {
+    console.error("Toggle role button not found");
+    alert("An error occurred. Please refresh the page and try again.");
+    return;
+  }
+
+  // Store the original text and disable button
+  const originalButtonText = toggleRoleBtn.textContent;
+  toggleRoleBtn.disabled = true;
+  toggleRoleBtn.textContent = "Switching...";
+
+  try {
+    console.log("Attempting to switch role...");
+    // In the farmer dashboard, the toggle button should always switch to buyer (customer view)
+    const newRole = "buyer"; 
+
+    const response = await fetch(`${API_BASE_URL}/api/users/toggle-role`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ role: newRole })
+    });
+
+    console.log("Toggle role API response status:", response.status);
+
+    if (!response.ok) {
+       try {
+           const errorData = await response.json();
+           console.error("Toggle role API error data:", errorData);
+           throw new Error(errorData.message || "Failed to switch role");
+       } catch (jsonError) {
+           console.error("Failed to parse toggle role error response:", jsonError);
+           throw new Error(`Failed to switch role: HTTP status ${response.status}`);
+       }
+    }
+
+    const data = await response.json();
+    console.log("Toggle role API success data:", data);
+
+    // Update localStorage with new role and potential new token
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    user.role = data.role; // Should be 'buyer'
+     if (data.token) {
+        localStorage.setItem("token", data.token);
+    }
+    localStorage.setItem("user", JSON.stringify(user));
+
+    // Redirect to the customer homepage
+    window.location.href = "../registered_user homepage/index.html";
+
+  } catch (error) {
+    console.error("Error toggling role:", error);
+    alert("An error occurred while switching roles. Please try again.");
+    
+    // Reset button state
+    toggleRoleBtn.disabled = false;
+    toggleRoleBtn.textContent = originalButtonText;
+  }
+}
+
+// Function to display products - This seems related to farmer's own products, not general listing
 function displayProducts(products) {
   const container = document.getElementById("product-container");
   container.innerHTML = "";
@@ -222,365 +303,256 @@ function displayProducts(products) {
   });
 }
 
-// Function to setup product form
-function setupProductForm() {
-  const productForm = document.getElementById("productForm");
-  if (!productForm) return;
-
-  productForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const name = document.getElementById("productName").value.trim();
-    const price = parseFloat(document.getElementById("productPrice").value.trim());
-    const category = document.getElementById("productCategory").value.trim();
-    const description = document.getElementById("productDescription").value.trim();
-    const imageFile = document.getElementById("productImage").files[0];
-    const quantity = document.getElementById("productQuantity").value.trim();
-
-    if (!name || !price || !imageFile || !quantity) {
-      alert("Please fill in all required fields!");
-      return;
-    }
-
-    try {
-      const base64Image = await toBase64(imageFile);
-      const token = localStorage.getItem("token");
-
-      const productData = {
-        name,
-        price,
-        category,
-        description,
-        image: base64Image,
-        quantity: parseInt(quantity)
-      };
-
-      const response = await fetch("http://localhost:5000/api/products", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(productData)
-      });
-
-      if (response.ok) {
-        alert("Product added successfully!");
-        productForm.reset();
-        loadFarmerProducts();
-      } else {
-        const error = await response.json();
-        alert(error.message || "Failed to add product");
-      }
-    } catch (error) {
-      console.error("Error adding product:", error);
-      alert("An error occurred while adding the product");
-    }
-  });
-}
-
-// Helper function to convert image to base64
-function toBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-}
-
 // Function to edit product ADDED AT NIGHT
 async function editProduct(productId) {
   // Implement edit product functionality
   const token = localStorage.getItem("token");
   if (!token) {
-    alert("Please log in to edit products.");
-    window.location.href = "../login/index.html";
-    return;
+      window.location.href = "../login/index.html";
+      return;
   }
 
+  // Fetch product data
   try {
-    // Fetch product details to verify the product exists and belongs to the farmer
-    const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    /*if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const product = await response.json();
-
-    // Verify the product belongs to the logged-in farmer
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (product.farmer !== user._id) {
-      alert("You are not authorized to edit this product.");
-      return;
-    }*/
+      const response = await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+          headers: {
+              "Authorization": `Bearer ${token}`
+          }
+      });
 
       if (!response.ok) {
-      const errorData = await response.json();
-      console.error(`Failed to fetch product details. Status: ${response.status}, Message: ${errorData.message}`);
-      if (response.status === 404) {
-        alert("This product no longer exists. Please refresh the page to update the product list.");
-      } else if (response.status === 401) {
-        alert("Your session has expired. Please log in again.");
-        window.location.href = "../login/index.html";
-      } else {
-        alert("Failed to load product details. Please try again.");
+          throw new Error(`Failed to fetch product: ${response.status}`);
       }
-      return;
-    }
 
-    const product = await response.json();
-    console.log("Product fetched:", product);
+      const product = await response.json();
 
-    // Verify the product belongs to the logged-in farmer
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    console.log("Logged-in user:", user);
-    const farmerId = product.farmer?._id || product.farmer; // Handle both populated and non-populated farmer field
-    if (!farmerId) {
-      alert("Product data is incomplete. Please refresh the page and try again.");
-      return;
-    }
-    if (farmerId.toString() !== user._id?.toString()) {
-      /*console.error("Product data incomplete - missing farmer ID");
-      alert("You are not authorized to edit this product.");
-      return;
-    }
+      // Populate modal or form for editing
+      openEditModal(product);
 
-    // Compare farmer IDs as strings to ensure proper comparison
-    if (user._id?.toString() !== farmerId.toString()) {
-      console.error("Authorization failed - user ID and farmer ID don't match");
-      console.log(`User ID: ${user._id}, Farmer ID: ${farmerId}`);*/
-      alert("You are not authorized to edit this product.");
-      return;
-    }
-
-    // Open the edit modal with the product details
-    openEditModal(product);
   } catch (error) {
-    console.error("Error fetching product for editing:", error);
-    alert("Failed to load product details. Please try again.");
+      console.error("Error fetching product for edit:", error);
+      alert("Failed to load product for editing.");
   }
 }
 
-// Function to delete product
 async function deleteProduct(productId) {
-  if (!confirm("Are you sure you want to delete this product?")) return;
-
   const token = localStorage.getItem("token");
-  if (!token) return;
+  if (!token) {
+      window.location.href = "../login/index.html";
+      return;
+  }
+
+  if (!confirm("Are you sure you want to delete this product?")) {
+      return;
+  }
 
   try {
-    const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+      const response = await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+          method: "DELETE",
+          headers: {
+              "Authorization": `Bearer ${token}`
+          }
+      });
 
-    if (response.ok) {
-      loadFarmerProducts();
-    } else {
-      alert("Failed to delete product. Please try again.");
-    }
+      if (!response.ok) {
+          throw new Error(`Failed to delete product: ${response.status}`);
+      }
+
+      alert("Product deleted successfully!");
+      loadFarmerProducts(); // Refresh product list
+
   } catch (error) {
-    console.error("Error deleting product:", error);
-    alert("Error deleting product. Please try again.");
+      console.error("Error deleting product:", error);
+      alert("Failed to delete product.");
   }
 }
 
-// Function to handle logout
 function logout() {
+  localStorage.removeItem("user");
   localStorage.removeItem("token");
   window.location.href = "../login/index.html";
 }
 
-// Modal logic for editing products
-const editProductModal = document.getElementById('editProductModal');
-const closeEditModal = document.getElementById('closeEditModal');
-const editProductForm = document.getElementById('editProductForm');
-const editProductMessage = document.getElementById('editProductMessage');
-
+// Function to open edit product modal ADDED AT NIGHT
 function openEditModal(product) {
-  document.getElementById('editProductId').value = product._id;
-  document.getElementById('editProductName').value = product.name;
-  document.getElementById('editProductPrice').value = product.price;
-  document.getElementById('editProductCategory').value = product.category || '';
-  document.getElementById('editProductDescription').value = product.description || '';
-  document.getElementById('editProductQuantity').value = product.quantity || product.stock || 1;
-  document.getElementById('editProductImage').value = '';
-  editProductMessage.textContent = '';
-  editProductModal.style.display = 'flex';
-}
-
-if (closeEditModal) {
-  closeEditModal.onclick = () => {
-    editProductModal.style.display = 'none';
-  };
-}
-
-window.onclick = function(event) {
-  if (event.target === editProductModal) {
-    editProductModal.style.display = 'none';
-  }
-};
-
-// Handle edit form submission
-/*if (editProductForm) {
-  editProductForm.onsubmit = async function(e) {
-    e.preventDefault();
-    const id = document.getElementById('editProductId').value;
-    const name = document.getElementById('editProductName').value.trim();
-    const price = parseFloat(document.getElementById('editProductPrice').value.trim());
-    const category = document.getElementById('editProductCategory').value.trim();
-    const description = document.getElementById('editProductDescription').value.trim();
-    const quantity = document.getElementById('editProductQuantity').value.trim();
-    const imageFile = document.getElementById('editProductImage').files[0];
-    let image;
-    if (imageFile) {
-      image = await toBase64(imageFile);
-    }
-    const token = localStorage.getItem('token');
-    const body = { name, price, category, description, quantity };
-    if (image) body.image = image;
-    try {
-      const response = await fetch(`http://localhost:5000/api/products/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(body)
-      });
-      if (response.ok) {
-        editProductMessage.style.color = 'green';
-        editProductMessage.textContent = 'Product updated!';
-        setTimeout(() => {
-          editProductModal.style.display = 'none';
-          loadFarmerProducts();
-        }, 800);
-      } else {
-        const err = await response.json();
-        editProductMessage.style.color = 'red';
-        editProductMessage.textContent = err.message || 'Failed to update product.';
-      }
-    } catch (error) {
-      editProductMessage.style.color = 'red';
-      editProductMessage.textContent = 'Server error.';
-    }
-  };
-}*/
-
-if (editProductForm) {
-  editProductForm.onsubmit = async function(e) {
-    e.preventDefault();
-    const id = document.getElementById('editProductId').value;
-    const name = document.getElementById('editProductName').value.trim();
-    const price = parseFloat(document.getElementById('editProductPrice').value.trim());
-    const category = document.getElementById('editProductCategory').value.trim();
-    const description = document.getElementById('editProductDescription').value.trim();
-    const quantity = parseInt(document.getElementById('editProductQuantity').value.trim());
-    const imageFile = document.getElementById('editProductImage').files[0];
-  
-  // Reset error message
-  //   editProductMessage.textContent = '';
-
-    // Validate required fields
-    if (!name || isNaN(price) || isNaN(quantity)) {
-      editProductMessage.style.color = 'red';
-      editProductMessage.textContent = 'Please fill in all required fields (Name, Price, Quantity).';
-      return;
+    const modal = document.getElementById('editProductModal');
+    if (!modal) {
+        console.error("Edit product modal not found");
+        return;
     }
 
-    if (price <= 0 || quantity < 0) {
-      editProductMessage.style.color = 'red';
-      editProductMessage.textContent = 'Price must be greater than zero, and quantity cannot be negative.';
-      return;
-    }
+    // Populate form fields with existing product data
+    document.getElementById('editProductId').value = product._id;
+    document.getElementById('editProductName').value = product.name;
+    document.getElementById('editProductPrice').value = product.price;
+    document.getElementById('editProductCategory').value = product.category;
+    document.getElementById('editProductDescription').value = product.description;
+    document.getElementById('editProductQuantity').value = product.quantity;
+    // Image handling might be more complex, you might show a preview
+    // and allow uploading a new image, or just keep the old one if not updated.
 
-    // Show loading state
-    const submitButton = editProductForm.querySelector('button[type="submit"]');
-    const originalButtonText = submitButton.textContent;
-    submitButton.disabled = true;
-    submitButton.textContent = 'Updating...';
-    editProductMessage.style.color = 'blue';
-    editProductMessage.textContent = 'Updating product...';
+    modal.style.display = 'block';
 
-    let image;
-    try {
-      if (imageFile) {
-        image = await toBase64(imageFile);
-      }
-
-      const token = localStorage.getItem('token');
-      const body = { name, price, category, description, quantity: quantity, negotiationEnabled };
-      if (image) body.image = image;
-
-      console.log("Updating product with data:", {
-         id,
-         ...body,
-         image: image ? "[Image data present]" : "[No new image]"
-        });
-
-        const response = await fetch(`http://localhost:5000/api/products/${id}`, {
-          method: 'PUT',
-          headers: {
-           'Content-Type': 'application/json',
-           'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(body)
-       });
-
-       const responseData = await response.json();
-
-       if (response.ok) {
-         console.log("Product updated successfully:", responseData);
-         editProductMessage.style.color = 'green';
-         editProductMessage.textContent = 'Product updated successfully!';
-         setTimeout(() => {
-           editProductModal.style.display = 'none';
-           loadFarmerProducts();
-          }, 1000);
-        } else {
-         console.error("Failed to update product:", responseData);
-          editProductMessage.style.color = 'red';
-          editProductMessage.textContent = err.message || 'Failed to update product.';
+    // Handle modal close
+    const span = modal.querySelector('.close');
+     if (span) {
+        span.onclick = function() {
+            modal.style.display = "none";
         }
-      } catch (error) {
-        console.error("Error updating product:", error);
-        editProductMessage.style.color = 'red';
-        editProductMessage.textContent = 'Server error. Please try again.';
-      } finally {
-         // Reset button state
-        submitButton.disabled = false;
-        submitButton.textContent = originalButtonText;
-      }
-    };
+    }
+
+    // Handle form submission
+    const editForm = document.getElementById('editProductForm');
+    if (editForm) {
+        editForm.onsubmit = async function(e) {
+            e.preventDefault();
+
+            const productId = document.getElementById('editProductId').value;
+            const updatedProductData = {
+                name: document.getElementById('editProductName').value,
+                price: parseFloat(document.getElementById('editProductPrice').value),
+                category: document.getElementById('editProductCategory').value,
+                description: document.getElementById('editProductDescription').value,
+                quantity: parseInt(document.getElementById('editProductQuantity').value),
+                // Handle image update if implemented
+            };
+
+             const token = localStorage.getItem("token");
+             if (!token) { 
+                 alert("Please log in again.");
+                 window.location.href = "../login/index.html";
+                 return;
+             }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                         "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedProductData)
+                });
+
+                if (!response.ok) {
+                     const error = await response.json();
+                     throw new Error(error.message || `Failed to update product: ${response.status}`);
+                }
+
+                alert('Product updated successfully!');
+                modal.style.display = 'none';
+                loadFarmerProducts(); // Refresh list
+
+            } catch (error) {
+                console.error('Error updating product:', error);
+                alert('Failed to update product.');
+            }
+        }
+    }
+}
+
+// Function to display farmer's orders ADDED AT NIGHT
+function displayOrders(orders) {
+    const container = document.getElementById('orders-container');
+    container.innerHTML = ''; // Clear previous orders
+
+    if (!orders || orders.length === 0) {
+        container.innerHTML = '<p>No orders received yet.</p>';
+        return;
+    }
+
+    orders.forEach(order => {
+        // Add a check to ensure the order object is valid and has a product
+        if (!order || !order._id) {
+            console.warn('Skipping invalid order object:', order);
+            return; // Skip to the next iteration if order is invalid
+        }
+
+        const productName = order.product ? order.product.name : 'Unknown Product';
+        const productImage = order.product ? order.product.image || order.product.imageUrl || PLACEHOLDER_IMAGE : PLACEHOLDER_IMAGE;
+        const productAltText = order.product ? order.product.name : 'Unknown Product Image';
+        const customerName = order.user ? order.user.name : 'Unknown Customer';
+        const customerEmail = order.user ? order.user.email : 'N/A';
+
+        const orderElement = document.createElement('div');
+        orderElement.classList.add('order-card');
+        // New structure based on the desired layout
+        orderElement.innerHTML = `
+            <div class="order-header">
+                <h3>Order #${order._id.slice(-6)}</h3>
+                <span class="order-status order-status-${order.status.toLowerCase().replace(/ /g, '-')}">${order.status}</span>
+            </div>
+            <div class="order-details-container">
+                <div class="order-product-details">
+                    <img src="${productImage}" alt="${productAltText}" class="order-product-image">
+                    <p><strong>Product:</strong> ${productName}</p>
+                    <p><strong>Quantity:</strong> ${order.quantity} Kg</p>
+                    <p><strong>Total Price:</strong> ₹${order.totalPrice.toFixed(2)}</p>
+                </div>
+                <div class="order-customer-details">
+                    <p><strong>Customer:</strong> ${customerName}</p>
+                    <p><strong>Email:</strong> ${customerEmail}</p>
+                    <p><strong>Delivery Method:</strong> ${order.deliveryMethod === 'pickup' ? 'Self Pickup' : 'Home Delivery'}</p>
+                    ${order.deliveryMethod === 'home' && order.deliveryDetails?.address ? `<p><strong>Delivery Address:</strong> ${order.deliveryDetails.address}</p>` : ''}
+                    ${order.deliveryMethod === 'home' && order.deliveryDetails?.phone ? `<p><strong>Customer Phone:</strong> ${order.deliveryDetails.phone}</p>` : ''}
+                    ${order.deliveryMethod === 'pickup' && order.deliveryDetails?.pickupTime ? `<p><strong>Pickup Time:</strong> ${order.deliveryDetails.pickupTime}</p>` : ''}
+                    ${order.specialInstructions ? `<p><strong>Special Instructions:</strong> ${order.specialInstructions}</p>` : ''}
+                </div>
+            </div>
+            <div class="order-actions">
+                ${order.status === 'pending' ?
+                    `<button onclick="updateOrderStatus('${order._id}', 'accepted')">Accept</button>
+                     <button onclick="updateOrderStatus('${order._id}', 'rejected')">Reject</button>`
+                    : ''}
+                ${order.status === 'accepted' || order.status === 'shipped' ? // Combine accepted and shipped for completed button
+                     `<button onclick="updateOrderStatus('${order._id}', 'completed')">Mark as Completed</button>`
+                     : ''}
+                 
+                ${order.user && order._id && order.status !== 'completed' && order.status !== 'rejected' && order.status !== 'cancelled' ? // Show chat button for active orders if user and orderId exists
+                    `<button onclick="contactCustomer('${order._id}', '${order.user._id}')">Chat with Customer</button>`
+                    : ''}
+            </div>
+        `;
+        container.appendChild(orderElement);
+    });
+}
+
+// Function to show orders - wrapper for loadFarmerOrders
+function showOrders() {
+  // Get references to the sections
+  const productsSection = document.getElementById('productsSection');
+  const ordersSection = document.getElementById('ordersSection');
+
+  if (!productsSection || !ordersSection) {
+    console.error('Products or Orders section not found in DOM');
+    return;
   }
 
+  // Hide products section and show orders section
+  productsSection.style.display = 'none';
+  ordersSection.style.display = 'block'; // Or 'flex', depending on your CSS
 
-  
-// Function to load farmer's orders
-async function loadFarmerOrders() {
+  // Load the orders data
+  loadFarmerOrders();
+}
+
+// Function to load farmer's products
+async function loadFarmerProducts() {
   const token = localStorage.getItem("token");
   if (!token) {
     return;
   }
 
-  const container = document.getElementById("orders-container");
+  const container = document.getElementById("product-container");
   if (!container) {
-    console.error("Orders container not found in DOM");
+    console.error("Product container not found in DOM");
     return;
   }
 
-  container.innerHTML = "<p>Loading orders...</p>";
+  container.innerHTML = "<p>Loading products...</p>";
 
   try {
-    const response = await fetch("http://localhost:5000/api/orders/farmer-orders", {
+    const response = await fetch(`${API_BASE_URL}/api/products/my-products`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -593,181 +565,107 @@ async function loadFarmerOrders() {
         window.location.href = "../login/index.html";
         return;
       }
-      throw new Error(`Failed to fetch orders: ${response.status}`);
+      throw new Error(`Failed to fetch products: ${response.status}`);
     }
 
-    const orders = await response.json();
-    console.log("Orders retrieved:", orders);
-    if (!Array.isArray(orders)) {
-      throw new Error("Invalid orders data received from server");
+    const products = await response.json();
+    console.log("Products retrieved:", products);
+    if (!Array.isArray(products)) {
+      throw new Error("Invalid products data received from server");
     }
 
-    displayOrders(orders);
+    displayProducts(products);
   } catch (error) {
-    console.error("Error loading farmer orders:", error);
+    console.error("Error loading farmer products:", error);
     container.innerHTML = `<p>Error: ${error.message}. Please try again or contact support.</p>`;
   }
 }
 
-// Function to display orders
-function displayOrders(orders) {
-  const container = document.getElementById("orders-container");
-  if (!container) return;
-  
-  container.innerHTML = "";
-
-  if (!orders || orders.length === 0) {
-    container.innerHTML = "<p>No orders found.</p>";
-    return;
-  }
-
-  // Define a default placeholder image
-  const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f2f2f2'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='14' text-anchor='middle' dominant-baseline='middle' fill='%23888888'%3ENo Image%3C/text%3E%3C/svg%3E";
-
-  orders.forEach(order => {
-    // Check if product exists
-    const isProductMissing = !order.product || !order.product.name;
-    const productName = isProductMissing ? 'Unknown Product' : order.product.name;
-    
-    // Create the card
-    const card = document.createElement("div");
-    card.className = "order-card";
-    
-    // Calculate image source carefully
-    let imgSrc;
-    if (isProductMissing || !order.product.image) {
-      imgSrc = placeholderImage;
-    } else {
-      imgSrc = order.product.image;
-    }
-
-    // Get customer info safely
-    const customerName = order.user?.name || 'Unknown Customer';
-    const customerEmail = order.user?.email || 'No email provided';
-    
-    // Build the card content
-    card.innerHTML = `
-      <div class="order-header">
-        <h3>Order #${order._id.slice(-6)}</h3>
-        <span class="status-badge ${order.status}">${order.status}</span>
-      </div>
-      <div class="order-details">
-        <div class="product-info">
-          <img src="${imgSrc}" alt="${productName}" onerror="this.onerror=null; this.src='${placeholderImage}';">
-          <div>
-            <h4>${productName}</h4>
-            <p>Quantity: ${order.quantity}</p>
-            <p>Total: ₹${order.totalPrice}</p>
-          </div>
-        </div>
-        <div class="customer-info">
-          <p><strong>Customer:</strong> ${customerName}</p>
-          <p><strong>Email:</strong> ${customerEmail}</p>
-          <p><strong>Delivery:</strong> ${order.deliveryMethod === 'pickup' ? 'Self Pickup' : 'Home Delivery'}</p>
-          ${order.deliveryMethod === 'pickup' && order.deliveryDetails?.pickupTime ? 
-            `<p><strong>Pickup Time:</strong> ${order.deliveryDetails.pickupTime}</p>` :
-            order.deliveryMethod !== 'pickup' && order.deliveryDetails ? 
-            `<p><strong>Address:</strong> ${order.deliveryDetails.address || 'Not provided'}</p>
-             <p><strong>Phone:</strong> ${order.deliveryDetails.phone || 'Not provided'}</p>` : ''
-          }
-        </div>
-        ${order.specialInstructions ? 
-          `<div class="special-instructions">
-            <p><strong>Special Instructions:</strong> ${order.specialInstructions}</p>
-          </div>` : ''
-        }
-      </div>
-      <div class="order-actions">
-        ${order.status === 'pending' ? `
-          <button onclick="updateOrderStatus('${order._id}', 'accepted')" class="accept-btn">Accept</button>
-          <button onclick="updateOrderStatus('${order._id}', 'rejected')" class="reject-btn">Reject</button>
-        ` : order.status === 'accepted' ? `
-          <button onclick="updateOrderStatus('${order._id}', 'completed')" class="complete-btn">Mark as Completed</button>
-        ` : ''}
-        <button class="secondary-btn" onclick="startChatWithCustomer('${order.user?._id || ''}', '${order._id}')">Chat with Customer</button>
-      </div>
-    `;
-    container.appendChild(card);
-  });
+// Function to explicitly show the products section
+function showProductsSection() {
+  const productsSection = document.getElementById('productsSection');
+  const ordersSection = document.getElementById('ordersSection');
+  if (productsSection) productsSection.style.display = 'block'; // Or 'flex'
+  if (ordersSection) ordersSection.style.display = 'none';
 }
+
+// Make functions needed for HTML onclick/event listeners global
+window.toggleRole = toggleRole;
+window.logout = logout;
+window.showOrders = showOrders;
+window.editProduct = editProduct;
+window.deleteProduct = deleteProduct;
+window.updateOrderStatus = updateOrderStatus;
+window.contactCustomer = contactCustomer;
+window.openEditModal = openEditModal;
 
 // Function to update order status
 async function updateOrderStatus(orderId, status) {
-  const token = localStorage.getItem("token");
-  if (!token) return;
-
-  try {
-    const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ status })
-    });
-
-    if (response.ok) {
-      // Reload orders to show updated status
-      loadFarmerOrders();
-    } else {
-      const error = await response.json();
-      alert(error.message || "Failed to update order status");
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Session expired. Please log in again.');
+        window.location.href = '../login/index.html';
+        return;
     }
-  } catch (error) {
-    console.error("Error updating order status:", error);
-    alert("An error occurred while updating the order status");
-  }
-}
 
-// Function to show orders section
-function showOrders() {
-  const productsSection = document.getElementById('productsSection');
-  const ordersSection = document.getElementById('ordersSection');
-  
-  // Toggle visibility
-  productsSection.style.display = 'none';
-  ordersSection.style.display = 'block';
-  
-  // Load orders
-  loadFarmerOrders();
-}
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ status })
+        });
 
-// Function to show products section
-function showProducts() {
-  const productsSection = document.getElementById('productsSection');
-  const ordersSection = document.getElementById('ordersSection');
-  
-  // Toggle visibility
-  productsSection.style.display = 'block';
-  ordersSection.style.display = 'none';
-  
-  // Load products
-  loadFarmerProducts();
-}
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || `Failed to update order status: ${response.status}`);
+        }
 
-// Add chat with customer functionality
-window.startChatWithCustomer = async function(customerId, orderId) {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    alert("Please log in to start a chat.");
-    return;
-  }
-  try {
-    const response = await fetch("http://localhost:5000/api/chat/start", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ farmerId: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user"))._id : undefined, orderId })
-    });
-    if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.message || "Failed to start chat");
+        const updatedOrder = await response.json();
+        alert(`Order ${orderId.slice(-6)} status updated to ${updatedOrder.status}`);
+
+        // Refresh the orders list after updating status
+        loadFarmerOrders();
+
+    } catch (error) {
+        console.error('Error updating order status:', error);
+        alert(`Failed to update order status: ${error.message}`);
     }
-    const data = await response.json();
-    window.location.href = `../chat/index.html?chatId=${data.chatId}`;
-  } catch (err) {
-    alert("Could not start chat with customer. Please try again later.\n" + (err.message || ""));
-  }
-} 
+}
+
+// Function to chat with a customer for a specific order
+async function contactCustomer(orderId, customerId) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Session expired. Please log in again.');
+        window.location.href = '../login/index.html';
+        return;
+    }
+
+    try {
+        // Assuming the backend /api/chat/start endpoint can take orderId and customerId
+        const response = await fetch(`${API_BASE_URL}/api/chat/start`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ orderId: orderId, customerId: customerId })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+             throw new Error(data.message || 'Failed to start chat');
+        }
+
+        // Redirect to chat page with the new or existing chat ID
+        window.location.href = `../chat/index.html?chatId=${data.chatId}`;
+
+    } catch (error) {
+        console.error('Error starting chat:', error);
+        alert(`Failed to start chat: ${error.message}`);
+    }
+}

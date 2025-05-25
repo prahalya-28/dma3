@@ -965,3 +965,9 @@ input[name="deliveryMethod"]:checked + .delivery-label {
   background-color: #f8d7da;
   color: #721c24;
 }
+
+.highlight-order {
+  border: 2px solid #4CAF50 !important;
+  box-shadow: 0 0 10px #4CAF50;
+  transition: box-shadow 0.3s, border 0.3s;
+}

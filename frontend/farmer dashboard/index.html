@@ -12,11 +12,11 @@
   <div class="sidebar">
     <h2>Farmer Dashboard</h2>
     <button id="toggleRoleBtn" onclick="toggleRole()">Switch to Customer View</button>
-    <a href="#" onclick="goToProductListing()">Add New Product</a>
+    <a href="#" onclick="showAddProductForm()">Add New Product</a>
     <a href="#" onclick="showOrders()">Orders</a>
-    <a href="#">Earnings</a>
+    <!-- <a href="#">Earnings</a> -->
     <a href="#" id="profileLink">Profile</a>
-    <a href="#">Settings</a>
+    <!-- <a href="#">Settings</a> -->
     <a href="../chat/chat-list.html?from=farmer" id="messagesLink">Messages</a>
     <a href="#" onclick="logout()">Logout</a>
   </div>
@@ -42,6 +42,39 @@
       </div>
     </section>
 
+    <!-- Add Product Form Section -->
+   <!--  <section id="addProductSection" style="display: none;" class="product-form-section">
+      <h2>Add New Product</h2>
+      <form id="productForm">
+        <div class="form-group">
+          <label for="productName">Product Name</label>
+          <input type="text" id="productName" required>
+        </div>
+        <div class="form-group">
+          <label for="productPrice">Price (₹)</label>
+          <input type="number" id="productPrice" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label for="productCategory">Category</label>
+          <input type="text" id="productCategory" required>
+        </div>
+        <div class="form-group">
+          <label for="productDescription">Description</label>
+          <textarea id="productDescription" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="productImage">Product Image</label>
+          <input type="file" id="productImage" accept="image/*" required>
+        </div>
+        <div class="form-group">
+          <label for="productQuantity">Quantity</label>
+          <input type="number" id="productQuantity" required>
+        </div>
+        <button type="submit">Add Product</button>
+        <div id="addProductMessage" style="margin-top:10px;"></div>
+      </form>
+    </section>
+  -->
     <!-- Edit Product Modal -->
     <div id="editProductModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000;">
       <div class="modal-content" style="background:#fff; padding:24px; border-radius:8px; min-width:320px; max-width:90vw; position:relative;">

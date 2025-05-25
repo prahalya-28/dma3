@@ -127,16 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const result = await response.json();
       if (response.ok) {
         // TC1, TC5: Show success message and redirect to dashboard
-        showMessage("Farmer registration successful!", false);
-        // Update localStorage with user data
-        const user = JSON.parse(localStorage.getItem("user") || "{}");
-        user.name = `${data.fname} ${data.lname}`;
-        user.email = data.email;
-        user.role = "farmer";
-        user.farmerProfile = { location: data.location };
-        localStorage.setItem("user", JSON.stringify(user));
+        showMessage("Farmer registration successful! Please log in to continue.", false);
         setTimeout(() => {
-          window.location.href = "../farmer dashboard/index.html";
+          window.location.href = "../login/index.html";
         }, 2000);
       } else {
         // TC3: Handle invalid bank details from backend

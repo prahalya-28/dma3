@@ -50,6 +50,8 @@ class Chat {
       if (!response.ok) throw new Error('Failed to load chat history');
       
       const chat = await response.json();
+      console.log('loadChatHistory: Chat data fetched from backend:', chat);
+      console.log('loadChatHistory: Participants:', chat.participants);
       this.messages = chat.messages;
       this.participants = chat.participants;
       this.product = chat.product;
@@ -92,7 +94,7 @@ class Chat {
         </div>
 
         <div class="messages-container">
-          ${this.messages.map(msg => this.renderMessage(msg, currentUser._id)).join('')}
+          ${this.messages.map(msg => this.renderMessage(msg)).join('')}
         </div>
 
         <div class="message-input">
@@ -107,15 +109,24 @@ class Chat {
     this.scrollToBottom();
   }
 
-  renderMessage(message, currentUserId) {
-    // Always use 'sent' class for all messages
+  renderMessage(message) {
+    // Get current user ID inside the function for reliability
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    const currentUserId = currentUser ? currentUser._id : null;
+
+    // Ensure both IDs are strings for comparison
+    const isCurrentUserSender = message.sender && message.sender._id && currentUserId 
+                                  ? message.sender._id.toString() === currentUserId.toString()
+                                  : false;
+
+    const messageClass = isCurrentUserSender ? 'sent' : 'received';
     return `
-      <div class="message sent ${message.paid ? 'paid' : ''}">
+      <div class="message ${messageClass} ${message.paid ? 'paid' : ''}">
         <div class="message-content">
           <div class="message-header">
-            <span class="sender-name">${message.sender.name}</span>
+            <span class="sender-name">${message.sender?.name || 'Unknown Sender'}</span>
             <span class="message-time">
-              ${new Date(message.createdAt).toLocaleTimeString()}
+              ${new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
           <p>${message.content}</p>
@@ -125,17 +136,20 @@ class Chat {
   }
 
   getOtherParticipantName(currentUserId) {
-    if (!this.participants || this.participants.length === 0) return 'Unknown User';
-    // Try to find participant whose _id is not currentUserId (handle both string and object)
-    let other = this.participants.find(p => {
-      if (!p._id) return false;
-      return p._id !== currentUserId && p._id.toString() !== currentUserId.toString();
-    });
-    // Fallback: if only two participants, pick the other
-    if (!other && this.participants.length === 2) {
-      other = this.participants[0]._id === currentUserId ? this.participants[1] : this.participants[0];
+    if (!this.participants || this.participants.length < 2) return 'Unknown User'; // Ensure there are at least two participants
+
+    // Filter out the current user
+    const otherParticipants = this.participants.filter(p => 
+      p && p._id && p._id.toString() !== currentUserId.toString()
+    );
+
+    // If there is at least one other participant, return their name
+    if (otherParticipants.length > 0) {
+      return otherParticipants[0].name || 'Unknown User';
+    } else {
+      // This case should ideally not happen in a valid two-person chat
+      return 'Unknown User';
     }
-    return other?.name || 'Unknown User';
   }
 
   scrollToBottom() {
@@ -264,6 +278,20 @@ style.textContent = `
 
   .message-input button:hover {
     background: #45a049;
+  }
+
+  /* New styles for received messages */
+  .message.received {
+    align-self: flex-start;
+  }
+
+  .message.received .message-content {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .message.received .message-time {
+    color: #666;
   }
 `;
 
