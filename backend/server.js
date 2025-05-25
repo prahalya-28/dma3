@@ -29,7 +29,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://prahalya-28.github.io/dma3/",
   },
 });
 
