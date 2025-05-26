@@ -10,16 +10,18 @@
     <div class="login-container">
         <h2>Login</h2>
         
-        <!-- ✅ Updated input IDs -->
         <input type="text" id="username" placeholder="Username" required />
-        <input type="text" id="password" placeholder="Password" required />
+        <div id="usernameError" class="error"></div>
         
-        <a href="#" class="forgot-password">Forgot Password?</a>
+        <input type="password" id="password" placeholder="Password" required />
+        <div id="passwordError" class="error"></div>
+        
+        <a href="reset-password.html" class="forgot-password">Forgot Password?</a>
         <button id="loginBtn">Login</button>
         
         <div class="social-login">
-            <button class="google">Login with Google</button>
-            <button class="facebook">Login with Facebook</button>
+            <button class="google" id="googleLogin">Login with Google</button>
+            <button class="facebook" id="facebookLogin">Login with Facebook</button>
         </div>
         
         <div class="signup">
@@ -27,13 +29,11 @@
         </div>
         
         <div class="terms">
-            <input type="checkbox" required />
-            <label>I accept the <a href="#">Terms and Services</a></label>
+            <input type="checkbox" id="termsCheckbox" required />
+            <label for="termsCheckbox">I accept the <a href="terms.html">Terms and Services</a></label>
         </div>
     </div>
 
-    <!-- ✅ Link JS file -->
     <script src="login.js"></script>
-
 </body>
 </html>

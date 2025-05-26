@@ -1,16 +1,30 @@
 // Configuration
-const API_BASE_URL = "https://dma-qhwn.onrender.com";
+const API_BASE_URL = "http://localhost:5000";
 
 // Add placeholder image as base64 data URL at the top of the file
-const PLACEHOLDER_IMAGE = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2NjIpLCBxdWFsaXR5ID0gOTAK/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgAZABkAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A+t6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//2Q==';
+const PLACEHOLDER_IMAGE = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2NjIpLCBxdWFsaXR5ID0gOTAK/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgAZABkAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A+t6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA//2Q==';
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("DOMContentLoaded fired on registered user homepage.");
   const userString = localStorage.getItem("user");
   const token = localStorage.getItem("token");
   let user = null;
 
+  console.log("Token on load:", token ? "Exists" : "Does not exist");
+  console.log("User data string on load:", userString);
+
   if (!token) {
+    console.log("No token found on load, redirecting to login.");
     window.location.href = "../login/index.html";
+    return;
+  }
+
+  // Validate session before proceeding
+  console.log("Validating session on load...");
+  const isSessionValid = await checkSession();
+  console.log("Session valid on load:", isSessionValid);
+  if (!isSessionValid) {
+    console.log("Session invalid on load, checkSession handled redirection.");
     return;
   }
 
@@ -20,21 +34,45 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       console.error("Invalid JSON in localStorage for 'user'", e);
       localStorage.removeItem("user");
+      window.location.href = "../login/index.html";
+      return;
     }
+  } else {
+    window.location.href = "../login/index.html";
+    return;
   }
 
-  if (user && user.name) {
-    document.getElementById("greeting").innerText = `Welcome back, ${user.name}!`;
-    document.getElementById("userName").innerHTML = `<strong>Name:</strong> ${user.name}`;
-    document.getElementById("userEmail").innerHTML = `<strong>Email:</strong> ${user.email}`;
+  // Initialize role check first
+  await checkUserRole();
+
+  // Display user info if available
+  if (user) {
+    const name = user.name || user.username || "User";
+    const email = user.email || "";
+    const username = user.username || "";
+    document.getElementById("greeting").innerText = `Welcome back, ${name}!`;
+    document.getElementById("userName").innerHTML = `<strong>Username:</strong> ${username}`;
+    document.getElementById("userEmail").innerHTML = `<strong>Email:</strong> ${email}`;
   }
 
-  // Initialize role check
-  checkUserRole();
   viewProducts(); // Show products by default
+
+  // Modal close (cross) buttons for all modals
+  document.querySelectorAll('.modal .close').forEach(btn => {
+    btn.onclick = function() {
+      const modal = btn.closest('.modal');
+      if (modal) modal.style.display = 'none';
+    };
+  });
+
+  // Show orders section if hash is #orders
+  if (window.location.hash === '#orders') {
+    viewOrders();
+  }
 });
 
 function fetchProducts() {
+  console.log('fetchProducts: Starting to fetch products...');
   const spinner = document.getElementById("globalLoadingSpinner");
   const errorMsg = document.getElementById("globalErrorMessage");
   const container = document.getElementById("product-container");
@@ -45,13 +83,19 @@ function fetchProducts() {
 
   fetch(`${API_BASE_URL}/api/products`)
     .then(res => {
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      console.log('fetchProducts: Received response status:', res.status);
+      if (!res.ok) {
+        console.error('fetchProducts: HTTP error!', res.status);
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       return res.json();
     })
     .then(products => {
+      console.log('fetchProducts: Products data received:', products);
       spinner.style.display = "none";
       
       if (!products || products.length === 0) {
+        console.log('fetchProducts: No products available.');
         container.innerHTML = "<p>No products available at the moment.</p>";
         return;
       }
@@ -72,12 +116,13 @@ function fetchProducts() {
         `;
         container.appendChild(card);
       });
+      console.log('fetchProducts: Products displayed.');
     })
     .catch(err => {
+      console.error('fetchProducts: Error fetching products:', err);
       spinner.style.display = "none";
       errorMsg.textContent = "Failed to load products. Please try again later.";
       errorMsg.style.display = "block";
-      console.error("Error fetching products:", err);
     });
 }
 
@@ -87,21 +132,52 @@ function logout() {
   window.location.href = "../login/index.html";
 }
 
-function placeOrder(productId) {
+function placeOrder() {
   const token = localStorage.getItem("token");
   if (!token) return alert("Please log in again");
 
-  fetch("https://dma-qhwn.onrender.com/api/orders", {
+  // Role check: prevent farmers from placing orders
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  if (user.role === "farmer") {
+    alert("You are currently in seller mode. Please switch to customer view to place orders.");
+    return;
+  }
+
+  // Get productId from window.currentProduct
+  const productId = window.currentProduct?._id;
+  if (!productId) {
+    alert("Product information not found. Please try again.");
+    return;
+  }
+
+  // Get values from the order modal
+  const quantity = parseFloat(document.getElementById("orderQuantity").value);
+  const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked')?.value;
+  let deliveryDetails = {};
+  if (deliveryMethod === "pickup") {
+    deliveryDetails = { pickupTime: document.getElementById("pickupTime").value };
+  } else if (deliveryMethod === "home") {
+    deliveryDetails = {
+      address: document.getElementById("orderAddress").value,
+      phone: document.getElementById("deliveryPhone").value
+    };
+  }
+
+  // Calculate estimated delivery date (e.g., 3 days from now)
+  const estimatedDeliveryDate = new Date();
+  estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + 3);
+
+  fetch("http://localhost:5000/api/orders", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ productId, quantity: 1 })
+    body: JSON.stringify({ productId, quantity, deliveryMethod, deliveryDetails, estimatedDeliveryDate: estimatedDeliveryDate.toISOString() })
   })
     .then(res => res.json())
     .then(data => {
-      if (data.message) {
+      if (data._id) {
         alert("Order placed successfully!");
       } else {
         alert("Something went wrong while ordering");
@@ -121,7 +197,7 @@ async function goToFarmerRegistration() {
 
   try {
     // Check user's current role and profile
-    const response = await fetch("https://dma-qhwn.onrender.com/api/users/profile", {
+    const response = await fetch("http://localhost:5000/api/users/profile", {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -169,7 +245,7 @@ async function checkUserRole() {
 
   try {
     console.log("Checking user role...");
-    const response = await fetch("https://dma-qhwn.onrender.com/api/users/profile", {
+    const response = await fetch("http://localhost:5000/api/users/profile", {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -195,21 +271,21 @@ async function checkUserRole() {
       console.log("Current role:", userData.role);
       console.log("Has farmer profile:", userData.farmerProfile);
       
-      // Determine which dashboard we're on
-      const isOnFarmerDashboard = window.location.pathname.includes('farmer dashboard');
       // Update UI based on role and farmer profile
-      if (userData.role === "farmer" || userData.farmerProfile) {
-        console.log("User is a farmer or has farmer profile...");
+      if (userData.role === "farmer") {
+        console.log("User is a farmer...");
         becomeSellerBtn.style.display = "none";
         toggleRoleBtn.style.display = "block";
-        // Set button text based on current view
-        if (isOnFarmerDashboard) {
-          toggleRoleBtn.textContent = "Switch to Customer View";
-        } else {
-          toggleRoleBtn.textContent = "Switch to Seller View";
-        }
+        // Set button text based on current role
+        toggleRoleBtn.textContent = "Switch to Customer View";
+      } else if (userData.role === "buyer" && userData.farmerProfile) {
+        console.log("User is a buyer with a farmer profile...");
+        becomeSellerBtn.style.display = "none";
+        toggleRoleBtn.style.display = "block";
+        // Set button text based on current role
+        toggleRoleBtn.textContent = "Switch to Seller View";
       } else {
-        console.log("User is a customer...");
+        console.log("User is a customer without farmer profile...");
         becomeSellerBtn.style.display = "block";
         toggleRoleBtn.style.display = "none";
       }
@@ -232,22 +308,89 @@ async function toggleRole() {
     return;
   }
 
-  // Get button reference first
-  const toggleRoleBtn = document.getElementById("toggleRoleBtn");
-  if (!toggleRoleBtn) {
-    console.error("Toggle role button not found");
-    alert("An error occurred. Please refresh the page and try again.");
-    return;
+  try {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const newRole = user.role === "buyer" ? "farmer" : "buyer";
+
+    console.log(`Attempting to switch role from ${user.role} to ${newRole}`);
+
+    const response = await fetch(`${API_BASE_URL}/api/users/toggle-role`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ role: newRole })
+    });
+
+    console.log("Toggle role API response status:", response.status);
+
+    if (!response.ok) {
+      try {
+        const errorData = await response.json();
+        console.error("Toggle role API error data:", errorData);
+        throw new Error(errorData.message || "Failed to switch role");
+      } catch (jsonError) {
+        console.error("Failed to parse toggle role error response:", jsonError);
+        throw new Error(`Failed to switch role: HTTP status ${response.status}`);
+      }
+    }
+
+    const data = await response.json();
+    console.log("Toggle role API success data:", data);
+
+    // Update user data in localStorage
+    user.role = newRole;
+    // If the backend returns a new token upon role switch, update it
+    if (data.token) {
+        localStorage.setItem("token", data.token);
+    }
+    localStorage.setItem("user", JSON.stringify(user));
+
+    // Add a small delay before redirect to ensure storage is complete
+    setTimeout(() => {
+        // Determine redirection based on current page and intended role switch
+        const currentPage = window.location.pathname;
+        const isCurrentlyOnCustomerPage = currentPage.includes('registered_user homepage');
+        const isCurrentlyOnFarmerPage = currentPage.includes('farmer dashboard');
+
+        if (isCurrentlyOnCustomerPage && newRole === "farmer") {
+             console.log("Farmer on customer page, switching to farmer view.");
+             window.location.href = "../farmer dashboard/index.html";
+        } else if (isCurrentlyOnFarmerPage && newRole === "buyer") {
+             console.log("Buyer on farmer page, switching to customer view.");
+             window.location.href = "../registered_user homepage/index.html";
+        } else if (newRole === "farmer") {
+            // Default redirect if not coming from a known page
+             console.log("Default redirect to farmer dashboard.");
+            window.location.href = "../farmer dashboard/index.html";
+        } else {
+             // Default redirect to customer homepage
+             console.log("Default redirect to customer homepage.");
+            window.location.href = "../registered_user homepage/index.html";
+        }
+    }, 100); // 100ms delay
+
+  } catch (error) {
+    console.error("Error switching role:", error);
+    alert("Failed to switch role. Please try again.");
+  }
+}
+
+// Improve session check
+async function checkSession() {
+  console.log('checkSession in registered_user homepage script is running.'); // Debug log
+  console.log("Running checkSession...");
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.log("checkSession: No token found, redirecting to login.");
+    window.location.href = "../login/index.html";
+    return false;
   }
 
-  // Store the original text and disable button
-  const originalButtonText = toggleRoleBtn.textContent;
-  toggleRoleBtn.disabled = true;
-  toggleRoleBtn.textContent = "Switching...";
-
+  console.log("checkSession: Token found, validating with backend...");
   try {
-    console.log("Attempting to toggle role...");
-    const response = await fetch("https://dma-qhwn.onrender.com/api/users/toggle-role", {
+    const response = await fetch(`${API_BASE_URL}/api/users/validate-token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -255,50 +398,36 @@ async function toggleRole() {
       }
     });
 
-    const data = await response.json();
-    console.log("Toggle role response:", data);
+    console.log("checkSession: Validate token API response status:", response.status);
 
-    if (response.ok) {
-      // Update localStorage with new role
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      user.role = data.role;
-      if (data.farmerProfile) {
-        user.farmerProfile = data.farmerProfile;
-      }
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // Show success message
-      alert(`Successfully switched to ${data.role} role`);
-
-      // Redirect based on new role
-      if (data.role === "farmer") {
-        window.location.href = "../farmer dashboard/index.html";
-      } else {
-        window.location.href = "../registered_user homepage/index.html";
-      }
-    } else {
-      // Handle specific error cases
-      if (data.requiresRegistration) {
-        if (confirm("You need to complete farmer registration first. Would you like to register now?")) {
-          window.location.href = "../farmer registration/index.html";
-        }
-      } else {
-        alert(data.message || "Failed to switch roles. Please try again.");
-      }
-      
-      // Reset button state since we're staying on the page
-      toggleRoleBtn.disabled = false;
-      toggleRoleBtn.textContent = originalButtonText;
+    if (!response.ok) {
+      console.log("checkSession: Token validation failed.");
+      throw new Error("Session expired");
     }
+
+    const data = await response.json();
+    console.log("checkSession: Validate token API success data:", data);
+
+    if (!data.valid) {
+      console.log("checkSession: Backend reported token as invalid.");
+      throw new Error("Invalid session");
+    }
+
+    // Session is valid, continue
+    console.log("checkSession: Session is valid.");
+    return true;
   } catch (error) {
-    console.error("Error toggling role:", error);
-    alert("An error occurred while switching roles. Please try again.");
-    
-    // Reset button state
-    toggleRoleBtn.disabled = false;
-    toggleRoleBtn.textContent = originalButtonText;
+    console.error("checkSession failed:", error);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    console.log("checkSession: Removed token and user from localStorage, redirecting to login.");
+    window.location.href = "../login/index.html";
+    return false;
   }
 }
+
+// Add periodic session check
+setInterval(checkSession, 5 * 60 * 1000); // Check every 5 minutes
 
 // Get modal elements
 const productViewModal = document.getElementById('productViewModal');
@@ -308,6 +437,7 @@ const modalClose = document.querySelector('.close');
 if (modalClose) {
   modalClose.onclick = function() {
     productViewModal.style.display = "none";
+    //window.currentProduct = null;
   }
 }
 
@@ -534,7 +664,8 @@ function validateDeliveryDetails() {
 // Update goToConfirmStep to use the validation
 function goToConfirmStep() {
   // Clear any previous error messages
-  document.getElementById('orderErrorMessage').style.display = 'none';
+  const errorMsg = document.getElementById('orderErrorMessage');
+  if (errorMsg && errorMsg.style) errorMsg.style.display = 'none';
   
   // Validate delivery details
   if (!validateDeliveryDetails()) {
@@ -545,29 +676,40 @@ function goToConfirmStep() {
   
   // Update confirmation details
   const product = window.currentProduct;
-  document.getElementById("confirmProductName").textContent = product.name;
-  document.getElementById("confirmQuantity").textContent = document.getElementById("orderQuantity").value;
-  document.getElementById("confirmPrice").textContent = product.price;
-  document.getElementById("confirmDeliveryMethod").textContent = 
-    deliveryMethod === 'pickup' ? 'Self Pickup' : 'Home Delivery';
+  const confirmProductName = document.getElementById("confirmProductName");
+  if (confirmProductName) confirmProductName.textContent = product.name;
+  const confirmQuantity = document.getElementById("confirmQuantity");
+  if (confirmQuantity) confirmQuantity.textContent = document.getElementById("orderQuantity").value;
+  const confirmPrice = document.getElementById("confirmPrice");
+  if (confirmPrice) confirmPrice.textContent = product.price;
+  const confirmDeliveryMethod = document.getElementById("confirmDeliveryMethod");
+  if (confirmDeliveryMethod) confirmDeliveryMethod.textContent = deliveryMethod === 'pickup' ? 'Self Pickup' : 'Home Delivery';
   
   if (deliveryMethod === 'home') {
-    document.getElementById("confirmAddressSection").style.display = 'block';
-    document.getElementById("confirmAddress").textContent = document.getElementById("orderAddress").value;
+    const confirmAddressSection = document.getElementById("confirmAddressSection");
+    if (confirmAddressSection && confirmAddressSection.style) confirmAddressSection.style.display = 'block';
+    const confirmAddress = document.getElementById("confirmAddress");
+    if (confirmAddress) confirmAddress.textContent = document.getElementById("orderAddress").value;
   } else {
     const pickupTime = document.getElementById("pickupTime").value;
-    document.getElementById("confirmAddressSection").style.display = 'block';
-    document.getElementById("confirmAddress").textContent = `Self pickup at: ${pickupTime}`;
+    const confirmAddressSection = document.getElementById("confirmAddressSection");
+    if (confirmAddressSection && confirmAddressSection.style) confirmAddressSection.style.display = 'block';
+    const confirmAddress = document.getElementById("confirmAddress");
+    if (confirmAddress) confirmAddress.textContent = `Self pickup at: ${pickupTime}`;
   }
   
   // Update step indicators
   document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-  document.getElementById('step3').classList.add('active');
+  const step3 = document.getElementById('step3');
+  if (step3) step3.classList.add('active');
   
   // Show confirmation step, hide others
-  document.getElementById('step1-content').style.display = 'none';
-  document.getElementById('step2-content').style.display = 'none';
-  document.getElementById('step3-content').style.display = 'block';
+  const step1Content = document.getElementById('step1-content');
+  if (step1Content && step1Content.style) step1Content.style.display = 'none';
+  const step2Content = document.getElementById('step2-content');
+  if (step2Content && step2Content.style) step2Content.style.display = 'none';
+  const step3Content = document.getElementById('step3-content');
+  if (step3Content && step3Content.style) step3Content.style.display = 'block';
 }
 
 async function sendOrderRequest() {
@@ -583,11 +725,16 @@ async function sendOrderRequest() {
     const product = window.currentProduct;
     const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
     
+    // Calculate estimated delivery date (3 days from now)
+    const estimatedDeliveryDate = new Date();
+    estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + 3);
+    
     const orderData = {
       productId: product._id,
       quantity: parseFloat(document.getElementById("orderQuantity").value),
       deliveryMethod: deliveryMethod,
       specialInstructions: document.getElementById("orderInstructions").value,
+      estimatedDeliveryDate: estimatedDeliveryDate.toISOString(),
       deliveryDetails: deliveryMethod === 'pickup' ? {
         pickupTime: document.getElementById("pickupTime").value
       } : {
@@ -606,7 +753,8 @@ async function sendOrderRequest() {
     });
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json();
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
     
     const order = await response.json();
@@ -614,10 +762,12 @@ async function sendOrderRequest() {
     // Close order modal and show confirmation
     document.getElementById("orderRequestModal").style.display = "none";
     showOrderConfirmation(order);
+    // Refresh product list to show updated stock
+    fetchProducts();
     
   } catch (error) {
     console.error("Error sending order request:", error);
-    showError("orderErrorMessage", "Failed to send order request. Please try again.");
+    showError("orderErrorMessage", error.message || "Failed to send order request. Please try again.");
   } finally {
     spinner.style.display = "none";
   }
@@ -751,247 +901,6 @@ function handleApiError(error, userMessage = "An error occurred") {
   alert(userMessage);
 }
 
-// Cart functionality
-function addToCart() {
-  const productId = productViewModal.dataset.productId;
-  const quantity = parseInt(document.getElementById('modalQuantity').value);
-  
-  if (!productId) {
-    showError('productErrorMessage', "Product not found!");
-    return;
-  }
-
-  const token = getToken();
-  if (!token) {
-    window.location.href = "../login/index.html";
-    return;
-  }
-
-  const spinner = document.getElementById('productLoadingSpinner');
-  const errorMsg = document.getElementById('productErrorMessage');
-  
-  spinner.style.display = "block";
-  errorMsg.style.display = "none";
-
-  fetch(`${API_BASE_URL}/api/cart/add`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ productId, quantity })
-  })
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.json();
-  })
-  .then(data => {
-    spinner.style.display = "none";
-    showSuccess('productSuccessMessage', "Product added to cart successfully!");
-    setTimeout(() => {
-      productViewModal.style.display = "none";
-    }, 1500);
-  })
-  .catch(err => {
-    spinner.style.display = "none";
-    showError('productErrorMessage', "Failed to add product to cart");
-    console.error("Cart error:", err);
-  });
-}
-
-function viewCart() {
-  const token = getToken();
-  if (!token) {
-    window.location.href = "../login/index.html";
-    return;
-  }
-
-  const modal = document.getElementById('cartModal');
-  const spinner = document.getElementById('cartLoadingSpinner');
-  const errorMsg = document.getElementById('cartErrorMessage');
-  const itemsContainer = document.getElementById('cartItems');
-  const summary = document.querySelector('.cart-summary');
-  const emptyMessage = document.getElementById('emptyCartMessage');
-  
-  modal.style.display = "block";
-  spinner.style.display = "block";
-  errorMsg.style.display = "none";
-  itemsContainer.innerHTML = "";
-  summary.style.display = "none";
-  emptyMessage.style.display = "none";
-
-  fetch(`${API_BASE_URL}/api/cart`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.json();
-  })
-  .then(cart => {
-    spinner.style.display = "none";
-    
-    if (!cart.items || cart.items.length === 0) {
-      emptyMessage.style.display = "block";
-      return;
-    }
-
-    let totalAmount = 0;
-    cart.items.forEach(item => {
-      const itemElement = document.createElement('div');
-      itemElement.className = 'cart-item';
-      totalAmount += item.price * item.quantity;
-      
-      itemElement.innerHTML = `
-        <img src="${item.product.image || PLACEHOLDER_IMAGE}" 
-             alt="${item.product.name}"
-             onerror="this.src='${PLACEHOLDER_IMAGE}'">
-        <div class="item-details">
-          <h3>${item.product.name}</h3>
-          <p>Price: ₹${item.price}/kg</p>
-          <p>Quantity: ${item.quantity} kg</p>
-          <p>Subtotal: ₹${item.price * item.quantity}</p>
-        </div>
-        <button onclick="removeFromCart('${item.product._id}')" class="remove-btn">
-          Remove
-        </button>
-      `;
-      itemsContainer.appendChild(itemElement);
-    });
-
-    document.getElementById('cartTotalItems').textContent = cart.items.length;
-    document.getElementById('cartTotalAmount').textContent = totalAmount;
-    summary.style.display = "block";
-  })
-  .catch(err => {
-    spinner.style.display = "none";
-    showError('cartErrorMessage', "Failed to load cart");
-    console.error("Cart error:", err);
-  });
-}
-
-function removeFromCart(productId) {
-  const token = getToken();
-  if (!token) {
-    window.location.href = "../login/index.html";
-    return;
-  }
-
-  const spinner = document.getElementById('cartLoadingSpinner');
-  const errorMsg = document.getElementById('cartErrorMessage');
-  
-  spinner.style.display = "block";
-  errorMsg.style.display = "none";
-
-  fetch(`${API_BASE_URL}/api/cart/remove`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ productId })
-  })
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.json();
-  })
-  .then(() => {
-    // Refresh cart view
-    viewCart();
-  })
-  .catch(err => {
-    spinner.style.display = "none";
-    showError('cartErrorMessage', "Failed to remove item from cart");
-    console.error("Cart error:", err);
-  });
-}
-
-function checkoutCart() {
-  const token = getToken();
-  if (!token) {
-    window.location.href = "../login/index.html";
-    return;
-  }
-
-  // Hide cart modal and show order request modal
-  document.getElementById('cartModal').style.display = "none";
-  const orderModal = document.getElementById('orderRequestModal');
-  orderModal.style.display = "block";
-  
-  // Load cart details into order form
-  fetch(`${API_BASE_URL}/api/cart`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.json();
-  })
-  .then(cart => {
-    if (!cart.items || cart.items.length === 0) {
-      showError('orderErrorMessage', "Your cart is empty");
-      return;
-    }
-
-    // For now, we'll handle single item checkout
-    // TODO: Implement multi-item checkout
-    const item = cart.items[0];
-    
-    document.getElementById('orderProductImage').src = item.product.image || PLACEHOLDER_IMAGE;
-    document.getElementById('orderProductName').textContent = item.product.name;
-    document.getElementById('orderFarmerName').textContent = item.product.farmer.name;
-    document.getElementById('orderProductPrice').textContent = item.price;
-    document.getElementById('orderFarmerLocation').textContent = item.product.farmer.location || 'Not specified';
-    
-    const quantityInput = document.getElementById('orderQuantity');
-    quantityInput.value = item.quantity;
-    quantityInput.max = item.product.quantity;
-    
-    updateOrderTotal();
-  })
-  .catch(err => {
-    showError('orderErrorMessage', "Failed to load cart details");
-    console.error("Checkout error:", err);
-  });
-}
-
-// Helper functions for showing messages
-function showError(elementId, message) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.textContent = message;
-    element.style.display = "block";
-    setTimeout(() => {
-      element.style.display = "none";
-    }, 5000);
-  }
-}
-
-function showSuccess(elementId, message) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.textContent = message;
-    element.style.display = "block";
-    setTimeout(() => {
-      element.style.display = "none";
-    }, 3000);
-  }
-}
-
-function clearCart() {
-  const token = getToken();
-  if (!token) return;
-
-  fetch(`${API_BASE_URL}/api/cart/clear`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).catch(err => console.error("Error clearing cart:", err));
-}
-
 // Function to view orders
 function viewOrders() {
   const productsSection = document.getElementById('productsSection');
@@ -1024,7 +933,7 @@ async function loadUserOrders() {
   if (!token) return;
 
   try {
-    const response = await fetch("https://dma-qhwn.onrender.com/api/orders/myorders", {
+    const response = await fetch("http://localhost:5000/api/orders/myorders", {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -1044,143 +953,120 @@ async function loadUserOrders() {
 // Payment handling
 let currentPaymentOrder = null;
 
-function showPaymentModal(order) {
-  currentPaymentOrder = order;
-  const modal = document.getElementById('paymentModal');
-  const spinner = document.getElementById('paymentLoadingSpinner');
-  const errorMsg = document.getElementById('paymentErrorMessage');
-  
-  // Clear any previous messages
-  spinner.style.display = 'none';
-  errorMsg.style.display = 'none';
-  
-  // Update payment details
-  document.getElementById('paymentOrderId').textContent = order._id.slice(-6);
-  document.getElementById('paymentProductName').textContent = order.product.name;
-  document.getElementById('paymentQuantity').textContent = order.quantity;
-  document.getElementById('paymentAmount').textContent = order.totalPrice;
-  
-  // Show modal
-  modal.style.display = 'block';
+async function showPaymentModal(orderId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch order details');
+        }
+        
+        const order = await response.json();
+        
+        // Update modal content
+        document.getElementById('paymentOrderId').textContent = order._id;
+        document.getElementById('paymentAmount').textContent = `₹${order.totalPrice}`;
+        
+        // Show modal
+        document.getElementById('paymentModal').style.display = 'block';
+        
+        // Store order ID for payment
+        document.getElementById('paymentModal').dataset.orderId = order._id;
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Failed to load payment details. Please try again.');
+    }
 }
 
 function closePaymentModal() {
-  const modal = document.getElementById('paymentModal');
-  modal.style.display = 'none';
-  currentPaymentOrder = null;
+    document.getElementById('paymentModal').style.display = 'none';
 }
 
 async function initiatePayment() {
-  if (!currentPaymentOrder) return;
-  
-  const spinner = document.getElementById('paymentLoadingSpinner');
-  const errorMsg = document.getElementById('paymentErrorMessage');
-  const payNowBtn = document.getElementById('payNowBtn');
-  
-  try {
-    spinner.style.display = 'block';
-    errorMsg.style.display = 'none';
-    payNowBtn.disabled = true;
-    
-    // Get payment details from backend
-    const response = await fetch(`${API_BASE_URL}/api/payments/create-order`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getToken()}`
-      },
-      body: JSON.stringify({
-        orderId: currentPaymentOrder._id,
-        amount: currentPaymentOrder.totalPrice * 100 // Convert to paise
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to create payment order');
-    }
-    
-    const paymentData = await response.json();
-    
-    // Initialize Razorpay
-    const options = {
-      key: paymentData.key,
-      amount: paymentData.amount,
-      currency: 'INR',
-      name: 'Farmers Market',
-      description: `Payment for Order #${currentPaymentOrder._id.slice(-6)}`,
-      order_id: paymentData.orderId,
-      handler: async function(response) {
-        try {
-          // Verify payment on backend
-          const verifyResponse = await fetch(`${API_BASE_URL}/api/payments/verify`, {
+    try {
+        const orderId = document.getElementById('paymentModal').dataset.orderId;
+        
+        // Create payment order
+        const response = await fetch(`${API_BASE_URL}/api/payments/create-order`, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${getToken()}`
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            body: JSON.stringify({
-              orderId: currentPaymentOrder._id,
-              paymentId: response.razorpay_payment_id,
-              signature: response.razorpay_signature
-            })
-          });
-          
-          if (!verifyResponse.ok) {
-            throw new Error('Payment verification failed');
-          }
-          
-          // Update order status to paid
-          const updateResponse = await fetch(`${API_BASE_URL}/api/orders/${currentPaymentOrder._id}/status`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${getToken()}`
-            },
-            body: JSON.stringify({ status: 'paid' })
-          });
-          
-          if (!updateResponse.ok) {
-            throw new Error('Failed to update order status');
-          }
-          
-          // Show success message and close modal
-          showSuccess('paymentSuccessMessage', 'Payment successful! Your order is now confirmed.');
-          setTimeout(() => {
-            closePaymentModal();
-            loadUserOrders(); // Refresh orders list
-          }, 2000);
-          
-        } catch (error) {
-          console.error('Payment verification error:', error);
-          showError('paymentErrorMessage', 'Payment verification failed. Please contact support.');
+            body: JSON.stringify({ orderId })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to create payment order');
         }
-      },
-      prefill: {
-        name: currentPaymentOrder.user.name,
-        email: currentPaymentOrder.user.email
-      },
-      theme: {
-        color: '#28a745'
-      }
-    };
-    
-    const razorpay = new Razorpay(options);
-    razorpay.open();
-    
-  } catch (error) {
-    console.error('Payment initiation error:', error);
-    showError('paymentErrorMessage', 'Failed to initiate payment. Please try again.');
-  } finally {
-    spinner.style.display = 'none';
-    payNowBtn.disabled = false;
-  }
+
+        const data = await response.json();
+
+        // Initialize Razorpay
+        const options = {
+            key: data.key_id,
+            amount: data.amount,
+            currency: data.currency,
+            name: "Farm Fresh",
+            description: "Payment for your order",
+            order_id: data.order_id,
+            handler: async function (response) {
+                try {
+                    // Verify payment
+                    const verifyResponse = await fetch(`${API_BASE_URL}/api/payments/verify`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({
+                            orderId, // internal order id
+                            razorpayOrderId: response.razorpay_order_id, // Razorpay order id
+                            paymentId: response.razorpay_payment_id,
+                            signature: response.razorpay_signature
+                        })
+                    });
+
+                    if (!verifyResponse.ok) {
+                        throw new Error('Payment verification failed');
+                    }
+
+                    // No need to update order status to 'paid' here
+                    // Just close modal, show success, and refresh orders
+                    closePaymentModal();
+                    showSuccess('Payment successful! Your order has been confirmed.');
+                    fetchUserOrders();
+                } catch (error) {
+                    console.error('Error:', error);
+                    showError('Payment verification failed. Please contact support.');
+                }
+            },
+            prefill: {
+                name: "Customer Name",
+                email: "customer@example.com"
+            },
+            theme: {
+                color: "#4CAF50"
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Failed to initiate payment. Please try again.');
+    }
 }
 
 // Update displayUserOrders to show payment button for accepted orders
 function displayUserOrders(orders) {
   const container = document.getElementById("orders-container");
   if (!container) return;
-  
+
   container.innerHTML = "";
 
   if (!orders || orders.length === 0) {
@@ -1191,16 +1077,31 @@ function displayUserOrders(orders) {
   orders.forEach(order => {
     const card = document.createElement("div");
     card.className = "order-card";
-    
+    card.dataset.orderId = order._id;
+
     let paymentButton = '';
     if (order.status === 'accepted') {
       paymentButton = `
-        <button class="primary-btn" onclick="showPaymentModal(${JSON.stringify(order)})">
+        <button class="primary-btn" onclick="showPaymentModal('${order._id}')">
           Pay Now
         </button>
       `;
     }
-    
+    let chatButton = '';
+    if (order.farmer && order.farmer._id) {
+      chatButton = `
+        <button class="secondary-btn" onclick="startChatWithFarmer('${order.farmer._id}', '${order._id}')">
+          Chat with Farmer
+        </button>
+      `;
+    }
+    // Add Track Order button
+    let trackButton = `<button class=\"secondary-btn\" onclick=\"window.location.href='../track-order/index.html?orderId=${order._id}'\">Track Order</button>`;
+
+    // Handle case where order.product is null (e.g., product was deleted)
+    const productImage = order.product && order.product.image ? order.product.image : PLACEHOLDER_IMAGE;
+    const productName = order.product && order.product.name ? order.product.name : 'Product Deleted';
+
     card.innerHTML = `
       <div class="order-header">
         <h3>Order #${order._id.slice(-6)}</h3>
@@ -1208,16 +1109,16 @@ function displayUserOrders(orders) {
       </div>
       <div class="order-details">
         <div class="product-info">
-          <img src="${order.product.image}" alt="${order.product.name}">
+          <img src="${productImage}" alt="${productName}">
           <div>
-            <h4>${order.product.name}</h4>
+            <h4>${productName}</h4>
             <p>Quantity: ${order.quantity}</p>
             <p>Total: ₹${order.totalPrice}</p>
           </div>
         </div>
         <div class="farmer-info">
-          <p><strong>Farmer:</strong> ${order.farmer.name}</p>
-          <p><strong>Location:</strong> ${order.farmer.location}</p>
+          <p><strong>Farmer:</strong> ${order.farmer && order.farmer.name ? order.farmer.name : 'Unknown Farmer'}</p>
+          <p><strong>Location:</strong> ${order.farmer && order.farmer.location ? order.farmer.location : 'Not specified'}</p>
           <p><strong>Delivery:</strong> ${order.deliveryMethod === 'pickup' ? 'Self Pickup' : 'Home Delivery'}</p>
           ${order.deliveryMethod === 'pickup' ? 
             `<p><strong>Pickup Time:</strong> ${order.deliveryDetails.pickupTime}</p>` :
@@ -1230,15 +1131,58 @@ function displayUserOrders(orders) {
             <p><strong>Special Instructions:</strong> ${order.specialInstructions}</p>
           </div>` : ''
         }
-        <div class="order-timeline">
-          <p><strong>Ordered on:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
-          ${order.updatedAt !== order.createdAt ? 
-            `<p><strong>Last updated:</strong> ${new Date(order.updatedAt).toLocaleString()}</p>` : ''
-          }
-        </div>
+      </div>
+      <div class="order-actions">
         ${paymentButton}
+        ${chatButton}
+        ${trackButton}
       </div>
     `;
     container.appendChild(card);
   });
+}
+
+// Add the chat function
+window.startChatWithFarmer = async function(farmerId, orderId) {
+  if (!farmerId || !orderId) {
+    alert("Could not start chat: missing farmer or order information.");
+    return;
+  }
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please log in to start a chat.");
+    return;
+  }
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/chat/start`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ farmerId, orderId })
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || "Failed to start chat");
+    }
+    const data = await response.json();
+    // Redirect to chat page (update path as needed)
+    window.location.href = `../chat/index.html?chatId=${data.chatId}`;
+  } catch (err) {
+    alert("Could not start chat with farmer. Please try again later.\n" + (err.message || ""));
+  }
+};
+
+// Track Order: scroll to and highlight the order card
+window.trackOrder = function(orderId) {
+  viewOrders();
+  setTimeout(() => {
+    const card = document.querySelector(`[data-order-id='${orderId}']`);
+    if (card) {
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      card.classList.add("highlight-order");
+      setTimeout(() => card.classList.remove("highlight-order"), 2000);
+    }
+  }, 300);
 }
