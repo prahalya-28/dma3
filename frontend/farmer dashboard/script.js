@@ -274,27 +274,29 @@ function editProduct(productId) {
 
 // Function to delete product
 async function deleteProduct(productId) {
-  if (!confirm("Are you sure you want to delete this product?")) return;
-
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  try {
-    const response = await fetch(`https://dma-qhwn.onrender.com/api/products/${productId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+  if (confirm("Are you sure you want to delete this product?")) {
+    try {
+      const response = await fetch(`https://dma-qhwn.onrender.com/api/products/${productId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
-    if (response.ok) {
-      loadFarmerProducts();
-    } else {
-      alert("Failed to delete product. Please try again.");
+      if (response.ok) {
+        alert("Product deleted successfully!");
+        loadFarmerProducts(); // Refresh the list
+      } else {
+        const error = await response.json();
+        alert(error.message || "Failed to delete product");
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      alert("Server error. Try again later.");
     }
-  } catch (error) {
-    console.error("Error deleting product:", error);
-    alert("Error deleting product. Please try again.");
   }
 }
 
@@ -311,15 +313,27 @@ const editProductForm = document.getElementById('editProductForm');
 const editProductMessage = document.getElementById('editProductMessage');
 
 function openEditModal(product) {
-  document.getElementById('editProductId').value = product._id;
-  document.getElementById('editProductName').value = product.name;
-  document.getElementById('editProductPrice').value = product.price;
-  document.getElementById('editProductCategory').value = product.category || '';
-  document.getElementById('editProductDescription').value = product.description || '';
-  document.getElementById('editProductQuantity').value = product.quantity || product.stock || 1;
-  document.getElementById('editProductImage').value = '';
-  editProductMessage.textContent = '';
-  editProductModal.style.display = 'flex';
+  const modal = document.getElementById("editProductModal");
+  if (!modal) return;
+
+  // Populate form with product data
+  document.getElementById("editProductId").value = product._id;
+  document.getElementById("editProductName").value = product.name;
+  document.getElementById("editProductPrice").value = product.price;
+  document.getElementById("editProductCategory").value = product.category;
+  document.getElementById("editProductDescription").value = product.description;
+  document.getElementById("editProductQuantity").value = product.quantity;
+
+  // Display current image or placeholder
+  const currentImagePreview = document.getElementById("currentImagePreview");
+  if (product.image) {
+    currentImagePreview.src = product.image;
+    currentImagePreview.style.display = "block";
+  } else {
+    currentImagePreview.style.display = "none";
+  }
+
+  modal.style.display = "block";
 }
 
 if (closeEditModal) {
@@ -336,48 +350,49 @@ window.onclick = function(event) {
 
 // Handle edit form submission
 if (editProductForm) {
-  editProductForm.onsubmit = async function(e) {
+  editProductForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const id = document.getElementById('editProductId').value;
-    const name = document.getElementById('editProductName').value.trim();
-    const price = parseFloat(document.getElementById('editProductPrice').value.trim());
-    const category = document.getElementById('editProductCategory').value.trim();
-    const description = document.getElementById('editProductDescription').value.trim();
-    const quantity = document.getElementById('editProductQuantity').value.trim();
-    const imageFile = document.getElementById('editProductImage').files[0];
+
+    const productId = document.getElementById("editProductId").value;
+    const name = document.getElementById("editProductName").value.trim();
+    const price = parseFloat(document.getElementById("editProductPrice").value.trim());
+    const category = document.getElementById("editProductCategory").value.trim();
+    const description = document.getElementById("editProductDescription").value.trim();
+    const quantity = document.getElementById("editProductQuantity").value.trim();
+    const imageFile = document.getElementById("editProductImage").files[0];
     let image;
     if (imageFile) {
       image = await toBase64(imageFile);
     }
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     const body = { name, price, category, description, quantity };
     if (image) body.image = image;
     try {
-      const response = await fetch(`https://dma-qhwn.onrender.com/api/products/${id}`, {
-        method: 'PUT',
+      const response = await fetch(`https://dma-qhwn.onrender.com/api/products/${productId}`, {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(body)
       });
       if (response.ok) {
-        editProductMessage.style.color = 'green';
-        editProductMessage.textContent = 'Product updated!';
+        editProductMessage.style.color = "green";
+        editProductMessage.textContent = "Product updated!";
         setTimeout(() => {
-          editProductModal.style.display = 'none';
+          editProductModal.style.display = "none";
           loadFarmerProducts();
         }, 800);
       } else {
         const err = await response.json();
-        editProductMessage.style.color = 'red';
-        editProductMessage.textContent = err.message || 'Failed to update product.';
+        editProductMessage.style.color = "red";
+        editProductMessage.textContent = err.message || "Failed to update product.";
       }
     } catch (error) {
-      editProductMessage.style.color = 'red';
-      editProductMessage.textContent = 'Server error.';
+      editProductMessage.style.color = "red";
+      editProductMessage.textContent = "Server error.";
     }
-  };
+  });
 }
 
 // Function to load farmer's orders
