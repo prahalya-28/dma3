@@ -1,8 +1,11 @@
 // Configuration
 const API_BASE_URL = "http://localhost:5000";
 
+// Define the order of statuses for comparison
+const statusOrder = ['pending', 'accepted', 'rejected', 'completed', 'cancelled'];
+
 // Add placeholder image as base64 data URL
-const PLACEHOLDER_IMAGE = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyA2VikpLCBxdWFsaXR5ID0gOTAK/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgAZABkAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1ldYWVpjZGVmZ2hpanNzdXZ3eHl6goSFhoeIiYqSk5SVl5iZmqKjpKWmp6ipqrKztLW2tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo0Njc4OTpDREVGRHSElKU1RVVldYWVpjZGVmZ2hpanNzdXZ3eHl6goSFhoeIiYqSk5SVl5iZmqKjpKWmp6ipqrKztLW2tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8vPz9PX29/j5+v/aAAwDAQACEAMBAD8A+r6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA//2Q==';
+const PLACEHOLDER_IMAGE = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyA2VikpLCBxdWFsaXR5ID0gOTAK/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgAZABkAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1ldYWVpjZGVmZ2hpanNzdXZ3eHl6goSFhoeIiYqSk5SVl5iZmqKjpKWmp6ipqrKztLW2tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanNzdXZ3eHl6goSFhoeIiYqSk5SVl5iZmqKjpKWmp6ipqrKztLW2tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/aAAwDAQACEAMBAD8A+r6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//2Q==';
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Check session and user role on page load
@@ -451,7 +454,7 @@ function openEditModal(product) {
     }
 }
 
-// Function to display farmer's orders ADDED AT NIGHT
+// Function to display farmer's orders
 function displayOrders(orders) {
     const container = document.getElementById('orders-container');
     container.innerHTML = ''; // Clear previous orders
@@ -461,10 +464,10 @@ function displayOrders(orders) {
         return;
     }
 
-     // Define the valid statuses that farmers can set via this interface
+    // Define the valid statuses that farmers can set via this interface
     const farmerEditableStatuses = ['shipped', 'out_for_delivery', 'delivered', 'delayed'];
     // Include statuses that are automatic but should be shown as the current state
-     const allDisplayStatuses = ['pending', 'accepted', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'delayed', 'rejected'];
+    const allDisplayStatuses = ['pending', 'accepted', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'delayed', 'rejected'];
 
     orders.forEach(order => {
         // Add a check to ensure the order object is valid and has a product
@@ -486,83 +489,71 @@ function displayOrders(orders) {
         // Generate status dropdown or display status text
         let statusContent;
         const isFarmerEditableStatus = farmerEditableStatuses.includes(order.status);
-         const isFinalState = ['delivered', 'rejected', 'cancelled'].includes(order.status);
+        const isFinalState = ['delivered', 'rejected', 'cancelled'].includes(order.status);
 
-        if (isFinalState) {
-            // For final states, just display the status text
-            statusContent = `<span class="order-status order-status-${order.status.toLowerCase().replace(/ /g, '-')}">${order.status.replace(/_/g, ' ').charAt(0).toUpperCase() + order.status.replace(/_/g, ' ').slice(1)}</span>`;
-        } else {
-             // For other states, display a dropdown
-            let statusDropdown = '<select class="order-status-select" onchange="updateOrderStatus(\''+order._id+'\', this.value)">';
-
-             // Include all statuses in the dropdown, disabling non-editable ones
+        if (order.status === 'pending') {
+            // For pending orders, show accept/reject buttons
+            statusContent = `
+                <div class="order-actions">
+                    <button onclick="updateOrderStatus('${order._id}', 'accepted')" class="accept-btn">Accept</button>
+                    <button onclick="updateOrderStatus('${order._id}', 'rejected')" class="reject-btn">Reject</button>
+                </div>
+            `;
+        } else if (isFarmerEditableStatus && !isFinalState) {
+            // For other editable statuses, show dropdown
+            let statusDropdown = '<select onchange="updateOrderStatus(\'' + order._id + '\', this.value)">';
             allDisplayStatuses.forEach(status => {
                 let disabled = false;
-
-                 // Disable statuses not relevant to the delivery method for home delivery statuses
-                 const homeDeliveryStatuses = ['shipped', 'out_for_delivery', 'delivered'];
-                 if (homeDeliveryStatuses.includes(status) && order.deliveryMethod !== 'home') {
-                     disabled = true;
-                 }
-
-                // Disable statuses not relevant to the delivery method for pickup statuses (assuming pickup statuses like 'ready_for_pickup', 'picked_up' exist)
-                // For now, assuming any non-home delivery status cannot transition to home delivery statuses
-                 if (!homeDeliveryStatuses.includes(status) && order.deliveryMethod === 'home') {
-                     // If it's a home delivery order, disable pickup specific statuses if they were in the list
-                     // Need to define pickup specific statuses if necessary
-                 }
-
-                 // Disable options that are before the current status in a typical flow (basic logic)
-                 // This prevents going backward (e.g., from shipped to accepted)
-                 const statusOrder = ['pending', 'accepted', 'processing', 'shipped', 'out_for_delivery', 'delayed', 'delivered', 'rejected', 'cancelled'];
-                 if (statusOrder.indexOf(status) < statusOrder.indexOf(order.status)) {
-                     disabled = true;
-                 }
-
-                // Ensure the current status is always selectable (unless it's a final state handled above)
-                 if (status === order.status && !isFinalState) {
-                     disabled = false;
-                 }
-                 
-                 // Ensure only farmer editable statuses are actually selectable by farmer if not in final state
-                 if (!farmerEditableStatuses.includes(status) && status !== order.status && !isFinalState) {
-                     disabled = true;
-                 }
-
+                // Disable statuses that come before the current status
+                if (statusOrder.indexOf(status) < statusOrder.indexOf(order.status)) {
+                    disabled = true;
+                }
+                // Ensure the current status is always selectable (unless it's a final state)
+                if (status === order.status && !isFinalState) {
+                    disabled = false;
+                }
+                // Ensure only farmer editable statuses are actually selectable by farmer if not in final state
+                if (!farmerEditableStatuses.includes(status) && status !== order.status && !isFinalState) {
+                    disabled = true;
+                }
                 statusDropdown += `<option value="${status}" ${order.status === status ? 'selected' : ''} ${disabled ? 'disabled' : ''}>${status.replace(/_/g, ' ').charAt(0).toUpperCase() + status.replace(/_/g, ' ').slice(1)}</option>`;
             });
             statusDropdown += '</select>';
             statusContent = statusDropdown;
+        } else {
+            // For non-editable statuses, just display the status
+            statusContent = `<span class="status-badge ${order.status}">${order.status.replace(/_/g, ' ').charAt(0).toUpperCase() + order.status.replace(/_/g, ' ').slice(1)}</span>`;
         }
 
         orderElement.innerHTML = `
             <div class="order-header">
                 <h3>Order #${order._id.slice(-6)}</h3>
-                <span class="order-status order-status-${order.status.toLowerCase().replace(/ /g, '-')}">${order.status.replace(/_/g, ' ').charAt(0).toUpperCase() + order.status.replace(/_/g, ' ').slice(1)}</span>
+                ${statusContent}
             </div>
-            <div class="order-details-container">
-                <div class="order-product-details">
-                    <img src="${productImage}" alt="${productAltText}" class="order-product-image">
-                    <p><strong>Product:</strong> ${productName}</p>
-                    <p><strong>Quantity:</strong> ${order.quantity} Kg</p>
-                    <p><strong>Total Price:</strong> ₹${order.totalPrice.toFixed(2)}</p>
+            <div class="order-details">
+                <div class="product-info">
+                    <img src="${productImage}" alt="${productAltText}">
+                    <div>
+                        <h4>${productName}</h4>
+                        <p>Quantity: ${order.quantity} kg</p>
+                        <p>Total: ₹${order.totalPrice}</p>
+                    </div>
                 </div>
-                <div class="order-customer-details">
+                <div class="customer-info">
                     <p><strong>Customer:</strong> ${customerName}</p>
                     <p><strong>Email:</strong> ${customerEmail}</p>
                     <p><strong>Delivery Method:</strong> ${order.deliveryMethod === 'pickup' ? 'Self Pickup' : 'Home Delivery'}</p>
-                    ${order.deliveryMethod === 'home' && order.deliveryDetails?.address ? `<p><strong>Delivery Address:</strong> ${order.deliveryDetails.address}</p>` : ''}
-                    ${order.deliveryMethod === 'home' && order.deliveryDetails?.phone ? `<p><strong>Customer Phone:</strong> ${order.deliveryDetails.phone}</p>` : ''}
-                    ${order.deliveryMethod === 'pickup' && order.deliveryDetails?.pickupTime ? `<p><strong>Pickup Time:</strong> ${order.deliveryDetails.pickupTime}</p>` : ''}
-                    ${order.specialInstructions ? `<p><strong>Special Instructions:</strong> ${order.specialInstructions}</p>` : ''}
+                    ${order.deliveryMethod === 'pickup' ? 
+                        `<p><strong>Pickup Time:</strong> ${order.deliveryDetails.pickupTime}</p>` :
+                        `<p><strong>Address:</strong> ${order.deliveryDetails.address}</p>
+                         <p><strong>Phone:</strong> ${order.deliveryDetails.phone}</p>`
+                    }
                 </div>
-            </div>
-            <div class="order-actions">
-                 ${order.user && order._id && order.status !== 'delivered' && order.status !== 'rejected' && order.status !== 'cancelled' ? // Show chat button for active orders if user and orderId exists
-                    `<button onclick="contactCustomer('${order._id}', '${order.user._id}')">Chat with Customer</button>`
-                    : ''}
-
-                ${!isFinalState ? statusContent : ''} <!-- Display dropdown or status text based on state -->
+                ${order.specialInstructions ? 
+                    `<div class="special-instructions">
+                        <p><strong>Special Instructions:</strong> ${order.specialInstructions}</p>
+                    </div>` : ''
+                }
             </div>
         `;
         container.appendChild(orderElement);

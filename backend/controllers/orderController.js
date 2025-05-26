@@ -108,49 +108,63 @@ export const updateOrderStatus = async (req, res) => {
             return res.status(403).json({ message: "Not authorized to update this order" });
         }
 
-        // --- Add payment status check for 'shipped' status --- 
-        if (status === 'shipped' && order.paymentStatus !== 'paid') {
-            return res.status(400).json({ message: "Cannot ship order: Payment has not been received." });
-        }
-        // ----------------------------------------------------
+        // Define valid status transitions
+        const validStatuses = {
+            pending: ['accepted', 'rejected'],
+            accepted: ['processing', 'shipped', 'out_for_delivery', 'delivered', 'delayed'],
+            processing: ['shipped', 'out_for_delivery', 'delivered', 'delayed'],
+            shipped: ['out_for_delivery', 'delivered', 'delayed'],
+            out_for_delivery: ['delivered', 'delayed'],
+            delayed: ['shipped', 'out_for_delivery', 'delivered']
+        };
 
-        // Validate status - ONLY allow farmer to set these delivery statuses
-        const validStatuses = ['shipped', 'out_for_delivery', 'delivered', 'delayed']; // Farmer can only set these
-        
-        if (!validStatuses.includes(status)) {
-            return res.status(400).json({ message: `Invalid status update for farmer. Allowed statuses are: ${validStatuses.join(', ')}` });
+        // Check if the status transition is valid
+        if (!validStatuses[order.status] || !validStatuses[order.status].includes(status)) {
+            return res.status(400).json({ 
+                message: `Invalid status transition from ${order.status} to ${status}. Valid transitions are: ${validStatuses[order.status].join(', ')}` 
+            });
         }
 
-        // Prevent changing away from 'delivered'
-        const finalStatuses = ['delivered', 'rejected']; // Assuming rejected/cancelled are not set via this route anymore
+        // Prevent changing from final states
+        const finalStatuses = ['delivered', 'rejected', 'cancelled'];
         if (finalStatuses.includes(order.status)) {
-             return res.status(400).json({ message: `Cannot change status from final state: ${order.status}` });
+            return res.status(400).json({ message: `Cannot change status from final state: ${order.status}` });
         }
 
         // Only update if status is changing
         if (order.status !== status) {
-             // Add current status to history before updating
-            order.statusHistory.push({ status: order.status, timestamp: new Date() });
-             // Update main order status
-             order.status = status;
+            // Add current status to history before updating
+            order.statusHistory.push({ 
+                status: order.status, 
+                timestamp: new Date(),
+                note: `Status changed from ${order.status} to ${status}`
+            });
 
-            // Handle quantity updates based on status change (assuming accepted/rejected are set elsewhere)
-            // If order is rejected or cancelled, restore product quantity (only if it was previously accepted)
-            // This logic might need adjustment if accepted/rejected/cancelled are handled differently now
-            /*
-            if ((status === 'rejected' || status === 'cancelled') && order.status === 'accepted') { // Check if new status is rejected/cancelled and old status was accepted
-                 const product = await Product.findById(order.product._id);
+            // Update main order status
+            order.status = status;
+
+            // If order is rejected, restore product quantity
+            if (status === 'rejected') {
+                const product = await Product.findById(order.product._id);
                 if (product) {
                     product.quantity += order.quantity;
                     await product.save();
                 }
             }
-            */
 
-             await order.save(); // Save the order with updated status and history
+            await order.save();
+
+            // Send email notification to customer
+            try {
+                await sendOrderStatusEmail(
+                    order.user.email,
+                    `Order #${order._id.slice(-6)} Status Update`,
+                    `Your order status has been updated to: ${status}`
+                );
+            } catch (emailError) {
+                console.error('Failed to send status update email:', emailError);
+            }
         }
-
-        console.log(`Notification sent to customer ${order.user.email}: Order #${order._id} status updated to ${status}`);
 
         res.json(order);
     } catch (error) {

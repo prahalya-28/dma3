@@ -111,8 +111,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 localStorage.setItem('userVerified', data.verified ? 'true' : 'false');
                 document.getElementById('otpMessage').style.display = 'block';
-                document.getElementById('otpValue').textContent = data.otp; // Display OTP for testing
-                alert('Registration successful! Please verify your email/phone with the OTP.');
+                document.getElementById('otpMessage').innerHTML = `
+                    <p>Registration successful! Please check your email for the verification OTP.</p>
+                    <p><a href="verify.html">Verify Email</a></p>
+                `;
             } else {
                 if (data.message.includes('Email')) {
                     document.getElementById('emailError').textContent = data.message;

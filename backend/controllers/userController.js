@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 import FarmerProfile from "../models/FarmerProfile.js";
+import { sendOtpEmail } from "../utils/emailService.js";
 
 // Register New User (Signup TC1-TC6, TC9)
 export const registerUser = async (req, res) => {
@@ -49,19 +50,24 @@ export const registerUser = async (req, res) => {
       isVerified: false
     });
 
-    // Simulate OTP for verification (TC6)
+    // Generate OTP for verification (TC6)
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.otp = otp;
     user.otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
     await user.save();
-    console.log(`Simulated sending OTP ${otp} to ${email}`);
+
+    // Send OTP via email
+    const emailSent = await sendOtpEmail(email, otp);
+    if (!emailSent) {
+      return res.status(500).json({ message: "Failed to send verification email" });
+    }
 
     res.status(201).json({
-      message: "User registered successfully",
-      verified: false,
-      otp: otp // Return OTP for testing
+      message: "User registered successfully. Please check your email for verification OTP.",
+      verified: false
     });
   } catch (err) {
+    console.error("Registration error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
