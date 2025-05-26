@@ -37,7 +37,7 @@ const io = new Server(server, {
 // Middleware
 app.use(cors({
   origin: "https://prahalya-28.github.io/dma3/", // Allow all origins for development
-  origin: "https://prahalya-28.github.io", // Allow all origins for development
+  //origin: "https://prahalya-28.github.io", // Allow all origins for development
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"]
