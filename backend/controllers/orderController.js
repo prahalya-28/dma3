@@ -108,6 +108,12 @@ export const updateOrderStatus = async (req, res) => {
             return res.status(403).json({ message: "Not authorized to update this order" });
         }
 
+        // --- Add payment status check for 'shipped' status --- 
+        if (status === 'shipped' && order.paymentStatus !== 'paid') {
+            return res.status(400).json({ message: "Cannot ship order: Payment has not been received." });
+        }
+        // ----------------------------------------------------
+
         // Validate status - ONLY allow farmer to set these delivery statuses
         const validStatuses = ['shipped', 'out_for_delivery', 'delivered', 'delayed']; // Farmer can only set these
         
@@ -116,7 +122,7 @@ export const updateOrderStatus = async (req, res) => {
         }
 
         // Prevent changing away from 'delivered'
-        const finalStatuses = ['delivered', 'rejected', 'cancelled']; // Assuming rejected/cancelled are not set via this route anymore
+        const finalStatuses = ['delivered', 'rejected']; // Assuming rejected/cancelled are not set via this route anymore
         if (finalStatuses.includes(order.status)) {
              return res.status(400).json({ message: `Cannot change status from final state: ${order.status}` });
         }

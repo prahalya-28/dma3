@@ -116,13 +116,18 @@ h3 {
     color: white;
 }
 
+/* Enhance visual of the completed item box */
+.timeline-item.completed .timeline-content {
+    background-color: #e9f7ef; /* Light green background */
+}
+
 /* Green line segment after completed items */
 .timeline-item.completed::after {
     content: '';
     position: absolute;
-    left: -30px; /* Align with the main line */
+    left: 21px; /* Adjust to align with the center of the main line */
     top: 40px; /* Start from the bottom edge of the icon */
-    height: 30px; /* Height to cover the margin-bottom to the next item */
+    height: calc(100% + 30px); /* Extend to cover the space to the next item */
     width: 2px;
     background: #28a745; /* Green color */
     z-index: 1; /* Ensure it's above the main grey line */
@@ -133,18 +138,15 @@ h3 {
     display: none; /* Hide the line after the last completed item */
 }
 
-/* Enhance visual of the completed item box */
-.timeline-item.completed {
-    background-color: #e9f7ef; /* Light green background */
-    border-left: 6px solid #28a745; /* Thicker Green left border */
-    padding-left: calc(50px - 6px); /* Adjust padding to account for the border */
-}
-
-/* Active status: icon is green */
+/* Active status: icon is green and box is green */
 .timeline-item.active .timeline-icon {
     background: #28a745;
     border-color: #28a745;
     color: white;
+}
+
+.timeline-item.active .timeline-content {
+     background-color: #e9f7ef; /* Light green background for active item as well */
 }
 
 /* Pending status: icon is yellow */

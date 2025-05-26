@@ -254,7 +254,7 @@ async function checkUserRole() {
     if (response.ok) {
       const userData = await response.json();
       console.log("User data received:", userData);
-      
+
       // Get button references
       const becomeSellerBtn = document.getElementById("becomeSellerBtn");
       const toggleRoleBtn = document.getElementById("toggleRoleBtn");
@@ -268,27 +268,25 @@ async function checkUserRole() {
       // Update localStorage user data with complete user info
       localStorage.setItem("user", JSON.stringify(userData));
 
-      console.log("Current role:", userData.role);
-      console.log("Has farmer profile:", userData.farmerProfile);
-      
-      // Update UI based on role and farmer profile
-      if (userData.role === "farmer") {
-        console.log("User is a farmer...");
-        becomeSellerBtn.style.display = "none";
-        toggleRoleBtn.style.display = "block";
-        // Set button text based on current role
-        toggleRoleBtn.textContent = "Switch to Customer View";
-      } else if (userData.role === "buyer" && userData.farmerProfile) {
-        console.log("User is a buyer with a farmer profile...");
-        becomeSellerBtn.style.display = "none";
-        toggleRoleBtn.style.display = "block";
-        // Set button text based on current role
-        toggleRoleBtn.textContent = "Switch to Seller View";
+      console.log("Current role (from profile):", userData.role);
+      console.log("Has farmer profile (from profile):", userData.farmerProfile);
+
+      // Determine button state and text based on farmerProfile presence
+      // On the customer homepage, if they have a farmer profile, they should see the option to switch TO seller view.
+      if (userData.farmerProfile) {
+         console.log("User has a farmer profile, showing toggle button on customer page.");
+         becomeSellerBtn.style.display = "none";
+         toggleRoleBtn.style.display = "block";
+         toggleRoleBtn.textContent = "Switch to Seller View";
       } else {
-        console.log("User is a customer without farmer profile...");
-        becomeSellerBtn.style.display = "block";
-        toggleRoleBtn.style.display = "none";
+         console.log("User does not have a farmer profile.");
+         becomeSellerBtn.style.display = "block";
+         toggleRoleBtn.style.display = "none";
       }
+
+      // The logic for setting the button text based on the *current active role* when on the farmer dashboard
+      // is handled within the farmer dashboard's script.js file.
+
     } else {
       const errorData = await response.json();
       console.error("Failed to fetch user data:", errorData);
@@ -405,7 +403,7 @@ async function checkSession() {
       throw new Error("Session expired");
     }
 
-    const data = await response.json();
+    const data = await response.json(); // Data from validate-token endpoint
     console.log("checkSession: Validate token API success data:", data);
 
     if (!data.valid) {
@@ -413,9 +411,10 @@ async function checkSession() {
       throw new Error("Invalid session");
     }
 
-    // Session is valid, continue
-    console.log("checkSession: Session is valid.");
-    return true;
+    // Session is valid, continue loading the current (customer) page
+    console.log("checkSession: Session is valid, proceeding with customer homepage.");
+    return true; // Indicate that the session is valid and page load should continue
+
   } catch (error) {
     console.error("checkSession failed:", error);
     localStorage.removeItem("token");

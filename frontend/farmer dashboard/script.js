@@ -461,6 +461,11 @@ function displayOrders(orders) {
         return;
     }
 
+     // Define the valid statuses that farmers can set via this interface
+    const farmerEditableStatuses = ['shipped', 'out_for_delivery', 'delivered', 'delayed'];
+    // Include statuses that are automatic but should be shown as the current state
+     const allDisplayStatuses = ['pending', 'accepted', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'delayed', 'rejected'];
+
     orders.forEach(order => {
         // Add a check to ensure the order object is valid and has a product
         if (!order || !order._id) {
@@ -476,11 +481,64 @@ function displayOrders(orders) {
 
         const orderElement = document.createElement('div');
         orderElement.classList.add('order-card');
-        // New structure based on the desired layout
+        orderElement.dataset.orderId = order._id; // Add order ID as data attribute
+
+        // Generate status dropdown or display status text
+        let statusContent;
+        const isFarmerEditableStatus = farmerEditableStatuses.includes(order.status);
+         const isFinalState = ['delivered', 'rejected', 'cancelled'].includes(order.status);
+
+        if (isFinalState) {
+            // For final states, just display the status text
+            statusContent = `<span class="order-status order-status-${order.status.toLowerCase().replace(/ /g, '-')}">${order.status.replace(/_/g, ' ').charAt(0).toUpperCase() + order.status.replace(/_/g, ' ').slice(1)}</span>`;
+        } else {
+             // For other states, display a dropdown
+            let statusDropdown = '<select class="order-status-select" onchange="updateOrderStatus(\''+order._id+'\', this.value)">';
+
+             // Include all statuses in the dropdown, disabling non-editable ones
+            allDisplayStatuses.forEach(status => {
+                let disabled = false;
+
+                 // Disable statuses not relevant to the delivery method for home delivery statuses
+                 const homeDeliveryStatuses = ['shipped', 'out_for_delivery', 'delivered'];
+                 if (homeDeliveryStatuses.includes(status) && order.deliveryMethod !== 'home') {
+                     disabled = true;
+                 }
+
+                // Disable statuses not relevant to the delivery method for pickup statuses (assuming pickup statuses like 'ready_for_pickup', 'picked_up' exist)
+                // For now, assuming any non-home delivery status cannot transition to home delivery statuses
+                 if (!homeDeliveryStatuses.includes(status) && order.deliveryMethod === 'home') {
+                     // If it's a home delivery order, disable pickup specific statuses if they were in the list
+                     // Need to define pickup specific statuses if necessary
+                 }
+
+                 // Disable options that are before the current status in a typical flow (basic logic)
+                 // This prevents going backward (e.g., from shipped to accepted)
+                 const statusOrder = ['pending', 'accepted', 'processing', 'shipped', 'out_for_delivery', 'delayed', 'delivered', 'rejected', 'cancelled'];
+                 if (statusOrder.indexOf(status) < statusOrder.indexOf(order.status)) {
+                     disabled = true;
+                 }
+
+                // Ensure the current status is always selectable (unless it's a final state handled above)
+                 if (status === order.status && !isFinalState) {
+                     disabled = false;
+                 }
+                 
+                 // Ensure only farmer editable statuses are actually selectable by farmer if not in final state
+                 if (!farmerEditableStatuses.includes(status) && status !== order.status && !isFinalState) {
+                     disabled = true;
+                 }
+
+                statusDropdown += `<option value="${status}" ${order.status === status ? 'selected' : ''} ${disabled ? 'disabled' : ''}>${status.replace(/_/g, ' ').charAt(0).toUpperCase() + status.replace(/_/g, ' ').slice(1)}</option>`;
+            });
+            statusDropdown += '</select>';
+            statusContent = statusDropdown;
+        }
+
         orderElement.innerHTML = `
             <div class="order-header">
                 <h3>Order #${order._id.slice(-6)}</h3>
-                <span class="order-status order-status-${order.status.toLowerCase().replace(/ /g, '-')}">${order.status}</span>
+                <span class="order-status order-status-${order.status.toLowerCase().replace(/ /g, '-')}">${order.status.replace(/_/g, ' ').charAt(0).toUpperCase() + order.status.replace(/_/g, ' ').slice(1)}</span>
             </div>
             <div class="order-details-container">
                 <div class="order-product-details">
@@ -500,17 +558,11 @@ function displayOrders(orders) {
                 </div>
             </div>
             <div class="order-actions">
-                ${order.status === 'pending' ?
-                    `<button onclick="updateOrderStatus('${order._id}', 'accepted')">Accept</button>
-                     <button onclick="updateOrderStatus('${order._id}', 'rejected')">Reject</button>`
-                    : ''}
-                ${order.status === 'accepted' || order.status === 'shipped' ? // Combine accepted and shipped for completed button
-                     `<button onclick="updateOrderStatus('${order._id}', 'completed')">Mark as Completed</button>`
-                     : ''}
-                 
-                ${order.user && order._id && order.status !== 'completed' && order.status !== 'rejected' && order.status !== 'cancelled' ? // Show chat button for active orders if user and orderId exists
+                 ${order.user && order._id && order.status !== 'delivered' && order.status !== 'rejected' && order.status !== 'cancelled' ? // Show chat button for active orders if user and orderId exists
                     `<button onclick="contactCustomer('${order._id}', '${order.user._id}')">Chat with Customer</button>`
                     : ''}
+
+                ${!isFinalState ? statusContent : ''} <!-- Display dropdown or status text based on state -->
             </div>
         `;
         container.appendChild(orderElement);
