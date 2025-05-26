@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://dma-qhwn.onrender.com";
 
 // Add placeholder image as base64 data URL at the top of the file
 const PLACEHOLDER_IMAGE = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2NjIpLCBxdWFsaXR5ID0gOTAK/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgAZABkAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A+t6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA//2Q==';
@@ -167,7 +167,7 @@ function placeOrder() {
   const estimatedDeliveryDate = new Date();
   estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + 3);
 
-  fetch("http://localhost:5000/api/orders", {
+  fetch("https://dma-qhwn.onrender.com/api/orders", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -197,7 +197,7 @@ async function goToFarmerRegistration() {
 
   try {
     // Check user's current role and profile
-    const response = await fetch("http://localhost:5000/api/users/profile", {
+    const response = await fetch("https://dma-qhwn.onrender.com/api/users/profile", {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -245,7 +245,7 @@ async function checkUserRole() {
 
   try {
     console.log("Checking user role...");
-    const response = await fetch("http://localhost:5000/api/users/profile", {
+    const response = await fetch("https://dma-qhwn.onrender.com/api/users/profile", {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -932,7 +932,7 @@ async function loadUserOrders() {
   if (!token) return;
 
   try {
-    const response = await fetch("http://localhost:5000/api/orders/myorders", {
+    const response = await fetch("https://dma-qhwn.onrender.com/api/orders/myorders", {
       headers: {
         Authorization: `Bearer ${token}`
       }

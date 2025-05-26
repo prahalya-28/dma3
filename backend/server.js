@@ -40,7 +40,7 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
-      "http://localhost:3000",
+      "http://locallocalhost:3000",
       "http://127.0.0.1:5501",
       "http://localhost:5501"
     ],
@@ -63,6 +63,7 @@ app.use(cors({
   origin: (origin, callback) => {
     //nsole.log('cors middleware: Checking origin for request path:', req.path, 'Origin:', origin); // Debug log
     const allowedOrigins = [
+      "https://prahalya-28.github.io",
       "http://localhost:3000",
       "http://127.0.0.1:5501",
       "http://localhost:5501"

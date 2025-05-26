@@ -165,7 +165,7 @@
                 const estimatedDeliveryDate = new Date();
                 estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + 3);
 
-                const response = await fetch('http://localhost:5000/api/orders', {
+                const response = await fetch('https://dma-qhwn.onrender.com/api/orders', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -206,7 +206,7 @@
             let farmerId = product.farmer?._id;
             if (!farmerId && product._id) {
                 try {
-                    const response = await fetch(`http://localhost:5000/api/products/${product._id}`);
+                    const response = await fetch(`https://dma-qhwn.onrender.com/api/products/${product._id}`);
                     if (response.ok) {
                         product = await response.json();
                         farmerId = product.farmer?._id || product.farmer;
@@ -218,7 +218,7 @@
                 return;
             }
             try {
-                const response = await fetch('http://localhost:5000/api/chat/start', {
+                const response = await fetch('https://dma-qhwn.onrender.com/api/chat/start', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -79,7 +79,7 @@ async function placeOrder() {
         estimatedDeliveryDate: estimatedDeliveryDate.toISOString()
     };
     try {
-        const response = await fetch('http://localhost:5000/api/orders', {
+        const response = await fetch('https://dma-qhwn.onrender.com/api/orders', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

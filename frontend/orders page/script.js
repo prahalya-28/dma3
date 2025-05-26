@@ -21,7 +21,7 @@ async function loadOrders() {
         return;
     }
     try {
-        const response = await fetch('http://localhost:5000/api/orders/farmer-orders', {
+        const response = await fetch('https://dma-qhwn.onrender.com/api/orders/farmer-orders', {
             headers: { Authorization: `Bearer ${token}` }
         });
         if (response.ok) {
@@ -157,7 +157,7 @@ function filterOrders() {
 async function updateOrderStatus(orderId, status) {
     const token = localStorage.getItem('token');
     try {
-        const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+        const response = await fetch(`https://dma-qhwn.onrender.com/api/orders/${orderId}/status`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

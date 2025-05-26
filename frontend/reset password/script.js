@@ -11,7 +11,7 @@ async function requestResetToken() {
     return;
   }
   try {
-    const response = await fetch("http://localhost:5000/api/users/request-password-reset", {
+    const response = await fetch("https://dma-qhwn.onrender.com/api/users/request-password-reset", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ emailOrUsername }),
@@ -59,7 +59,7 @@ async function resetPassword() {
     return;
   }
   try {
-    const response = await fetch("http://localhost:5000/api/users/reset-password-token", {
+    const response = await fetch("https://dma-qhwn.onrender.com/api/users/reset-password-token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token, newPassword }),

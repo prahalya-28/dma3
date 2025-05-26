@@ -95,7 +95,7 @@
             async function fetchAndShowProfile() {
                 try {
                     const token = localStorage.getItem('token');
-                    const res = await fetch('http://localhost:5000/api/users/profile', {
+                    const res = await fetch('https://dma-qhwn.onrender.com/api/users/profile', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     user = await res.json();
@@ -242,7 +242,7 @@
                         updateData.farmName = newFarmName;
                         updateData.location = newLocation;
                     }
-                    const res = await fetch('http://localhost:5000/api/users/profile', {
+                    const res = await fetch('https://dma-qhwn.onrender.com/api/users/profile', {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',

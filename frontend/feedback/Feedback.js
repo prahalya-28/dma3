@@ -13,7 +13,7 @@ class Feedback {
 
   async loadFeedback() {
     try {
-      const response = await fetch(`http://localhost:5000/api/feedback/product/${this.productId}`);
+      const response = await fetch(`https://dma-qhwn.onrender.com/api/feedback/product/${this.productId}`);
       if (!response.ok) throw new Error('Failed to load feedback');
       this.feedback = await response.json();
     } catch (error) {
@@ -24,7 +24,7 @@ class Feedback {
 
   async submitFeedback(rating, comment) {
     try {
-      const response = await fetch('http://localhost:5000/api/feedback', {
+      const response = await fetch('https://dma-qhwn.onrender.com/api/feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

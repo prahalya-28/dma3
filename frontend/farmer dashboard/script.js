@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://dma-qhwn.onrender.com";
 
 // Define the order of statuses for comparison
 const statusOrder = ['pending', 'accepted', 'rejected', 'completed', 'cancelled'];
@@ -177,7 +177,7 @@ async function loadFarmerOrders() {
   container.innerHTML = "<p>Loading orders...</p>";
 
   try {
-    const response = await fetch("http://localhost:5000/api/orders/farmer-orders", {
+    const response = await fetch("https://dma-qhwn.onrender.com/api/orders/farmer-orders", {
       headers: {
         Authorization: `Bearer ${token}`
       }

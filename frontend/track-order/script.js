@@ -22,7 +22,7 @@ async function loadOrderDetails(id) {
 
     try {
         // TC2: Handle invalid tracking ID
-        const response = await fetch(`http://localhost:5000/api/orders/${id}`, {
+        const response = await fetch(`https://dma-qhwn.onrender.com/api/orders/${id}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

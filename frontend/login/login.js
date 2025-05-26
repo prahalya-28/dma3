@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Test server connectivity
     async function testServerConnection() {
         try {
-            const response = await fetch('http://localhost:5000/test');
+            const response = await fetch('https://dma-qhwn.onrender.com/test');
             await response.json();
             return true;
         } catch (error) {
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Validate session token
     async function validateToken(token) {
         try {
-            const response = await fetch('http://localhost:5000/api/users/validate-token', {
+            const response = await fetch('https://dma-qhwn.onrender.com/api/users/validate-token', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json', 
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/users/login', {
+            const response = await fetch('https://dma-qhwn.onrender.com/api/users/login', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json', 

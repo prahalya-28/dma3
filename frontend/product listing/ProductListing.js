@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Show loading state
             productList.innerHTML = '<p>Loading products...</p>';
 
-            const response = await fetch("http://localhost:5000/api/products/my-products", {
+            const response = await fetch("https://dma-qhwn.onrender.com/api/products/my-products", {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 throw new Error("Please log in to delete a product.");
             }
 
-            const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
+            const response = await fetch(`https://dma-qhwn.onrender.com/api/products/${productId}`, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${token}`
@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Show loading message
             editProductMessage.textContent = "Loading product details...";
             
-            const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
+            const response = await fetch(`https://dma-qhwn.onrender.com/api/products/${productId}`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 editProductMessage.textContent = "Updating product...";
                 editProductMessage.style.color = "black";
                 
-                const response = await fetch(`http://localhost:5000/api/products/${id}`, {
+                const response = await fetch(`https://dma-qhwn.onrender.com/api/products/${id}`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
@@ -389,7 +389,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const response = await fetch("http://localhost:5000/api/products", {
+            const response = await fetch("https://dma-qhwn.onrender.com/api/products", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

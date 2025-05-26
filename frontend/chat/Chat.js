@@ -15,7 +15,7 @@ class Chat {
   }
 
   connectSocket() {
-    this.socket = io('http://localhost:5000', {
+    this.socket = io('https://dma-qhwn.onrender.com', {
       auth: {
         token: this.token
       }
@@ -41,7 +41,7 @@ class Chat {
 
   async loadChatHistory() {
     try {
-      const response = await fetch(`http://localhost:5000/api/chat/${this.chatId}`, {
+      const response = await fetch(`https://dma-qhwn.onrender.com/api/chat/${this.chatId}`, {
         headers: {
           'Authorization': `Bearer ${this.token}`
         }
