@@ -29,13 +29,15 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://prahalya-28.github.io/dma3/",
+    
   },
 });
 
 // Middleware
 app.use(cors({
   origin: "https://prahalya-28.github.io/dma3/", // Allow all origins for development
+  origin: "https://prahalya-28.github.io", // Allow all origins for development
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"]
@@ -71,7 +73,7 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`Test endpoint: http://localhost:${PORT}/test`);
+  console.log(`Test endpoint: https://dma-qhwn.onrender.com:${PORT}/test`);
 });
 
 // Graceful Shutdown
