@@ -308,26 +308,24 @@ export const requestPasswordReset = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    const token = crypto.randomBytes(32).toString("hex");
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    // Generate a 6-digit OTP instead of a token
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp; // Store the OTP in the 'otp' field
+    user.otpExpires = new Date(Date.now() + 5 * 60 * 1000); // Set OTP expiry (e.g., 5 minutes)
     await user.save();
 
-    // Send the password reset email (REPLACE the console.log below)
-    const emailSent = await sendPasswordResetEmail(user.email, token); // Call the new function
+    // Send the OTP email (use the sendOtpEmail function)
+    const emailSent = await sendOtpEmail(user.email, otp); // Call the sendOtpEmail function
     if (!emailSent) {
-        // If email sending fails, you might want to return an error or log it
-        console.error('Failed to send password reset email for user:', user.email);
-        // Decide if you want to return an error to the frontend here.
-        // For now, we'll proceed and let the frontend show a general message.
+        console.error('Failed to send OTP email for user:', user.email);
+        // You might want to return a specific error to the frontend here if email sending is critical
+        return res.status(500).json({ message: "Failed to send OTP email." });
     }
 
-
-    // console.log(`Simulated sending reset token ${token} to ${emailOrUsername}`); // Remove or comment out this line
-    res.json({ message: "Password reset email sent. Please check your inbox." }); // Update success message
+    res.json({ message: "OTP sent to your email. Please check your inbox." }); // Update success message
   } catch (error) {
-    console.error("Error in requestPasswordReset:", error);
-    res.status(500).json({ message: "Server error while requesting password reset." }); // More specific error message
+    console.error("Error in requestPasswordReset (OTP flow):", error); // Update log message
+    res.status(500).json({ message: "Server error while requesting password reset (OTP)." }); // More specific error message
   }
 };
 
