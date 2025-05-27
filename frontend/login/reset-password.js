@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('otpError').textContent = '';
         document.getElementById('passwordError').textContent = '';
         document.getElementById('confirmPasswordError').textContent = '';
+        document.getElementById('successMessage').textContent = '';
     }
 
     // Validate password
@@ -18,34 +19,39 @@ document.addEventListener('DOMContentLoaded', () => {
     sendOtpBtn.addEventListener('click', async () => {
         clearErrors();
         const resetEmail = document.getElementById('resetEmail').value;
+        const emailError = document.getElementById('emailError');
+        const successMessageElem = document.getElementById('successMessage');
 
         if (!resetEmail) {
-            document.getElementById('emailError').textContent = 'Please enter your email or username';
+            emailError.textContent = 'Please enter your email or username';
             return;
         }
 
         try {
-            const response = await fetch('https://dma-qhwn.onrender.com/api/users/reset-password', {
+            const response = await fetch('https://dma-qhwn.onrender.com/api/users/request-password-reset', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ identifier: resetEmail })
+                body: JSON.stringify({ emailOrUsername: resetEmail })
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                document.getElementById('emailError').textContent = errorData.message || 'Failed to send OTP';
-                return;
-            }
+            const data = await response.json();
 
-            alert('OTP sent to your email/phone (simulated).');
-            document.getElementById('otp').style.display = 'block';
-            document.getElementById('newPassword').style.display = 'block';
-            document.getElementById('confirmNewPassword').style.display = 'block';
-            document.getElementById('resetPasswordBtn').style.display = 'block';
-            document.getElementById('sendOtpBtn').style.display = 'none';
+            if (response.ok) {
+                successMessageElem.textContent = data.message;
+                successMessageElem.style.color = 'green';
+                document.getElementById('otp').style.display = 'block';
+                document.getElementById('newPassword').style.display = 'block';
+                document.getElementById('confirmNewPassword').style.display = 'block';
+                document.getElementById('resetPasswordBtn').style.display = 'block';
+                document.getElementById('sendOtpBtn').style.display = 'none';
+            } else {
+                emailError.textContent = data.message || 'Failed to request password reset.';
+                emailError.style.color = 'red';
+            }
         } catch (error) {
-            console.error('OTP send error:', error);
-            alert('Server error, try again later');
+            console.error('Forgot password request error:', error);
+            emailError.textContent = 'Server error. Please try again later.';
+            emailError.style.color = 'red';
         }
     });
 
