@@ -641,7 +641,6 @@ window.deleteProduct = deleteProduct;
 window.updateOrderStatus = updateOrderStatus;
 window.contactCustomer = contactCustomer;
 window.openEditModal = openEditModal;
-window.showAddProductForm = showAddProductForm;
 
 // Function to update order status
 async function updateOrderStatus(orderId, status) {
@@ -713,101 +712,3 @@ async function contactCustomer(orderId, customerId) {
         alert(`Failed to start chat: ${error.message}`);
     }
 }
-
-// Function to show the add product form (modal)
-function showAddProductForm() {
-    const modal = document.getElementById('addProductModal');
-    if (modal) {
-        modal.style.display = 'flex'; // Use flex to center the modal content
-    }
-}
-
-// Add event listener to close the add product modal
-document.addEventListener('DOMContentLoaded', () => {
-    const closeAddModalSpan = document.getElementById('closeAddModal');
-    const addProductModal = document.getElementById('addProductModal');
-
-    if (closeAddModalSpan && addProductModal) {
-        closeAddModalSpan.onclick = function() {
-            addProductModal.style.display = 'none';
-        }
-
-        // Close modal if user clicks outside of the modal content
-        window.onclick = function(event) {
-            if (event.target == addProductModal) {
-                addProductModal.style.display = 'none';
-            }
-        }
-    }
-
-    // Add event listener for the add product form submission
-    const addProductForm = document.getElementById('addProductForm');
-    if (addProductForm) {
-        addProductForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const productName = document.getElementById('addProductName').value;
-            const productPrice = parseFloat(document.getElementById('addProductPrice').value);
-            const productCategory = document.getElementById('addProductCategory').value;
-            const productDescription = document.getElementById('addProductDescription').value;
-            const productImageInput = document.getElementById('addProductImage');
-            const productQuantity = parseInt(document.getElementById('addProductQuantity').value);
-            const addProductMessageElem = document.getElementById('addProductMessage');
-
-            addProductMessageElem.textContent = ''; // Clear previous messages
-
-            // Basic client-side validation
-            if (!productName || isNaN(productPrice) || productPrice <= 0 || !productCategory || !productDescription || !productImageInput.files.length === 0 || isNaN(productQuantity) || productQuantity <= 0) {
-                 addProductMessageElem.textContent = 'Please fill out all fields with valid data.';
-                 addProductMessageElem.style.color = 'red';
-                 return;
-            }
-
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert('Session expired. Please log in again.');
-                window.location.href = '../login/index.html';
-                return;
-            }
-
-            // Prepare form data for image upload
-            const formData = new FormData();
-            formData.append('name', productName);
-            formData.append('price', productPrice);
-            formData.append('category', productCategory);
-            formData.append('description', productDescription);
-            formData.append('image', productImageInput.files[0]); // Append the selected file
-            formData.append('quantity', productQuantity);
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/products`, {
-                    method: 'POST',
-                    headers: { // No Content-Type header for FormData
-                       'Authorization': `Bearer ${token}`
-                    },
-                    body: formData // Send FormData object
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    addProductMessageElem.textContent = 'Product added successfully!';
-                    addProductMessageElem.style.color = 'green';
-                    addProductForm.reset(); // Clear the form
-                    loadFarmerProducts(); // Refresh the product list
-                    // Optionally close the modal after a short delay
-                    setTimeout(() => {
-                         if (addProductModal) addProductModal.style.display = 'none';
-                    }, 2000);
-                } else {
-                    addProductMessageElem.textContent = data.message || 'Failed to add product.';
-                    addProductMessageElem.style.color = 'red';
-                }
-            } catch (error) {
-                console.error('Error adding product:', error);
-                addProductMessageElem.textContent = 'Server error. Please try again later.';
-                addProductMessageElem.style.color = 'red';
-            }
-        });
-    }
-});
