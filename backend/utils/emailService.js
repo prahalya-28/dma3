@@ -78,3 +78,33 @@ export const sendOrderStatusEmail = async (email, subject, message) => {
     return false;
   }
 };
+
+// Function to send password reset email
+export const sendPasswordResetEmail = async (email, resetToken) => {
+  const resetLink = `https://prahalya-28.github.io/dma3/frontend/forgot%20password/verify.html?token=${resetToken}`; // Using your GitHub Pages URL for the verify page
+  const mailOptions = {
+    from: 'greengoldforfarmers@gmail.com',
+    to: email,
+    subject: 'Password Reset Request for DMA3',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Password Reset Request</h2>
+        <p>You requested a password reset for your DMA3 account. Please click the link below to reset your password:</p>
+        <p><a href="${resetLink}" style="display: inline-block; background-color: #28a745; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a></p>
+        <p>This link will expire in 10 minutes.</p>
+        <p>If you did not request a password reset, please ignore this email.</p>
+        <hr style="border: 1px solid #eee; margin: 20px 0;">
+        <p style="color: #666; font-size: 12px;">This is an automated email, please do not reply.</p>
+      </div>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Password reset email sent successfully to', email);
+    return true;
+  } catch (error) {
+    console.error('Error sending password reset email to', email, ':', error);
+    return false;
+  }
+};

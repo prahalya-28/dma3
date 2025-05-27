@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 import FarmerProfile from "../models/FarmerProfile.js";
-import { sendOtpEmail } from "../utils/emailService.js";
+import { sendOtpEmail, sendOrderStatusEmail, sendPasswordResetEmail } from "../utils/emailService.js";
 
 // Register New User (Signup TC1-TC6, TC9)
 export const registerUser = async (req, res) => {
@@ -312,10 +312,22 @@ export const requestPasswordReset = async (req, res) => {
     user.resetPasswordToken = token;
     user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     await user.save();
-    console.log(`Simulated sending reset token ${token} to ${emailOrUsername}`); // For testing
-    res.json({ message: "Reset token sent" }); // Don't return token for security
+
+    // Send the password reset email (REPLACE the console.log below)
+    const emailSent = await sendPasswordResetEmail(user.email, token); // Call the new function
+    if (!emailSent) {
+        // If email sending fails, you might want to return an error or log it
+        console.error('Failed to send password reset email for user:', user.email);
+        // Decide if you want to return an error to the frontend here.
+        // For now, we'll proceed and let the frontend show a general message.
+    }
+
+
+    // console.log(`Simulated sending reset token ${token} to ${emailOrUsername}`); // Remove or comment out this line
+    res.json({ message: "Password reset email sent. Please check your inbox." }); // Update success message
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Error in requestPasswordReset:", error);
+    res.status(500).json({ message: "Server error while requesting password reset." }); // More specific error message
   }
 };
 

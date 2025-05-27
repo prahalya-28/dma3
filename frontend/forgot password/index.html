@@ -30,18 +30,54 @@
     </div>
 
     <script>
-        function sendCode() {
-            const email = document.getElementById("email").value;
+        async function sendCode() {
+            const emailOrUsername = document.getElementById("email").value.trim();
             const emailError = document.getElementById("emailError");
-            
-            if (!email.includes("@") || !email.includes(".")) {
-                emailError.textContent = "Enter a valid email address.";
+            const verificationSection = document.getElementById("verificationSection");
+            const addProductMessageElem = document.getElementById('addProductMessage');
+
+            emailError.textContent = "";
+            if (addProductMessageElem) addProductMessageElem.textContent = '';
+            verificationSection.style.display = "none";
+            document.getElementById("resetPasswordSection").style.display = "none";
+
+            if (!emailOrUsername) {
+                emailError.textContent = "Please enter your email or username.";
                 return;
             }
-            
-            emailError.textContent = "";
-            alert("Verification code sent to " + email);
-            document.getElementById("verificationSection").style.display = "block";
+
+            try {
+                const response = await fetch('https://dma-qhwn.onrender.com/api/users/request-password-reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ emailOrUsername: emailOrUsername })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message);
+                } else {
+                    alert(data.message || 'Failed to request password reset.');
+                    if (addProductMessageElem) {
+                        addProductMessageElem.textContent = data.message || 'Failed to request password reset.';
+                        addProductMessageElem.style.color = 'red';
+                    } else {
+                        emailError.textContent = data.message || 'Failed to request password reset.';
+                    }
+                }
+            } catch (error) {
+                console.error('Forgot password request error:', error);
+                alert('Server error, try again later.');
+                if (addProductMessageElem) {
+                    addProductMessageElem.textContent = 'Server error. Please try again later.';
+                    addProductMessageElem.style.color = 'red';
+                } else {
+                    emailError.textContent = 'Server error. Please try again later.';
+                }
+            }
         }
 
         function verifyCode() {
