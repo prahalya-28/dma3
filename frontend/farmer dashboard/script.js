@@ -499,6 +499,17 @@ function displayOrders(orders) {
                     <button onclick="updateOrderStatus('${order._id}', 'rejected')" class="reject-btn">Reject</button>
                 </div>
             `;
+        } else if (order.status === 'accepted' && order.deliveryMethod === 'home') {
+            // For accepted home delivery orders, show delivery status dropdown
+            let deliveryStatusDropdown = '<select onchange="updateOrderStatus(\'' + order._id + '\', this.value)">';
+            const deliveryStatuses = ['shipped', 'out_for_delivery', 'delivered', 'delayed'];
+            deliveryStatuses.forEach(status => {
+                 // Determine if the status should be selected based on the current order status
+                const isSelected = order.status === status;
+                deliveryStatusDropdown += `<option value="${status}" ${isSelected ? 'selected' : ''}>${status.replace(/_/g, ' ').charAt(0).toUpperCase() + status.replace(/_/g, ' ').slice(1)}</option>`;
+            });
+            deliveryStatusDropdown += '</select>';
+            statusContent = `<div><strong>Delivery Status:</strong> ${deliveryStatusDropdown}</div>`;
         } else if (isFarmerEditableStatus && !isFinalState) {
             // For other editable statuses, show dropdown
             let statusDropdown = '<select onchange="updateOrderStatus(\'' + order._id + '\', this.value)">';
