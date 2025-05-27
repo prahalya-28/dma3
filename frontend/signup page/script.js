@@ -92,8 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const userData = {
             role,
-            firstName,
-            lastName,
+            name: `${firstName} ${lastName}`, // <--- Add this line back
             address: country,
             mobile,
             email,
