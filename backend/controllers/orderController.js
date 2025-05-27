@@ -152,6 +152,24 @@ export const updateOrderStatus = async (req, res) => {
                 }
             }
 
+            // If order is accepted, decrease product quantity
+            if (status === 'accepted') {
+                const product = await Product.findById(order.product._id);
+                if (product) {
+                    if (product.quantity >= order.quantity) {
+                        product.quantity -= order.quantity;
+                        await product.save();
+                    } else {
+                        // This case should ideally be prevented by frontend validation or in createOrder,
+                        // but as a fallback, we could potentially reject the order or log a warning.
+                        console.warn(`Not enough product quantity (${product.quantity}) for order ${order._id}. Ordered: ${order.quantity}`);
+                        // Option 1: Automatically reject the order if quantity is insufficient (uncomment below)
+                        // order.status = 'rejected';
+                        // If auto-rejecting, you might want to inform the farmer/customer
+                    }
+                }
+            }
+
             await order.save();
 
             // Send email notification to customer
