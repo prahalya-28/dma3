@@ -252,11 +252,11 @@
                     });
                     const data = await res.json();
                     if (res.ok) {
+                        successMsg.textContent = 'Profile updated successfully!';
                         user = data;
                         localStorage.setItem('user', JSON.stringify(user));
                         showProfile();
                         cancelBtn.onclick();
-                        successMsg.textContent = 'Profile updated successfully!';
                     } else {
                         errorMsg.textContent = data.message || 'Failed to update profile.';
                     }

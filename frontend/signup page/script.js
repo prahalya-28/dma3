@@ -92,7 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const userData = {
             role,
-            name: `${firstName} ${lastName}`,
+            firstName,
+            lastName,
             address: country,
             mobile,
             email,

@@ -40,6 +40,7 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
+      "https://prahalya-28.github.io",
       "http://locallocalhost:3000",
       "http://127.0.0.1:5501",
       "http://localhost:5501"
