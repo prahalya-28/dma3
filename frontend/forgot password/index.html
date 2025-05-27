@@ -12,6 +12,7 @@
         <h2>Forgot Password</h2>
         <input type="email" id="email" placeholder="Enter Email ID" required>
         <p class="error" id="emailError"></p>
+        <p class="success" id="successMessage" style="color: green;"></p>
         <button onclick="sendCode()">Send Code</button>
         
         <div id="verificationSection" style="display: none;">
@@ -34,10 +35,10 @@
             const emailOrUsername = document.getElementById("email").value.trim();
             const emailError = document.getElementById("emailError");
             const verificationSection = document.getElementById("verificationSection");
-            const addProductMessageElem = document.getElementById('addProductMessage');
+            const successMessageElem = document.getElementById('successMessage');
 
             emailError.textContent = "";
-            if (addProductMessageElem) addProductMessageElem.textContent = '';
+            if (successMessageElem) successMessageElem.textContent = '';
             verificationSection.style.display = "none";
             document.getElementById("resetPasswordSection").style.display = "none";
 
@@ -58,24 +59,21 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert(data.message);
+                    if (successMessageElem) {
+                        successMessageElem.textContent = data.message;
+                        successMessageElem.style.color = 'green';
+                    }
                 } else {
-                    alert(data.message || 'Failed to request password reset.');
-                    if (addProductMessageElem) {
-                        addProductMessageElem.textContent = data.message || 'Failed to request password reset.';
-                        addProductMessageElem.style.color = 'red';
-                    } else {
+                    if (emailError) {
                         emailError.textContent = data.message || 'Failed to request password reset.';
+                        emailError.style.color = 'red';
                     }
                 }
             } catch (error) {
                 console.error('Forgot password request error:', error);
-                alert('Server error, try again later.');
-                if (addProductMessageElem) {
-                    addProductMessageElem.textContent = 'Server error. Please try again later.';
-                    addProductMessageElem.style.color = 'red';
-                } else {
+                if (emailError) {
                     emailError.textContent = 'Server error. Please try again later.';
+                    emailError.style.color = 'red';
                 }
             }
         }
